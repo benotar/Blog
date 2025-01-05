@@ -6,8 +6,9 @@
         <ImplicitUsings>enable</ImplicitUsings>
     </PropertyGroup>
 
+
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.0"/>
+      <ProjectReference Include="..\Blog.Persistence\Blog.Persistence.csproj" />
     </ItemGroup>
 
 </Project>

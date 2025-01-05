@@ -1,0 +1,36 @@
+version: '3.9'
+services:
+  
+  postgres_blog:
+    image: postgres:latest
+    container_name: postgres_blog
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_DB=BlogDb
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+    restart: always
+    volumes:
+      - blog_db_data:/var/lib/postgresql/data
+  
+  backend_blog:
+    container_name: blog
+    build:
+      context: ./src/Blog.Backend
+      dockerfile: Dockerfile
+    ports:
+      - '5000:5000'
+    environment:
+      - ASPNETCORE_ENVIRONMENT=DockerDevelopment
+      - DATABASE__HOST=postgres_blog
+      - DATABASE__USER=admin
+      - DATABASE__PASSWORD=admin
+      - DATABASE__DBNAME=BlogDb
+    depends_on:
+      - postgres_blog
+    restart: always
+
+  
+volumes:
+  blog_db_data:
