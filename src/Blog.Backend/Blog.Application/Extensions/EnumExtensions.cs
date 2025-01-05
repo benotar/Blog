@@ -16,3 +16,4 @@ public static partial class EnumExtensions
     [GeneratedRegex(@"(?<!^)(?=[A-Z])")]
     private static partial Regex MyRegex();
 }
+

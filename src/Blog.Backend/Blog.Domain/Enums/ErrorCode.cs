@@ -2,5 +2,6 @@
 
 public enum ErrorCode
 {
-    
+    InvalidModel,
+    UnexpectedError
 }
