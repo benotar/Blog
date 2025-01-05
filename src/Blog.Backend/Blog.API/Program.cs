@@ -1,4 +1,5 @@
 using Blog.API;
+using Blog.Application;
 using Blog.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -6,7 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddCustomConfigurations(builder.Configuration);
 
-builder.Services.AddPersistence(builder.Configuration);
+builder.Services
+    .AddApplication()
+    .AddPersistence(builder.Configuration);
 
 builder.Services.AddControllers();
 
