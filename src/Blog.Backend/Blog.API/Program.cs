@@ -28,10 +28,10 @@ app.UseExceptionHandler();
 
 app.MapControllers();
 
-// Apply migrations
-var scope = app.Services.CreateScope();
-await using var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-await dbContext.Database.MigrateAsync();
+// // Apply migrations
+// var scope = app.Services.CreateScope();
+// await using var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+// await dbContext.Database.MigrateAsync();
 
 // Standard route for the home page
 app.MapGet("/", () => $"Welcome to the Home Page Blog API!\nUTC Time: {DateTime.UtcNow}");

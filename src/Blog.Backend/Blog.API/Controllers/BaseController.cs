@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Blog.API.Controllers;
 
 [ApiController]
-[Route("[controller]")]
-public class WeatherForecastController : ControllerBase
+[Route("api/[controller]")]
+public class BaseController : ControllerBase
 {
     
 }
