@@ -1,7 +1,25 @@
 import {Link} from "react-router-dom";
 import {Button, Label, TextInput} from "flowbite-react";
+import {useState} from "react";
 
 export default function SignUp() {
+
+    const [formData, setFormData] = useState({});
+
+    const handleChange = (e) => {
+        setFormData({...formData, [e.target.id]: e.target.value});
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            
+        } catch (error) {
+
+        }
+    }
+
     return (
         <div className="min-h-screen mt-20">
             <div className="flex p-3 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5">
@@ -23,29 +41,32 @@ export default function SignUp() {
 
                 {/* Right */}
                 <div className="flex-1">
-                    <form className="flex flex-col gap-4">
+                    <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
                         <div>
                             <Label value="Your username"/>
                             <TextInput
                                 type="text"
                                 placeholder="Username"
                                 id="username"
+                                onChange={handleChange}
                             />
                         </div>
                         <div>
                             <Label value="Your email"/>
                             <TextInput
-                                type="text"
+                                type="email"
                                 placeholder="example@email.com"
                                 id="email"
+                                onChange={handleChange}
                             />
                         </div>
                         <div>
                             <Label value="Your password"/>
                             <TextInput
-                                type="text"
+                                type="password"
                                 placeholder="Password"
                                 id="password"
+                                onChange={handleChange}
                             />
                         </div>
                         <Button gradientDuoTone="purpleToPink" type="submit">

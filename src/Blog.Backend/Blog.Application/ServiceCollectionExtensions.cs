@@ -3,6 +3,7 @@ using Blog.Application.Common.Converters;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Services;
 using Blog.Application.Providers;
+using Blog.Application.Services;
 using Blog.Domain.Enums;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -15,7 +16,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IEncryptionProvider, HmacSha256Provider>();
         services.AddSingleton<IMomentProvider, MomentProvider>();
 
-        services.AddScoped<IUserService, IUserService>();
+        services.AddScoped<IUserService, UserService>();
         
         // Add JsonSerializerOptions 
         var jsonOptions = new JsonSerializerOptions

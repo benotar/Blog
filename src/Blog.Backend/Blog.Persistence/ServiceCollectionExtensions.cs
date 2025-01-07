@@ -1,5 +1,8 @@
 ﻿using Blog.Application.Configurations;
 using Blog.Application.Interfaces.DbContext;
+using Blog.Application.Interfaces.Repository;
+using Blog.Application.Interfaces.UnitOfWork;
+using Blog.Persistence.Repository;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +30,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IDbContext>(provider =>
             provider.GetRequiredService<AppDbContext>());
 
+
+        services.AddScoped<IUserRepository, UserRepository>();
+
+        // Add UoW
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         return services;
     }
