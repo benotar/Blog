@@ -1,22 +1,37 @@
-import {Link} from "react-router-dom";
-import {Button, Label, TextInput} from "flowbite-react";
+import {Link, useNavigate} from "react-router-dom";
+import {Alert, Button, Label, Spinner, TextInput} from "flowbite-react";
 import {useState} from "react";
+import $api from "../axios/axios.js";
+
 
 export default function SignUp() {
-
     const [formData, setFormData] = useState({});
+    const [errorMessage, setErrorMessage] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const navigate = useNavigate();
 
     const handleChange = (e) => {
-        setFormData({...formData, [e.target.id]: e.target.value});
+        setFormData({...formData, [e.target.id]: e.target.value.trim()});
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-
+        if (!formData.username || !formData.email || !formData.password) {
+            return setErrorMessage("Please fill out all fields.");
+        }
         try {
-            
+            setLoading(true);
+            setErrorMessage(null);
+            const {data} = await $api.post("auth", formData);
+            if (data.isSucceed === false) {
+                return setErrorMessage(data.errorCode);
+            } else {
+                navigate("/sign-in");
+            }
         } catch (error) {
-
+            setErrorMessage(error.message);
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -69,8 +84,15 @@ export default function SignUp() {
                                 onChange={handleChange}
                             />
                         </div>
-                        <Button gradientDuoTone="purpleToPink" type="submit">
-                            Sign Up
+                        <Button gradientDuoTone="purpleToPink" type="submit" disabled={loading}>
+                            {
+                                loading ? (
+                                    <>
+                                        <Spinner size="sm"/>
+                                        <span className="pl-3">Loading...</span>
+                                    </>
+                                ) : "Sign Up"
+                            }
                         </Button>
                     </form>
                     <div className="flex gap-2 text-sm mt-5">
@@ -79,6 +101,13 @@ export default function SignUp() {
                             Sign In
                         </Link>
                     </div>
+                    {
+                        errorMessage && (
+                            <Alert className="mt-5" color="failure">
+                                {errorMessage}
+                            </Alert>
+                        )
+                    }
                 </div>
             </div>
         </div>
