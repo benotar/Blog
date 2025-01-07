@@ -6,7 +6,7 @@ import SignUp from "./pages/SignUp.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Projects from "./pages/Projects.jsx";
 import Header from "./components/Header.jsx";
-
+import MyFooter from "./components/MyFooter.jsx";
 export default function Main() {
     return (
         <BrowserRouter>
@@ -20,6 +20,7 @@ export default function Main() {
                 <Route path="/dashboard" element={<Dashboard/>}/>
                 <Route path="/projects" element={<Projects/>}/>
             </Routes>
+            <MyFooter/>
         </BrowserRouter>
     );
 }
