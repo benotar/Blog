@@ -2,6 +2,7 @@
 
 public enum ErrorCode
 {
+    InvalidCredentials,
     UserAlreadyExists,
     InvalidModel,
     UnexpectedError

@@ -19,4 +19,9 @@ public class HmacSha256Provider : IEncryptionProvider
 
         return new SaltAndHash(salt, hash);
     }
+
+    public bool VerifyPasswordHash(string password, SaltAndHash saltAndHash)
+    {
+        throw new NotImplementedException();
+    }
 }

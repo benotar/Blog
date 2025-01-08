@@ -1,9 +1,12 @@
-﻿using Blog.API.Extensions;
+﻿using System.Reflection;
+using Blog.API.Extensions;
 using Blog.API.Infrastructure;
 using Blog.Application.Common;
 using Blog.Application.Common.Converters;
 using Blog.Application.Configurations;
+using Blog.Application.Models.Abstraction;
 using Blog.Domain.Enums;
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.API;
@@ -65,6 +68,15 @@ public static class ServiceCollectionExtensions
         services.AddExceptionHandler<GlobalExceptionHandler>();
 
         services.AddProblemDetails();
+
+        return services;
+    }
+
+    public static IServiceCollection AddMapster(this IServiceCollection services)
+    {
+        var typeAdapterConfig = TypeAdapterConfig.GlobalSettings;
+        var applicationAssembly = typeof(BaseModel<,>).Assembly;
+        typeAdapterConfig.Scan(applicationAssembly);
 
         return services;
     }

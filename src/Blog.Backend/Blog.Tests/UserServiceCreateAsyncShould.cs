@@ -29,6 +29,7 @@ public class UserServiceCreateAsyncShould
         var mockUserRepository = new Mock<IUserRepository>();
 
         _mockUnitOfWork = new Mock<IUnitOfWork>();
+        
         _mockUnitOfWork.Setup(uow => uow.UserRepository).Returns(mockUserRepository.Object);
 
         _userService = new UserService(mockMomentProvider.Object, _mockUnitOfWork.Object,

@@ -1,4 +1,5 @@
-﻿using Blog.Application.Configurations;
+﻿using System.Reflection;
+using Blog.Application.Configurations;
 using Blog.Application.Interfaces.DbContext;
 using Blog.Application.Interfaces.Repository;
 using Blog.Application.Interfaces.UnitOfWork;
@@ -35,6 +36,8 @@ public static class ServiceCollectionExtensions
 
         // Add UoW
         services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+        
 
         return services;
     }
