@@ -14,8 +14,6 @@ public class UserServiceGetCheckedUserAsyncShould
     private readonly UserService _sut;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<IEncryptionProvider> _encryptionProviderMock;
-
-
     public UserServiceGetCheckedUserAsyncShould()
     {
         var mockMomentProvider = new Mock<IMomentProvider>();

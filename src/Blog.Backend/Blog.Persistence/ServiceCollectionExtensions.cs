@@ -36,9 +36,7 @@ public static class ServiceCollectionExtensions
 
         // Add UoW
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-
         
-
         return services;
     }
 }

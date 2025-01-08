@@ -22,7 +22,7 @@ export default function SignUp() {
         try {
             setLoading(true);
             setErrorMessage(null);
-            const {data} = await $api.post("auth", formData);
+            const {data} = await $api.post("auth/sign-up", formData);
             if (data.isSucceed === false) {
                 return setErrorMessage(data.errorCode);
             } else {

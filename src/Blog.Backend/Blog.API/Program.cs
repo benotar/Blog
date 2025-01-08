@@ -3,10 +3,15 @@ using Blog.Application;
 using Blog.Persistence;
 using Microsoft.EntityFrameworkCore;
 
+// AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+// AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Custom configurations
 builder.Services.AddCustomConfigurations(builder.Configuration);
+
+builder.Services.AddMapster();
 
 // Application layers
 builder.Services
