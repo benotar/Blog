@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Blog.API.Extensions;
+﻿using Blog.API.Extensions;
 using Blog.API.Infrastructure;
 using Blog.Application.Common;
 using Blog.Application.Common.Converters;
@@ -19,6 +18,12 @@ public static class ServiceCollectionExtensions
         // Add database configurations
         services.Configure<DatabaseConfiguration>(
             configuration.GetSection(DatabaseConfiguration.ConfigurationKey));
+        
+        services.Configure<CookieConfiguration>(
+            configuration.GetSection(CookieConfiguration.ConfigurationKey));
+        
+        services.Configure<JwtConfiguration>(
+            configuration.GetSection(JwtConfiguration.ConfigurationKey));
 
         return services;
     }

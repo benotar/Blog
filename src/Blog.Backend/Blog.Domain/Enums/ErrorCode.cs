@@ -2,6 +2,7 @@
 
 public enum ErrorCode
 {
+    UnexpectedAuthenticationError,
     JwtTokenIsUndefined,
     InvalidCredentials,
     UserAlreadyExists,

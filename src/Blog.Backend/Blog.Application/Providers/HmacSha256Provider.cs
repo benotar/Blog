@@ -22,6 +22,12 @@ public class HmacSha256Provider : IEncryptionProvider
 
     public bool VerifyPasswordHash(string password, SaltAndHash saltAndHash)
     {
-        throw new NotImplementedException();
+        using var hmac = new HMACSHA256(saltAndHash.Salt);
+
+        var passwordBytes = Encoding.UTF8.GetBytes(password);
+
+        var compute = hmac.ComputeHash(passwordBytes);
+
+        return compute.SequenceEqual(saltAndHash.Hash);
     }
 }
