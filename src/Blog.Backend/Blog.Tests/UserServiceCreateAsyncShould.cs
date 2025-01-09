@@ -22,7 +22,7 @@ public class UserServiceCreateAsyncShould
     public UserServiceCreateAsyncShould()
     {
         var mockMomentProvider = new Mock<IMomentProvider>();
-        _nowSetup = mockMomentProvider.Setup(momentProvider => momentProvider.Now);
+        _nowSetup = mockMomentProvider.Setup(momentProvider => momentProvider.DateTimeOffsetUtcNow);
 
         _mockEncryptionProvider = new Mock<IEncryptionProvider>();
 

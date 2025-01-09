@@ -2,5 +2,7 @@
 
 public interface IMomentProvider
 {
-    DateTimeOffset Now { get; }
+    DateTimeOffset DateTimeOffsetUtcNow { get; }
+    DateTime DateTimeUtcNow { get; }
+
 }

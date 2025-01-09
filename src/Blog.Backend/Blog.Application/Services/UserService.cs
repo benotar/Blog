@@ -38,7 +38,7 @@ public class UserService : IUserService
             Email = email,
             PasswordHash = hashedPassword.Hash,
             PasswordSalt = hashedPassword.Salt,
-            CreatedAt = _momentProvider.Now
+            CreatedAt = _momentProvider.DateTimeOffsetUtcNow
         };
         
         _unitOfWork.UserRepository.Add(newUser);
