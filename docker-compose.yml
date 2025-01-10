@@ -2,7 +2,7 @@ version: '3.9'
 services:
   
   backend_blog:
-    container_name: blog
+    container_name: backend_blog
     build:
       context: ./src/Blog.Backend
       dockerfile: Dockerfile
@@ -11,6 +11,21 @@ services:
         - AZURE_CLIENT_ID=arg_value
         - AZURE_DIRECTORY_ID=arg_value
         - AZURE_CLIENT_SECRET=arg_value
+    image: benotar/backend_blog
     ports:
       - '5000:5000'
-    restart: always
+    restart: on-failure
+    
+  frontend_blog:
+    container_name: frontend_blog
+    build:
+      context: ./src/Blog.Frontend
+      dockerfile: Dockerfile
+    image: benotar/frontend_blog
+    restart: on-failure
+    ports:
+      - '5173:5173'
+    depends_on:
+      - backend_blog
+    environment:
+      - VITE_API_URL=http://backend_blog:5000
