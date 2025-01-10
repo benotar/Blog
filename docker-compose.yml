@@ -6,6 +6,11 @@ services:
     build:
       context: ./src/Blog.Backend
       dockerfile: Dockerfile
+      args:
+        - AZURE_KEY_VAULT_URL=arg_value
+        - AZURE_CLIENT_ID=arg_value
+        - AZURE_DIRECTORY_ID=arg_value
+        - AZURE_CLIENT_SECRET=arg_value
     ports:
       - '5000:5000'
     restart: always
