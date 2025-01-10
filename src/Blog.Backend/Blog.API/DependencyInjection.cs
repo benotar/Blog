@@ -1,4 +1,5 @@
-﻿using Blog.API.Extensions;
+﻿using Azure.Identity;
+using Blog.API.Extensions;
 using Blog.API.Infrastructure;
 using Blog.Application.Common;
 using Blog.Application.Common.Converters;
@@ -10,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.API;
 
-public static class ServiceCollectionExtensions
+public static class DependencyInjection
 {
     public static IServiceCollection AddCustomConfigurations(this IServiceCollection services,
         IConfiguration configuration)
@@ -24,6 +25,9 @@ public static class ServiceCollectionExtensions
         
         services.Configure<JwtConfiguration>(
             configuration.GetSection(JwtConfiguration.ConfigurationKey));
+        
+        services.Configure<AzureServices>(
+            configuration.GetSection(AzureServices.ConfigurationKey));
 
         return services;
     }
@@ -85,4 +89,21 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+    public static void AddConfiguredAzureKeyVault(this WebApplicationBuilder builder)
+    {
+        var azureServicesConfig = new AzureServices();
+        builder.Configuration.Bind(AzureServices.ConfigurationKey, azureServicesConfig);
+
+        var keyVaultUrl = new Uri(azureServicesConfig.KeyVaultUrl);
+        var clientId = azureServicesConfig.ClientId;
+        var clientSecret = azureServicesConfig.ClientSecret;
+        var tenantId = azureServicesConfig.DirectoryId;
+        
+        //var azureCredential = new DefaultAzureCredential();
+
+        var azureCredential = new ClientSecretCredential(tenantId, clientId, clientSecret);
+        
+        builder.Configuration.AddAzureKeyVault(keyVaultUrl, azureCredential);
+    }
+    
 }

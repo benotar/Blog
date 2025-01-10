@@ -3,13 +3,11 @@ using Blog.Application;
 using Blog.Persistence;
 using Microsoft.EntityFrameworkCore;
 
-// AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-// AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Custom configurations
 builder.Services.AddCustomConfigurations(builder.Configuration);
+builder.AddConfiguredAzureKeyVault();
 
 builder.Services.AddMapster();
 
@@ -33,7 +31,7 @@ app.UseExceptionHandler();
 
 app.MapControllers();
 
-// // Apply migrations
+// Apply migrations
 // var scope = app.Services.CreateScope();
 // await using var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 // await dbContext.Database.MigrateAsync();

@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using Blog.Application.Configurations;
+﻿using Blog.Application.Configurations;
 using Blog.Application.Interfaces.DbContext;
 using Blog.Application.Interfaces.Repository;
 using Blog.Application.Interfaces.UnitOfWork;
@@ -17,13 +16,19 @@ public static class ServiceCollectionExtensions
         var dbConfig = new DatabaseConfiguration();
 
         configuration.Bind(DatabaseConfiguration.ConfigurationKey, dbConfig);
-
+        
         services.AddDbContext<AppDbContext>(options =>
         {
-            var connectionString = string.Format(dbConfig.ConnectionString, dbConfig.User, dbConfig.Password,
-                dbConfig.Host, dbConfig.DbName);
+            var connectionString = configuration.GetSection(dbConfig.AzureSqlSectionName).Value;
 
-            options.UseNpgsql(connectionString);
+            options.UseSqlServer(connectionString,
+                sqlOptions =>
+                {
+                    sqlOptions.EnableRetryOnFailure(
+                        maxRetryCount: 10,
+                        maxRetryDelay: TimeSpan.FromSeconds(10),
+                        errorNumbersToAdd: null);
+                });
 
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         });
@@ -36,7 +41,7 @@ public static class ServiceCollectionExtensions
 
         // Add UoW
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        
+
         return services;
     }
 }
