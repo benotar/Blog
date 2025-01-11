@@ -1,44 +1,44 @@
-name: Build and push backend and frontend containers
-
-on: 
-  push:
-    branches:
-    - main
-env:
-  COMPOSE_FILE: docker-compose.yml
-  DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
-  AZURE_KEY_VAULT_URL: ${{ secrets.AZURE_KEY_VAULT_URL }}
-  AZURE_DIRECTORY_ID: ${{ secrets.AZURE_DIRECTORY_ID }}
-  AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
-  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-  
-jobs:
-  build-and-push:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
-    
-      - name: Build the Docker image
-        run: |
-          docker compose -f ${{ env.COMPOSE_FILE }} build --build-arg AZURE_KEY_VAULT_URL=${{ env.AZURE_KEY_VAULT_URL }} --build-arg AZURE_CLIENT_ID=${{ env.AZURE_CLIENT_ID }} --build-arg AZURE_DIRECTORY_ID=${{ env.AZURE_DIRECTORY_ID }} --build-arg AZURE_CLIENT_SECRET=${{ env.AZURE_CLIENT_SECRET }}
-    
-      - name: Push backend container
-        run: |
-          docker compose -f ${{ env.COMPOSE_FILE }} push backend_blog
-
-      - name: Push frontend container
-        run: |
-          docker compose -f ${{ env.COMPOSE_FILE }} push frontend_blog
-
-      - name: Clean up
-        run: |
-          docker compose -f ${{ env.COMPOSE_FILE }} down
-          docker image prune -af
+#name: Build and push backend and frontend containers
+#
+#on: 
+#  push:
+#    branches:
+#    - main
+#env:
+#  COMPOSE_FILE: docker-compose.yml
+#  DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+#  DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
+#  AZURE_KEY_VAULT_URL: ${{ secrets.AZURE_KEY_VAULT_URL }}
+#  AZURE_DIRECTORY_ID: ${{ secrets.AZURE_DIRECTORY_ID }}
+#  AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
+#  AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+#  
+#jobs:
+#  build-and-push:
+#    runs-on: ubuntu-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@v4
+#
+#      - name: Log in to Docker Hub
+#        uses: docker/login-action@v3
+#        with:
+#          username: ${{ env.DOCKER_USERNAME }}
+#          password: ${{ env.DOCKER_PASSWORD }}
+#    
+#      - name: Build the Docker image
+#        run: |
+#          docker compose -f ${{ env.COMPOSE_FILE }} build --build-arg AZURE_KEY_VAULT_URL=${{ env.AZURE_KEY_VAULT_URL }} --build-arg AZURE_CLIENT_ID=${{ env.AZURE_CLIENT_ID }} --build-arg AZURE_DIRECTORY_ID=${{ env.AZURE_DIRECTORY_ID }} --build-arg AZURE_CLIENT_SECRET=${{ env.AZURE_CLIENT_SECRET }}
+#    
+#      - name: Push backend container
+#        run: |
+#          docker compose -f ${{ env.COMPOSE_FILE }} push backend_blog
+#
+#      - name: Push frontend container
+#        run: |
+#          docker compose -f ${{ env.COMPOSE_FILE }} push frontend_blog
+#
+#      - name: Clean up
+#        run: |
+#          docker compose -f ${{ env.COMPOSE_FILE }} down
+#          docker image prune -af
