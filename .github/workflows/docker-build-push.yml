@@ -1,7 +1,6 @@
 name: Build and push backend and frontend containers
 
 on: 
-  workflow_dispatch:
   push:
     branches:
     - main
