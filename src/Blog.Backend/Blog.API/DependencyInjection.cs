@@ -19,19 +19,19 @@ public static class DependencyInjection
         // Add database configurations
         services.Configure<DatabaseConfiguration>(
             configuration.GetSection(DatabaseConfiguration.ConfigurationKey));
-        
+
         services.Configure<CookieConfiguration>(
             configuration.GetSection(CookieConfiguration.ConfigurationKey));
-        
+
         services.Configure<JwtConfiguration>(
             configuration.GetSection(JwtConfiguration.ConfigurationKey));
-        
+
         services.Configure<AzureServices>(
             configuration.GetSection(AzureServices.ConfigurationKey));
 
         return services;
     }
-    
+
     // Add configured controllers
     public static IServiceCollection AddControllersWithConfiguredApiBehavior(this IServiceCollection services,
         IConfiguration configuration)
@@ -89,21 +89,21 @@ public static class DependencyInjection
 
         return services;
     }
+
     public static void AddConfiguredAzureKeyVault(this WebApplicationBuilder builder)
     {
         var azureServicesConfig = new AzureServices();
         builder.Configuration.Bind(AzureServices.ConfigurationKey, azureServicesConfig);
 
         var keyVaultUrl = new Uri(azureServicesConfig.KeyVaultUrl);
-        // var clientId = azureServicesConfig.ClientId;
-        // var clientSecret = azureServicesConfig.ClientSecret;
-        // var tenantId = azureServicesConfig.DirectoryId;
-        //
-        var azureCredential = new DefaultAzureCredential();
+        var clientId = azureServicesConfig.ClientId;
+        var clientSecret = azureServicesConfig.ClientSecret;
+        var tenantId = azureServicesConfig.DirectoryId;
 
-        //var azureCredential = new ClientSecretCredential(tenantId, clientId, clientSecret);
-        
+        //var azureCredential = new DefaultAzureCredential();
+
+        var azureCredential = new ClientSecretCredential(tenantId, clientId, clientSecret);
+
         builder.Configuration.AddAzureKeyVault(keyVaultUrl, azureCredential);
     }
-    
 }
