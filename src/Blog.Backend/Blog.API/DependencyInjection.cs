@@ -95,13 +95,13 @@ public static class DependencyInjection
         builder.Configuration.Bind(AzureServices.ConfigurationKey, azureServicesConfig);
 
         var keyVaultUrl = new Uri(azureServicesConfig.KeyVaultUrl);
-        var clientId = azureServicesConfig.ClientId;
-        var clientSecret = azureServicesConfig.ClientSecret;
-        var tenantId = azureServicesConfig.DirectoryId;
-        
-        //var azureCredential = new DefaultAzureCredential();
+        // var clientId = azureServicesConfig.ClientId;
+        // var clientSecret = azureServicesConfig.ClientSecret;
+        // var tenantId = azureServicesConfig.DirectoryId;
+        //
+        var azureCredential = new DefaultAzureCredential();
 
-        var azureCredential = new ClientSecretCredential(tenantId, clientId, clientSecret);
+        //var azureCredential = new ClientSecretCredential(tenantId, clientId, clientSecret);
         
         builder.Configuration.AddAzureKeyVault(keyVaultUrl, azureCredential);
     }

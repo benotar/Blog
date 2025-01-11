@@ -22,6 +22,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution-Items", "Solution-Items", "{C4C6F0E4-3F4E-4AEF-881C-C9960E236AA7}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\docker-compose.yml = ..\..\docker-compose.yml
+		..\..\.github\workflows\build-publish-backend.yml = ..\..\.github\workflows\build-publish-backend.yml
+		..\..\.github\workflows\build-publish-frontend.yml = ..\..\.github\workflows\build-publish-frontend.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Blog.Tests", "Blog.Tests\Blog.Tests.csproj", "{796A2021-B14B-47EB-B101-65BBFFDB925B}"
