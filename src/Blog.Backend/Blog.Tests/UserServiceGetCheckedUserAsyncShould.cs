@@ -51,6 +51,7 @@ public class UserServiceGetCheckedUserAsyncShould
     {
         var expectedUserFromRepository = new User
         {
+            Id = 1,
             Email = "benotar@email.com",
             Username = "benotar_",
             PasswordSalt = [1, 2, 3],
@@ -66,6 +67,7 @@ public class UserServiceGetCheckedUserAsyncShould
 
         var expectedUser = new UserModel
         {
+            Id = expectedUserFromRepository.Id,
             Email = expectedUserFromRepository.Email,
             Username = expectedUserFromRepository.Username
         };

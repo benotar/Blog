@@ -1,5 +1,6 @@
 ﻿using Blog.API.Controllers;
 using Blog.API.Models.Request;
+using Blog.API.Models.Response;
 using Blog.Application.Common;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Services;
@@ -62,39 +63,53 @@ public class AuthControllerSignInShould
         var accessToken = "access_token";
         var refreshToken = "refreshToken";
 
+        var clt = CancellationToken.None;
+
         var httpContext = new DefaultHttpContext();
         _sut.ControllerContext.HttpContext = httpContext;
 
-        var expectedUser = new UserModel
+        var expectedUserFromService = new UserModel
         {
             Id = 1,
             Email = request.Email,
-            Username = "username"
+            Username = "username",
+        };
+
+        var expectedSignInResponse = new SignInResponseModel
+        {
+            Id = expectedUserFromService.Id,
+            Email = expectedUserFromService.Email,
+            Username = expectedUserFromService.Username
         };
 
         _userServiceMock.Setup(s => s.GetCheckedUserAsync(
-                request.Email, request.Password, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(expectedUser);
+                request.Email, request.Password, clt))
+            .ReturnsAsync(expectedUserFromService);
 
-        _jwtProviderMock.Setup(j => j.GenerateToken(expectedUser.Id, expectedUser.Email, JwtType.Access))
+        _jwtProviderMock.Setup(j =>
+                j.GenerateToken(expectedUserFromService.Id, expectedUserFromService.Email, JwtType.Access))
             .Returns(accessToken);
-        _jwtProviderMock.Setup(j => j.GenerateToken(expectedUser.Id, expectedUser.Email, JwtType.Refresh))
+        _jwtProviderMock.Setup(j =>
+                j.GenerateToken(expectedUserFromService.Id, expectedUserFromService.Email, JwtType.Refresh))
             .Returns(refreshToken);
         _cookieProviderMock.Setup(c => c.AddTokens(httpContext.Response, accessToken,
             refreshToken));
 
         // Act
-        var actual = await _sut.Login(request, CancellationToken.None);
+        var actual = await _sut.Login(request, clt);
 
         // Assert
         actual.IsSucceed.Should().BeTrue();
         actual.ErrorCode.Should().BeNull();
-        actual.Data.Should().BeEquivalentTo(expectedUser);
+        actual.Data.Should().BeOfType<SignInResponseModel>()
+            .Which.Should().Be(expectedSignInResponse);
 
         _userServiceMock.Verify(s => s.GetCheckedUserAsync(
             request.Email, request.Password, It.IsAny<CancellationToken>()), Times.Once);
-        _jwtProviderMock.Verify(j => j.GenerateToken(expectedUser.Id, expectedUser.Email, JwtType.Access), Times.Once);
-        _jwtProviderMock.Verify(j => j.GenerateToken(expectedUser.Id, expectedUser.Email, JwtType.Refresh), Times.Once);
+        _jwtProviderMock.Verify(j => j.GenerateToken(expectedUserFromService.Id, expectedUserFromService.Email,
+            JwtType.Access), Times.Once);
+        _jwtProviderMock.Verify(j => j.GenerateToken(expectedUserFromService.Id, expectedUserFromService.Email,
+            JwtType.Refresh), Times.Once);
         _cookieProviderMock.Verify(c => c.AddTokens(httpContext.Response, accessToken,
             refreshToken), Times.Once);
     }

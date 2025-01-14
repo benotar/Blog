@@ -1,4 +1,5 @@
 ﻿using Blog.API.Models.Request;
+using Blog.API.Models.Response;
 using Blog.Application.Common;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Services;
@@ -31,7 +32,7 @@ public class AuthController : BaseController
     [HttpPost("sign-in")]
 
     // TODO Add dto
-    public async Task<Result<UserModel>> Login([FromBody] SignInRequestModel model,
+    public async Task<Result<SignInResponseModel>> Login([FromBody] SignInRequestModel model,
         CancellationToken cancellationToken)
     {
         var validUserResult = await _userService
@@ -57,6 +58,11 @@ public class AuthController : BaseController
 
         _cookieProvider.AddTokens(HttpContext.Response, accessToken, refreshToken);
 
-        return validUser;
+        return new SignInResponseModel
+        {
+            Id = validUser.Id,
+            Email = validUser.Email,
+            Username = validUser.Username,
+        };
     }
 }

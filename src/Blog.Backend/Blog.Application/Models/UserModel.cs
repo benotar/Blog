@@ -4,18 +4,9 @@ using Mapster;
 
 namespace Blog.Application.Models;
 
-public class UserModel : BaseModel<UserModel, User>
+public record UserModel
 {
-    public int Id { get; set; }
-    public string Username { get; set; }
-    public string Email { get; set; }
-
-    public override void AddCustomMappings()
-    {
-        SetCustomMappingsInverse()
-            .Map(dest => dest.Id, src => src.Id)
-            .Map(dest => dest.Username, src => src.Username)
-            .Map(dest => dest.Email, src => src.Email);
-    }
-    
+    public int Id { get; init; }
+    public string Username { get; init; }
+    public string Email { get; init; }
 }

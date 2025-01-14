@@ -68,6 +68,7 @@ public class UserService : IUserService
 
         return new UserModel
         {
+            Id = validUser.Id,
             Email = validUser.Email,
             Username = validUser.Username
         };
