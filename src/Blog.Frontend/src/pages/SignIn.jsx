@@ -2,13 +2,17 @@ import {Link, useNavigate} from "react-router-dom";
 import {Alert, Button, Label, Spinner, TextInput} from "flowbite-react";
 import {useState} from "react";
 import $api from "../axios/axios.js";
+import {useAppStore} from "../zustand/useAppStore.js";
 
 
 export default function SignIn() {
 
+    const signInSuccess = useAppStore((state) => state.signInSuccess);
+    const signInStart = useAppStore((state) => state.signInStart);
+    const signInFailure = useAppStore((state) => state.signInFailure);
+    const loading = useAppStore((state) => state.loading);
+    const errorMessage = useAppStore((state) => state.errorMessage);
     const [formData, setFormData] = useState({});
-    const [errorMessage, setErrorMessage] = useState(null);
-    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -18,21 +22,19 @@ export default function SignIn() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.email || !formData.password) {
-            return setErrorMessage("Please fill out all fields.");
+            return signInFailure("Please fill out all fields.");
         }
         try {
-            setLoading(true);
-            setErrorMessage(null);
+            signInStart();
             const {data} = await $api.post("auth/sign-in", formData);
             if (data.isSucceed === false) {
-                return setErrorMessage(data.errorCode);
+                signInFailure(data.errorCode);
             } else {
+                signInSuccess(data.data);
                 navigate("/");
             }
         } catch (error) {
-            setErrorMessage(error.message);
-        } finally {
-            setLoading(false);
+            signInFailure(error.message);
         }
     }
 
