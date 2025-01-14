@@ -8,7 +8,8 @@ export const useAppStore = create(
             (...a) => ({
                 ...createUserSlice(...a)
             }),
-            {name: "app-store"}
-        )
+            {name: "app-store", version: 1}
+        ),
+        {name: "AppStoreDevTools"}
     )
 );
