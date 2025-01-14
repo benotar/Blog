@@ -3,6 +3,7 @@ using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.UnitOfWork;
 using Blog.Application.Models;
 using Blog.Application.Services;
+using Blog.Domain.Entities;
 using Blog.Domain.Enums;
 using FluentAssertions;
 using Moq;
@@ -14,6 +15,7 @@ public class UserServiceGetCheckedUserAsyncShould
     private readonly UserService _sut;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly Mock<IEncryptionProvider> _encryptionProviderMock;
+
     public UserServiceGetCheckedUserAsyncShould()
     {
         var mockMomentProvider = new Mock<IMomentProvider>();
@@ -40,41 +42,77 @@ public class UserServiceGetCheckedUserAsyncShould
         actual.ErrorCode.Should().Be(ErrorCode.InvalidCredentials);
         actual.Data.Should().BeNull();
         
-        _encryptionProviderMock.Verify(x => 
-            x.HashPassword(It.IsAny<string>()), Times.Never);
-        
-        _encryptionProviderMock.Verify(x => 
-                x.VerifyPasswordHash(It.IsAny<string>(), It.IsAny<SaltAndHash>()), Times.Never);
+        _encryptionProviderMock.Verify(x =>
+            x.VerifyPasswordHash(It.IsAny<string>(), It.IsAny<SaltAndHash>()), Times.Never);
     }
 
     [Fact]
     public async Task ReturnValidUser_WhenValidDataProvided()
     {
-        var email = "benotar@email.co,";
-        var password = "VeryStrongPassword";
-        var clt = CancellationToken.None;
-        var userSaltAndHash = new SaltAndHash([1, 2, 3], [4, 5, 6]);
+        var expectedUserFromRepository = new User
+        {
+            Email = "benotar@email.com",
+            Username = "benotar_",
+            PasswordSalt = [1, 2, 3],
+            PasswordHash = [4, 5, 6]
+        };
         
+        var requestEmail = "benotar@email.com";
+        var requestPassword = "VeryStrongPassword";
+        var clt = CancellationToken.None;
+        
+        var validUserPasswordSaltAndHash = new SaltAndHash(expectedUserFromRepository.PasswordSalt,
+            expectedUserFromRepository.PasswordHash);
+
         var expectedUser = new UserModel
         {
-            Email = email
+            Email = expectedUserFromRepository.Email,
+            Username = expectedUserFromRepository.Username
         };
 
-        _unitOfWorkMock.Setup(u => u.UserRepository.GetUserByEmailAsync(email, clt))
-            .ReturnsAsync(expectedUser);
-        
+        _unitOfWorkMock.Setup(u => u.UserRepository.GetUserByEmailAsync(requestEmail, clt))
+            .ReturnsAsync(expectedUserFromRepository);
+
         _encryptionProviderMock
-            .Setup(x => x.HashPassword(password))
-            .Returns(userSaltAndHash);
-        
-        _encryptionProviderMock
-            .Setup(x => x.VerifyPasswordHash(password, userSaltAndHash))
+            .Setup(x => x.VerifyPasswordHash(requestPassword, validUserPasswordSaltAndHash))
             .Returns(true);
-        
-        var actual = await _sut.GetCheckedUserAsync(email, password, clt);
-        
+
+        var actual = await _sut.GetCheckedUserAsync(requestEmail, requestPassword, clt);
+
         actual.IsSucceed.Should().BeTrue();
         actual.Data.Should().BeEquivalentTo(expectedUser);
         actual.ErrorCode.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task ReturnInvalidCredentialsErrorCode_WhenPasswordNotMatch()
+    {
+        var expectedUserFromRepository = new User
+        {
+            Email = "benotar@email.com",
+            Username = "benotar_",
+            PasswordSalt = [1, 2, 3],
+            PasswordHash = [4, 5, 6]
+        };
+        
+        var requestEmail = "benotar@email.com";
+        var requestPassword = "VeryStrongPassword";
+        var clt = CancellationToken.None;
+        
+        _unitOfWorkMock.Setup(u => u.UserRepository.GetUserByEmailAsync(requestEmail, clt))
+            .ReturnsAsync(expectedUserFromRepository);
+
+        var validUserPasswordSaltAndHash = new SaltAndHash(expectedUserFromRepository.PasswordSalt,
+            expectedUserFromRepository.PasswordHash);
+        
+        _encryptionProviderMock
+            .Setup(x => x.VerifyPasswordHash(requestPassword, validUserPasswordSaltAndHash))
+            .Returns(false);
+
+        var actual = await _sut.GetCheckedUserAsync(requestEmail, requestPassword, clt);
+
+        actual.IsSucceed.Should().BeFalse();
+        actual.Data.Should().BeNull();
+        actual.ErrorCode.Should().Be(ErrorCode.InvalidCredentials);
     }
 }

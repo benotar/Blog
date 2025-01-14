@@ -13,7 +13,7 @@ public class UserService : IUserService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMomentProvider _momentProvider;
     private readonly IEncryptionProvider _encryptionProvider;
-    
+
     public UserService(IMomentProvider momentProvider, IUnitOfWork unitOfWork, IEncryptionProvider encryptionProvider)
     {
         _momentProvider = momentProvider;
@@ -21,7 +21,8 @@ public class UserService : IUserService
         _encryptionProvider = encryptionProvider;
     }
 
-    public async Task<Result<None>> CreateAsync(string username, string email, string password, CancellationToken cancellationToken = default)
+    public async Task<Result<None>> CreateAsync(string username, string email, string password,
+        CancellationToken cancellationToken = default)
     {
         var isUserExist = await _unitOfWork.UserRepository.AnyByEmailAsync(email, cancellationToken);
 
@@ -40,7 +41,7 @@ public class UserService : IUserService
             PasswordSalt = hashedPassword.Salt,
             CreatedAt = _momentProvider.DateTimeOffsetUtcNow
         };
-        
+
         _unitOfWork.UserRepository.Add(newUser);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -48,7 +49,8 @@ public class UserService : IUserService
         return Result<None>.Success();
     }
 
-    public async Task<Result<UserModel>> GetCheckedUserAsync(string email, string password, CancellationToken cancellationToken = default)
+    public async Task<Result<UserModel>> GetCheckedUserAsync(string email, string password,
+        CancellationToken cancellationToken = default)
     {
         var validUser = await _unitOfWork.UserRepository.GetUserByEmailAsync(email, cancellationToken);
 
@@ -57,13 +59,17 @@ public class UserService : IUserService
             return ErrorCode.InvalidCredentials;
         }
 
-        var providedHashedPassword = _encryptionProvider.HashPassword(password);
-
-        if (!_encryptionProvider.VerifyPasswordHash(password, providedHashedPassword))
+        var validUserPasswordSaltAndHash = new SaltAndHash(validUser.PasswordSalt, validUser.PasswordHash);
+        
+        if (!_encryptionProvider.VerifyPasswordHash(password, validUserPasswordSaltAndHash))
         {
             return ErrorCode.InvalidCredentials;
         }
-        
-        return validUser;
+
+        return new UserModel
+        {
+            Email = validUser.Email,
+            Username = validUser.Username
+        };
     }
 }

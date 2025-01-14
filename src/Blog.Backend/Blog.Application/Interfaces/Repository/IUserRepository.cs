@@ -5,7 +5,7 @@ namespace Blog.Application.Interfaces.Repository;
 
 public interface IUserRepository
 {
-    Task<UserModel?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default);
+    Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default);
     Task<bool> AnyByEmailAsync(string email, CancellationToken cancellationToken = default);
     void Add(User user);
 }

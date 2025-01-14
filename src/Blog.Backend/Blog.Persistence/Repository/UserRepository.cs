@@ -15,11 +15,10 @@ public class UserRepository : IUserRepository
         _dbContext = dbContext;
     }
 
-    public async Task<UserModel?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default)
+    public async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Users
             .Where(u => u.Email == email)
-            .ProjectToType<UserModel>()
             .FirstOrDefaultAsync(cancellationToken);
     }
 
