@@ -1,4 +1,4 @@
-name: Publish Backend
+name: Publish Frontend
 
 on:
   workflow_dispatch:
