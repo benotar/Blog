@@ -1,8 +1,9 @@
 import {Link, useNavigate} from "react-router-dom";
 import {Alert, Button, Label, Spinner, TextInput} from "flowbite-react";
 import {useState} from "react";
-import $api from "../axios/axios.js";
+import $axios from "../axios/axios.js";
 import {useAppStore} from "../zustand/useAppStore.js";
+import OAuth from "../components/OAuth.jsx";
 
 
 export default function SignIn() {
@@ -26,11 +27,11 @@ export default function SignIn() {
         }
         try {
             signInStart();
-            const {data} = await $api.post("auth/sign-in", formData);
+            const {data} = await $axios.post("auth/sign-in", formData);
             if (data.isSucceed === false) {
                 signInFailure(data.errorCode);
             } else {
-                signInSuccess(data.data);
+                signInSuccess(data.payloadData);
                 navigate("/");
             }
         } catch (error) {
@@ -88,6 +89,7 @@ export default function SignIn() {
                                 ) : "Sign In"
                             }
                         </Button>
+                        <OAuth/>
                     </form>
                     <div className="flex gap-2 text-sm mt-5">
                         <span>Don&apos;t have an account?</span>

@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const $api = axios.create({
+const $axios = axios.create({
     baseURL: "/api",
     withCredentials: true,
     headers: {
@@ -8,4 +8,4 @@ const $api = axios.create({
     }
 });
 
-export default $api;
+export default $axios;
