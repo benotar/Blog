@@ -1,8 +1,6 @@
 ﻿using Blog.Application.Interfaces.DbContext;
 using Blog.Application.Interfaces.Repository;
-using Blog.Application.Models;
 using Blog.Domain.Entities;
-using Mapster; 
 using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Persistence.Repository;
@@ -10,6 +8,7 @@ namespace Blog.Persistence.Repository;
 public class UserRepository : IUserRepository
 {
     private readonly IDbContext _dbContext;
+
     public UserRepository(IDbContext dbContext)
     {
         _dbContext = dbContext;

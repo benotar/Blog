@@ -9,8 +9,6 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCustomConfigurations(builder.Configuration);
 builder.AddConfiguredAzureKeyVault();
 
-builder.Services.AddMapster();
-
 // Application layers
 builder.Services
     .AddApplication()

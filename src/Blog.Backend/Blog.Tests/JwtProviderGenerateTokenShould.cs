@@ -32,7 +32,7 @@ public class JwtProviderGenerateTokenShould
 
         // Assert
         result.IsSucceed.Should().BeFalse();
-        result.Data.Should().BeNull();
+        result.Payload.Should().BeNull();
         result.ErrorCode.Should().Be(ErrorCode.JwtTokenIsUndefined);
     }
 }

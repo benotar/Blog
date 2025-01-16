@@ -40,7 +40,7 @@ public class UserServiceGetCheckedUserAsyncShould
 
         actual.IsSucceed.Should().BeFalse();
         actual.ErrorCode.Should().Be(ErrorCode.InvalidCredentials);
-        actual.Data.Should().BeNull();
+        actual.Payload.Should().BeNull();
         
         _encryptionProviderMock.Verify(x =>
             x.VerifyPasswordHash(It.IsAny<string>(), It.IsAny<SaltAndHash>()), Times.Never);
@@ -82,7 +82,7 @@ public class UserServiceGetCheckedUserAsyncShould
         var actual = await _sut.GetCheckedUserAsync(requestEmail, requestPassword, clt);
 
         actual.IsSucceed.Should().BeTrue();
-        actual.Data.Should().BeEquivalentTo(expectedUser);
+        actual.Payload.Should().BeEquivalentTo(expectedUser);
         actual.ErrorCode.Should().BeNull();
     }
 
@@ -114,7 +114,7 @@ public class UserServiceGetCheckedUserAsyncShould
         var actual = await _sut.GetCheckedUserAsync(requestEmail, requestPassword, clt);
 
         actual.IsSucceed.Should().BeFalse();
-        actual.Data.Should().BeNull();
+        actual.Payload.Should().BeNull();
         actual.ErrorCode.Should().Be(ErrorCode.InvalidCredentials);
     }
 }

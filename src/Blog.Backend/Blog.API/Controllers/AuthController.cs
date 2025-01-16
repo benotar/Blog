@@ -14,12 +14,14 @@ public class AuthController : BaseController
     private readonly IUserService _userService;
     private readonly IJwtProvider _jwtProvider;
     private readonly ICookieProvider _cookieProvider;
-
-    public AuthController(IUserService userService, ICookieProvider cookieProvider, IJwtProvider jwtProvider)
+    private readonly IGoogleService _googleService;
+    
+    public AuthController(IUserService userService, ICookieProvider cookieProvider, IJwtProvider jwtProvider, IGoogleService googleService)
     {
         _userService = userService;
         _cookieProvider = cookieProvider;
         _jwtProvider = jwtProvider;
+        _googleService = googleService;
     }
 
     [HttpPost("sign-up")]
@@ -43,7 +45,7 @@ public class AuthController : BaseController
             return validUserResult.ErrorCode;
         }
 
-        var validUser = validUserResult.Data;
+        var validUser = validUserResult.Payload;
 
         var accessTokenResult = _jwtProvider.GenerateToken(validUser.Id, validUser.Email, JwtType.Access);
         var refreshTokenResult = _jwtProvider.GenerateToken(validUser.Id, validUser.Email, JwtType.Refresh);
@@ -53,8 +55,8 @@ public class AuthController : BaseController
             return ErrorCode.JwtTokenIsUndefined;
         }
 
-        var accessToken = accessTokenResult.Data;
-        var refreshToken = refreshTokenResult.Data;
+        var accessToken = accessTokenResult.Payload;
+        var refreshToken = refreshTokenResult.Payload;
 
         _cookieProvider.AddTokens(HttpContext.Response, accessToken, refreshToken);
 
@@ -63,6 +65,36 @@ public class AuthController : BaseController
             Id = validUser.Id,
             Email = validUser.Email,
             Username = validUser.Username,
+        };
+    }
+
+    [HttpPost("google")]
+    public async Task<Result<GoogleSignInResponseModel>> GoogleSignIn([FromBody]GoogleSignInRequestModel request, CancellationToken cancellationToken)
+    {
+        var validUserResult = await _googleService.GetOrCreateUserFromGoogleCredentialsAsync(request.Email,
+            request.Name, request.ProfilePictureUrl, cancellationToken);
+        
+        var validUser = validUserResult.Payload;
+        
+        var accessTokenResult = _jwtProvider.GenerateToken(validUser.Id, validUser.Email, JwtType.Access);
+        var refreshTokenResult = _jwtProvider.GenerateToken(validUser.Id, validUser.Email, JwtType.Refresh);
+        
+        if (!accessTokenResult.IsSucceed || !refreshTokenResult.IsSucceed)
+        {
+            return ErrorCode.JwtTokenIsUndefined;
+        }
+        
+        var accessToken = accessTokenResult.Payload;
+        var refreshToken = refreshTokenResult.Payload;
+        
+        _cookieProvider.AddTokens(HttpContext.Response, accessToken, refreshToken);
+
+        return new GoogleSignInResponseModel
+        {
+            Id = validUser.Id,
+            Email = validUser.Email,
+            Username = validUser.Username,
+            ProfilePictureUrl = validUser.ProfilePictureUrl
         };
     }
 }

@@ -25,9 +25,11 @@ public class AuthControllerSignInShould
         _userServiceMock = new Mock<IUserService>();
         _jwtProviderMock = new Mock<IJwtProvider>();
         _cookieProviderMock = new Mock<ICookieProvider>();
+        var googleServiceMock = new Mock<IGoogleService>();
+
 
         _sut = new AuthController(_userServiceMock.Object, _cookieProviderMock.Object,
-            _jwtProviderMock.Object);
+            _jwtProviderMock.Object, googleServiceMock.Object);
     }
 
     [Fact]
@@ -47,7 +49,7 @@ public class AuthControllerSignInShould
 
         actual.IsSucceed.Should().BeFalse();
         actual.ErrorCode.Should().Be(ErrorCode.InvalidCredentials);
-        actual.Data.Should().BeNull();
+        actual.Payload.Should().BeNull();
     }
 
     [Fact]
@@ -73,13 +75,15 @@ public class AuthControllerSignInShould
             Id = 1,
             Email = request.Email,
             Username = "username",
+            ProfilePictureUrl = "url"
         };
 
         var expectedSignInResponse = new SignInResponseModel
         {
             Id = expectedUserFromService.Id,
             Email = expectedUserFromService.Email,
-            Username = expectedUserFromService.Username
+            Username = expectedUserFromService.Username,
+            ProfilePictureUrl = "url"
         };
 
         _userServiceMock.Setup(s => s.GetCheckedUserAsync(
@@ -101,7 +105,7 @@ public class AuthControllerSignInShould
         // Assert
         actual.IsSucceed.Should().BeTrue();
         actual.ErrorCode.Should().BeNull();
-        actual.Data.Should().BeOfType<SignInResponseModel>()
+        actual.Payload.Should().BeOfType<SignInResponseModel>()
             .Which.Should().Be(expectedSignInResponse);
 
         _userServiceMock.Verify(s => s.GetCheckedUserAsync(

@@ -34,7 +34,7 @@ public class GlobalExceptionHandler : IExceptionHandler
         var result = new Result<ProblemDetails>
         {
             ErrorCode = ErrorCode.UnexpectedError,
-            Data = details
+            Payload = details
         };
 
         httpContext.Response.ContentType = "application/json";
