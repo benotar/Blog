@@ -63,7 +63,7 @@ public class AuthControllerGoogleSignInShould
     {
         // Arrange
         _googleServiceMock.Setup(g =>
-                g.GetOrCreateUserFromGoogleCredentialsAsync(_request.Email, _request.Name, _request.ProfilePictureUrl,
+                g.FindOrCreateGoogleUserAsync(_request.Email, _request.Name, _request.ProfilePictureUrl,
                     _clt))
             .ReturnsAsync(_expectedUserFromGoogleService);
         
@@ -94,7 +94,7 @@ public class AuthControllerGoogleSignInShould
         _sut.ControllerContext.HttpContext = httpContext;
 
         _googleServiceMock.Setup(g =>
-                g.GetOrCreateUserFromGoogleCredentialsAsync(_request.Email, _request.Name, _request.ProfilePictureUrl,
+                g.FindOrCreateGoogleUserAsync(_request.Email, _request.Name, _request.ProfilePictureUrl,
                     _clt))
             .ReturnsAsync(_expectedUserFromGoogleService);
 
@@ -116,7 +116,7 @@ public class AuthControllerGoogleSignInShould
         actual.Payload.Should().BeOfType<GoogleSignInResponseModel>()
             .Which.Should().Be(_response);
 
-        _googleServiceMock.Verify(s => s.GetOrCreateUserFromGoogleCredentialsAsync(_request.Email, _request.Name,
+        _googleServiceMock.Verify(s => s.FindOrCreateGoogleUserAsync(_request.Email, _request.Name,
             _request.ProfilePictureUrl, _clt), Times.Once);
 
         _jwtProviderMock.Verify(j => j.GenerateToken(_expectedUserFromGoogleService.Id,

@@ -71,7 +71,7 @@ public class AuthController : BaseController
     [HttpPost("google")]
     public async Task<Result<GoogleSignInResponseModel>> GoogleSignIn([FromBody]GoogleSignInRequestModel request, CancellationToken cancellationToken)
     {
-        var validUserResult = await _googleService.GetOrCreateUserFromGoogleCredentialsAsync(request.Email,
+        var validUserResult = await _googleService.FindOrCreateGoogleUserAsync(request.Email,
             request.Name, request.ProfilePictureUrl, cancellationToken);
         
         var validUser = validUserResult.Payload;

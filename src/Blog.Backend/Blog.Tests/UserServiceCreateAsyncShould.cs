@@ -14,7 +14,7 @@ namespace Blog.Tests;
 
 public class UserServiceCreateAsyncShould
 {
-    private readonly IUserService _userService;
+    private readonly UserService _sut;
     private readonly Mock<IUnitOfWork> _mockUnitOfWork;
     private readonly Mock<IEncryptionProvider> _mockEncryptionProvider;
     private readonly ISetup<IMomentProvider, DateTimeOffset> _nowSetup;
@@ -25,14 +25,10 @@ public class UserServiceCreateAsyncShould
         _nowSetup = mockMomentProvider.Setup(momentProvider => momentProvider.DateTimeOffsetUtcNow);
 
         _mockEncryptionProvider = new Mock<IEncryptionProvider>();
-
-        var mockUserRepository = new Mock<IUserRepository>();
-
-        _mockUnitOfWork = new Mock<IUnitOfWork>();
         
-        _mockUnitOfWork.Setup(uow => uow.UserRepository).Returns(mockUserRepository.Object);
+        _mockUnitOfWork = new Mock<IUnitOfWork>();
 
-        _userService = new UserService(mockMomentProvider.Object, _mockUnitOfWork.Object,
+        _sut = new UserService(mockMomentProvider.Object, _mockUnitOfWork.Object,
             _mockEncryptionProvider.Object);
     }
 
@@ -43,7 +39,7 @@ public class UserServiceCreateAsyncShould
             .Setup(uow => uow.UserRepository.AnyByEmailAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        var actual = await _userService.CreateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>());
+        var actual = await _sut.CreateAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>());
 
         actual.Should().BeEquivalentTo(Result<None>.Error(ErrorCode.UserAlreadyExists));
         _mockUnitOfWork.Verify(
@@ -69,7 +65,7 @@ public class UserServiceCreateAsyncShould
         _mockEncryptionProvider.Setup(ep => ep.HashPassword(password)).Returns(saltAndHash);
         
         var actual =
-            await _userService.CreateAsync(username, email, password, cancellationToken);
+            await _sut.CreateAsync(username, email, password, cancellationToken);
         
         actual.Should().BeEquivalentTo(Result<None>.Success());
         

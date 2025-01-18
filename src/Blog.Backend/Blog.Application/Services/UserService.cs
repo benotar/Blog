@@ -49,6 +49,34 @@ public class UserService : IUserService
         return Result<None>.Success();
     }
 
+    public async Task<Result<UserModel>> CreateGoogleAsync(string name, string email, string pictureUrl,
+        CancellationToken cancellationToken = default)
+    {
+        var hashedPassword = _encryptionProvider.HashPassword("askjhaskjkjhsadkjhd2989201");
+
+
+        var newUser = new User
+        {
+            Email = email,
+            Username = "dasda",
+            PasswordSalt = hashedPassword.Salt,
+            PasswordHash = hashedPassword.Hash,
+            ProfilePictureUrl = pictureUrl,
+            CreatedAt = _momentProvider.DateTimeOffsetUtcNow
+        };
+
+        _unitOfWork.UserRepository.Add(newUser);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+        
+        return new UserModel
+        {
+            Id = newUser.Id,
+            Email = newUser.Email,
+            Username = newUser.Username,
+            ProfilePictureUrl = newUser.ProfilePictureUrl,
+        };
+    }
+
     public async Task<Result<UserModel>> GetCheckedUserAsync(string email, string password,
         CancellationToken cancellationToken = default)
     {
@@ -60,7 +88,7 @@ public class UserService : IUserService
         }
 
         var validUserPasswordSaltAndHash = new SaltAndHash(validUser.PasswordSalt, validUser.PasswordHash);
-        
+
         if (!_encryptionProvider.VerifyPasswordHash(password, validUserPasswordSaltAndHash))
         {
             return ErrorCode.InvalidCredentials;

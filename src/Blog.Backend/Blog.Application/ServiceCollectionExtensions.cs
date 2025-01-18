@@ -19,7 +19,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ICookieProvider, CookieProvider>();
         
         services.AddScoped<IUserService, UserService>();
-       
+        services.AddScoped<IGoogleService, GoogleService>();
+
 
         
         // Add JsonSerializerOptions 
