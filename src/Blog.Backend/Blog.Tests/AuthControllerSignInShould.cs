@@ -83,7 +83,7 @@ public class AuthControllerSignInShould
             Id = expectedUserFromService.Id,
             Email = expectedUserFromService.Email,
             Username = expectedUserFromService.Username,
-            ProfilePictureUrl = "url"
+            ProfilePictureUrl = expectedUserFromService.ProfilePictureUrl
         };
 
         _userServiceMock.Setup(s => s.GetCheckedUserAsync(

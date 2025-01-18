@@ -53,8 +53,7 @@ public class UserService : IUserService
         CancellationToken cancellationToken = default)
     {
         var hashedPassword = _encryptionProvider.HashPassword("askjhaskjkjhsadkjhd2989201");
-
-
+        
         var newUser = new User
         {
             Email = email,
