@@ -24,8 +24,11 @@ public static class DependencyInjection
         services.Configure<JwtConfiguration>(
             configuration.GetSection(JwtConfiguration.ConfigurationKey));
 
-        services.Configure<AzureServices>(
-            configuration.GetSection(AzureServices.ConfigurationKey));
+        services.Configure<AzureKeyVault>(
+            configuration.GetSection(AzureKeyVault.ConfigurationKey));
+        
+        services.Configure<TranslatorConfiguration>(
+            configuration.GetSection(TranslatorConfiguration.ConfigurationKey));
 
         return services;
     }
@@ -81,8 +84,8 @@ public static class DependencyInjection
     
     public static void AddConfiguredAzureKeyVault(this WebApplicationBuilder builder)
     {
-        var azureServicesConfig = new AzureServices();
-        builder.Configuration.Bind(AzureServices.ConfigurationKey, azureServicesConfig);
+        var azureServicesConfig = new AzureKeyVault();
+        builder.Configuration.Bind(AzureKeyVault.ConfigurationKey, azureServicesConfig);
 
         var keyVaultUrl = new Uri(azureServicesConfig.KeyVaultUrl);
         var clientId = azureServicesConfig.ClientId;

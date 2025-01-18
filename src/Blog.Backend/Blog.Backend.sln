@@ -22,8 +22,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution-Items", "Solution-Items", "{C4C6F0E4-3F4E-4AEF-881C-C9960E236AA7}"
 	ProjectSection(SolutionItems) = preProject
 		..\..\docker-compose.yml = ..\..\docker-compose.yml
-		..\..\.github\workflows\build-publish-backend.yml = ..\..\.github\workflows\build-publish-backend.yml
-		..\..\.github\workflows\build-publish-frontend.yml = ..\..\.github\workflows\build-publish-frontend.yml
 		..\..\.github\workflows\docker-build-push.yml = ..\..\.github\workflows\docker-build-push.yml
 		..\..\migrations add.txt = ..\..\migrations add.txt
 	EndProjectSection

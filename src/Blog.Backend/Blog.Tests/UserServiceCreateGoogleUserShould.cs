@@ -37,8 +37,6 @@ public class UserServiceCreateGoogleUserShould
         var email = "email@email.com";
         var username = "some username";
         var pictureUrl = "some picture url";
-
-        var name = "some name some language";
         var saltAndHash = new SaltAndHash([1, 2, 3], [4, 5, 6]);
         var now = new DateTimeOffset(2025, 01, 16, 18, 00, 00, TimeSpan.FromHours(2));
         var ctl = CancellationToken.None;
@@ -47,7 +45,7 @@ public class UserServiceCreateGoogleUserShould
         var expectedCreatedUser = new User
         {
             Email = email,
-            Username = "dasda",
+            Username = username,
             PasswordSalt = saltAndHash.Salt,
             PasswordHash = saltAndHash.Hash,
             ProfilePictureUrl = pictureUrl,
@@ -65,7 +63,7 @@ public class UserServiceCreateGoogleUserShould
         _mockEncryptionProvider.Setup(ep => ep.HashPassword(password)).Returns(saltAndHash);
         _mockUnitOfWork.Setup(uow => uow.UserRepository.Add(expectedCreatedUser));
 
-        var actual = await _sut.CreateGoogleAsync(name, email, pictureUrl, ctl);
+        var actual = await _sut.CreateGoogleAsync(username, email, password, pictureUrl, ctl);
 
         actual.Payload.Should().BeEquivalentTo(expectedReturnedUser,
             options => options.Excluding(p => p.Id));

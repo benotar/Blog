@@ -49,15 +49,15 @@ public class UserService : IUserService
         return Result<None>.Success();
     }
 
-    public async Task<Result<UserModel>> CreateGoogleAsync(string name, string email, string pictureUrl,
+    public async Task<Result<UserModel>> CreateGoogleAsync(string username, string email, string password, string pictureUrl,
         CancellationToken cancellationToken = default)
     {
-        var hashedPassword = _encryptionProvider.HashPassword("askjhaskjkjhsadkjhd2989201");
+        var hashedPassword = _encryptionProvider.HashPassword(password);
         
         var newUser = new User
         {
             Email = email,
-            Username = "dasda",
+            Username = username,
             PasswordSalt = hashedPassword.Salt,
             PasswordHash = hashedPassword.Hash,
             ProfilePictureUrl = pictureUrl,

@@ -1,9 +1,11 @@
-﻿using Blog.Application.Interfaces.Services;
+﻿using Blog.Application.Configurations;
+using Blog.Application.Interfaces.Services;
 using Blog.Application.Interfaces.UnitOfWork;
 using Blog.Application.Models;
 using Blog.Application.Services;
 using Blog.Domain.Entities;
 using FluentAssertions;
+using Microsoft.Extensions.Options;
 using Moq;
 
 namespace Blog.Tests;
@@ -13,6 +15,8 @@ public class GoogleServiceAuthShould
     private readonly GoogleService _sut;
     private readonly Mock<IUnitOfWork> _unitOfWorkMock;
     private readonly  Mock<IUserService> _userServiceMock;
+    private readonly  Mock<IAzureTranslatorService> _azureTranslatorServiceMock;
+
     
     private readonly CancellationToken _clt;
     private readonly string _email;
@@ -24,7 +28,9 @@ public class GoogleServiceAuthShould
     {
         _unitOfWorkMock = new Mock<IUnitOfWork>();
         _userServiceMock = new Mock<IUserService>();
-        _sut = new GoogleService(_unitOfWorkMock.Object);
+        _azureTranslatorServiceMock = new Mock<IAzureTranslatorService>();
+        
+        _sut = new GoogleService(_unitOfWorkMock.Object, _azureTranslatorServiceMock.Object, _userServiceMock.Object);
 
         _email = "some@email.com";
         _name = "some name";

@@ -65,7 +65,7 @@ public class AuthController : BaseController
             Id = validUser.Id,
             Email = validUser.Email,
             Username = validUser.Username,
-            ProfilePictureUrl = validUser.ProfilePictureUrl
+            ProfilePictureUrl = validUser.Username
         };
     }
 

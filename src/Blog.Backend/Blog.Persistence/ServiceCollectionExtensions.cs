@@ -16,20 +16,13 @@ public static class ServiceCollectionExtensions
         var dbConfig = new DatabaseConfiguration();
 
         configuration.Bind(DatabaseConfiguration.ConfigurationKey, dbConfig);
-        
+
         services.AddDbContext<AppDbContext>(options =>
         {
-            var connectionString = configuration.GetSection(dbConfig.AzureSqlSectionName).Value;
-
-            options.UseSqlServer(connectionString,
-                sqlOptions =>
-                {
-                    sqlOptions.EnableRetryOnFailure(
-                        maxRetryCount: 10,
-                        maxRetryDelay: TimeSpan.FromSeconds(10),
-                        errorNumbersToAdd: null);
-                });
-
+            var connectionString = string.Format(dbConfig.ConnectionString, dbConfig.User, dbConfig.Password,
+                dbConfig.Host, dbConfig.DbName);
+            
+            options.UseNpgsql(connectionString);
             options.UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
         });
 

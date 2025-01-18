@@ -1,6 +1,19 @@
 version: '3.9'
 services:
   
+  postgres_blog:
+    image: postgres:latest
+    container_name: postgres_blog
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_DB=BlogDb
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+    restart: always
+    volumes:
+      - blog_db_data:/var/lib/postgresql/data
+  
   backend_blog:
     container_name: backend_blog
     build:
@@ -15,7 +28,7 @@ services:
     ports:
       - '5000:5000'
     restart: on-failure
-    
+  
   frontend_blog:
     container_name: frontend_blog
     build:
@@ -29,3 +42,6 @@ services:
       - backend_blog
     environment:
       - VITE_API_URL=http://backend_blog:5000
+
+volumes:
+  blog_db_data:

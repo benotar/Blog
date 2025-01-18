@@ -8,7 +8,7 @@ public interface IUserService
 {
     Task<Result<None>> CreateAsync(string username, string email, string password,
         CancellationToken cancellationToken = default);
-    Task<Result<UserModel>> CreateGoogleAsync(string name, string email, string pictureUrl,
+    Task<Result<UserModel>> CreateGoogleAsync(string username, string email, string password, string pictureUrl,
         CancellationToken cancellationToken = default);
     Task<Result<UserModel>> GetCheckedUserAsync(string email, string password,
         CancellationToken cancellationToken = default);
