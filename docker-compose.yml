@@ -24,6 +24,7 @@ services:
         - AZURE_CLIENT_ID=arg_value
         - AZURE_DIRECTORY_ID=arg_value
         - AZURE_CLIENT_SECRET=arg_value
+        - DB_HOST=arg_value
     image: benotar/backend_blog
     ports:
       - '5000:5000'

@@ -12,6 +12,7 @@ env:
   AZURE_DIRECTORY_ID: ${{ secrets.AZURE_DIRECTORY_ID }}
   AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
   AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  DB_HOST: ${{ secrets.DB_HOST }}
 
 jobs:
   build-and-push:
@@ -28,7 +29,7 @@ jobs:
 
       - name: Build the Docker image
         run: |
-          docker compose -f ${{ env.COMPOSE_FILE }} build --build-arg AZURE_KEY_VAULT_URL=${{ env.AZURE_KEY_VAULT_URL }} --build-arg AZURE_CLIENT_ID=${{ env.AZURE_CLIENT_ID }} --build-arg AZURE_DIRECTORY_ID=${{ env.AZURE_DIRECTORY_ID }} --build-arg AZURE_CLIENT_SECRET=${{ env.AZURE_CLIENT_SECRET }}
+          docker compose -f ${{ env.COMPOSE_FILE }} build --build-arg AZURE_KEY_VAULT_URL=${{ env.AZURE_KEY_VAULT_URL }} --build-arg AZURE_CLIENT_ID=${{ env.AZURE_CLIENT_ID }} --build-arg AZURE_DIRECTORY_ID=${{ env.AZURE_DIRECTORY_ID }} --build-arg AZURE_CLIENT_SECRET=${{ env.AZURE_CLIENT_SECRET }} --build-arg DB_HOST=${{ env.DB_HOST }}
 
       - name: Push backend container
         run: |
