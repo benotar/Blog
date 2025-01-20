@@ -13,7 +13,7 @@ ENV AzureKeyVault__KeyVaultUrl=$AZURE_KEY_VAULT_URL
 ENV AzureKeyVault__ClientId=$AZURE_CLIENT_ID
 ENV AzureKeyVault__DirectoryId=$AZURE_DIRECTORY_ID
 ENV AzureKeyVault__ClientSecret=$AZURE_CLIENT_SECRET
-ENV Database__Host=$AZURE_CLIENT_SECRET
+ENV Database__Host=$DB_HOST
 
 
 ENV ASPNETCORE_URLS=http://+:5000
