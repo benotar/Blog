@@ -49,9 +49,9 @@ public static class ServiceCollectionExtensions
         var translatorConfig = new TranslatorConfiguration();
         configuration.Bind(TranslatorConfiguration.ConfigurationKey, translatorConfig);
 
-        var key = configuration.GetSection( translatorConfig.Key).Value;
-        var endpoint = configuration.GetSection(translatorConfig.Endpoint).Value;
-        var region = configuration.GetSection(translatorConfig.Region).Value;
+        var key = configuration.GetSection( translatorConfig.KeySectionName).Value;
+        var endpoint = configuration.GetSection(translatorConfig.EndpointSectionName).Value;
+        var region = configuration.GetSection(translatorConfig.RegionSectionName).Value;
         var credential = new AzureKeyCredential(key);
         var endpointUrl = new Uri(endpoint);
 

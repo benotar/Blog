@@ -72,7 +72,6 @@ public class AuthControllerSignInShould
 
         var expectedUserFromService = new UserModel
         {
-            Id = 1,
             Email = request.Email,
             Username = "username",
             ProfilePictureUrl = "url"
@@ -80,7 +79,6 @@ public class AuthControllerSignInShould
 
         var expectedSignInResponse = new SignInResponseModel
         {
-            Id = expectedUserFromService.Id,
             Email = expectedUserFromService.Email,
             Username = expectedUserFromService.Username,
             ProfilePictureUrl = expectedUserFromService.ProfilePictureUrl

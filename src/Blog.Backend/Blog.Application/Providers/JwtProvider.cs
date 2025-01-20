@@ -5,6 +5,7 @@ using Blog.Application.Common;
 using Blog.Application.Configurations;
 using Blog.Application.Interfaces.Providers;
 using Blog.Domain.Enums;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
@@ -14,10 +15,13 @@ public class JwtProvider : IJwtProvider
 {
     private readonly JwtConfiguration _jwtConfig;
     private readonly IMomentProvider _momentProvider;
+    private readonly IConfiguration _configuration;
 
-    public JwtProvider(IOptions<JwtConfiguration> jwtConfig, IMomentProvider momentProvider)
+    public JwtProvider(IOptions<JwtConfiguration> jwtConfig, IMomentProvider momentProvider,
+        IConfiguration configuration)
     {
         _momentProvider = momentProvider;
+        _configuration = configuration;
         _jwtConfig = jwtConfig.Value;
     }
 
@@ -27,8 +31,10 @@ public class JwtProvider : IJwtProvider
         {
             return ErrorCode.JwtTokenIsUndefined;
         }
-        
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.SecretKey));
+
+        var jwtKey = _configuration.GetSection(_jwtConfig.KeySectionName).Value;
+
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
         var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
@@ -38,11 +44,11 @@ public class JwtProvider : IJwtProvider
             new(ClaimTypes.NameIdentifier, userId.ToString()),
             new(JwtRegisteredClaimNames.Typ, jwtType.ToString())
         };
-        
+
         var expires = jwtType switch
         {
             JwtType.Access => _momentProvider.DateTimeUtcNow.AddMinutes(_jwtConfig.AccessExpirationMinutes),
-            JwtType.Refresh => _momentProvider.DateTimeUtcNow.AddDays(_jwtConfig.AccessExpirationMinutes)
+            JwtType.Refresh => _momentProvider.DateTimeUtcNow.AddDays(_jwtConfig.RefreshExpirationDays)
         };
 
         var securityToken = new JwtSecurityToken(

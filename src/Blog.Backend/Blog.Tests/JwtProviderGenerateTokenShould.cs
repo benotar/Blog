@@ -3,6 +3,7 @@ using Blog.Application.Interfaces.Providers;
 using Blog.Application.Providers;
 using Blog.Domain.Enums;
 using FluentAssertions;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Moq;
 
@@ -17,8 +18,9 @@ public class JwtProviderGenerateTokenShould
         var jwtConfigMock = new Mock<IOptions<JwtConfiguration>>();
 
         var momentProviderMock = new Mock<IMomentProvider>();
+        var configMock = new Mock<IConfiguration>();
 
-        _sut = new JwtProvider(jwtConfigMock.Object, momentProviderMock.Object);
+        _sut = new JwtProvider(jwtConfigMock.Object, momentProviderMock.Object, configMock.Object);
     }
 
     [Fact]
@@ -28,7 +30,7 @@ public class JwtProviderGenerateTokenShould
         var undefinedTokenType = JwtType.Undefined;
 
         // Act
-        var result = _sut.GenerateToken(It.IsAny<int>(),It.IsAny<string>() ,undefinedTokenType);
+        var result = _sut.GenerateToken(It.IsAny<int>(), It.IsAny<string>(), undefinedTokenType);
 
         // Assert
         result.IsSucceed.Should().BeFalse();

@@ -7,8 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Custom configurations
 builder.Services.AddCustomConfigurations(builder.Configuration);
-builder.Services.AddTextTranslator(builder.Configuration);
 builder.AddConfiguredAzureKeyVault();
+builder.Services.AddTextTranslator(builder.Configuration);
 
 // Application layers
 builder.Services
