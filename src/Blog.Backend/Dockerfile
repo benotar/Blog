@@ -8,10 +8,10 @@ ARG AZURE_CLIENT_ID
 ARG AZURE_DIRECTORY_ID
 ARG AZURE_CLIENT_SECRET
 
-ENV AzureServices__KeyVaultUrl=$AZURE_KEY_VAULT_URL
-ENV AzureServices__ClientId=$AZURE_CLIENT_ID
-ENV AzureServices__DirectoryId=$AZURE_DIRECTORY_ID
-ENV AzureServices__ClientSecret=$AZURE_CLIENT_SECRET
+ENV AzureKeyVault__KeyVaultUrl=$AZURE_KEY_VAULT_URL
+ENV AzureKeyVault__ClientId=$AZURE_CLIENT_ID
+ENV AzureKeyVault__DirectoryId=$AZURE_DIRECTORY_ID
+ENV AzureKeyVault__ClientSecret=$AZURE_CLIENT_SECRET
 
 ENV ASPNETCORE_URLS=http://+:5000
 
