@@ -49,11 +49,12 @@ public class UserService : IUserService
         return Result<None>.Success();
     }
 
-    public async Task<Result<UserModel>> CreateGoogleAsync(string username, string email, string password, string pictureUrl,
+    public async Task<Result<UserModel>> CreateGoogleAsync(string username, string email, string password,
+        string pictureUrl,
         CancellationToken cancellationToken = default)
     {
         var hashedPassword = _encryptionProvider.HashPassword(password);
-        
+
         var newUser = new User
         {
             Email = email,
@@ -66,7 +67,7 @@ public class UserService : IUserService
 
         _unitOfWork.UserRepository.Add(newUser);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return new UserModel
         {
             Id = newUser.Id,
@@ -97,7 +98,8 @@ public class UserService : IUserService
         {
             Id = validUser.Id,
             Email = validUser.Email,
-            Username = validUser.Username
+            Username = validUser.Username,
+            ProfilePictureUrl = validUser.ProfilePictureUrl
         };
     }
 }
