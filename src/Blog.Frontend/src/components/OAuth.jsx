@@ -21,7 +21,7 @@ export default function OAuth() {
             const {data} = await $axios.post("auth/google", {
                 name: resultFromGoogle.user.displayName,
                 email: resultFromGoogle.user.email,
-                googlePhotoURL: resultFromGoogle.user.photoURL
+                profilePictureUrl: resultFromGoogle.user.photoURL
             });
 
             if (data.isSucceed === true) {
