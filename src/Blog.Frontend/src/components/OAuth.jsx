@@ -18,18 +18,17 @@ export default function OAuth() {
         try {
             const auth = getAuth(app);
             const resultFromGoogle = await signInWithPopup(auth, provider);
-            const {data} = await $axios.post("/api/auth/google", {
+            const {data} = await $axios.post("auth/google", {
                 name: resultFromGoogle.user.displayName,
                 email: resultFromGoogle.user.email,
                 googlePhotoURL: resultFromGoogle.user.photoURL
             });
 
             if (data.isSucceed === true) {
-                signInSuccess(data.payloadData);
+                signInSuccess(data.payload);
                 navigate("/");
             }
-        } catch
-            (error) {
+        } catch (error) {
             console.log(error);
         }
     }

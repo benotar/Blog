@@ -22,7 +22,6 @@ export const createUserSlice = (set) => ({
         }));
     },
     signInFailure: (payload) => {
-
         set((state) => ({
             ...state,
             currentUser: null,

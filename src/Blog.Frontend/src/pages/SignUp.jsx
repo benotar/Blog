@@ -30,9 +30,11 @@ export default function SignUp() {
                 navigate("/sign-in");
             }
         } catch (error) {
-            setErrorMessage(error.message);
-        } finally {
-            setLoading(false);
+            let errorMessage = error.message;
+            if(error.code === "ECONNABORTED") {
+                errorMessage = "Request timeout!";
+            }
+            signInFailure(errorMessage);
         }
     }
 

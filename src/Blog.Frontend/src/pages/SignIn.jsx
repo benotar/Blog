@@ -31,11 +31,16 @@ export default function SignIn() {
             if (data.isSucceed === false) {
                 signInFailure(data.errorCode);
             } else {
-                signInSuccess(data.payloadData);
+                signInSuccess(data.payload);
                 navigate("/");
             }
         } catch (error) {
-            signInFailure(error.message);
+
+            let errorMessage = error.message;
+            if(error.code === "ECONNABORTED") {
+                errorMessage = "Request timeout!";
+            }
+            signInFailure(errorMessage);
         }
     }
 
