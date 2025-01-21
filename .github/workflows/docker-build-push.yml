@@ -31,7 +31,7 @@ jobs:
 
       - name: Build the Docker image
         run: |
-          docker compose -f ${{ env.COMPOSE_FILE }} build \ 
+          docker compose -f ${{ env.COMPOSE_FILE }} build --progress=plain \
           --build-arg AZURE_KEY_VAULT_URL=${{ env.AZURE_KEY_VAULT_URL }} \
           --build-arg AZURE_CLIENT_ID=${{ env.AZURE_CLIENT_ID }} \
           --build-arg AZURE_DIRECTORY_ID=${{ env.AZURE_DIRECTORY_ID }} \
