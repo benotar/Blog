@@ -35,14 +35,14 @@ services:
     build:
       context: ./src/Blog.Frontend
       dockerfile: Dockerfile
+      args:
+        - VITE_API_URL_ARG=arg_value
     image: benotar/frontend_blog
     restart: on-failure
     ports:
       - '5173:5173'
     depends_on:
       - backend_blog
-    environment:
-      - VITE_API_URL=http://backend_blog:5000
 
 volumes:
   blog_db_data:

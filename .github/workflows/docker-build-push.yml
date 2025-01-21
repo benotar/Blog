@@ -13,6 +13,8 @@ env:
   AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
   AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
   DB_HOST: ${{ secrets.DB_HOST }}
+  VITE_API_URL: ${{ secrets.VITE_API_URL }}
+  VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
 
 jobs:
   build-and-push:
@@ -29,7 +31,14 @@ jobs:
 
       - name: Build the Docker image
         run: |
-          docker compose -f ${{ env.COMPOSE_FILE }} build --build-arg AZURE_KEY_VAULT_URL=${{ env.AZURE_KEY_VAULT_URL }} --build-arg AZURE_CLIENT_ID=${{ env.AZURE_CLIENT_ID }} --build-arg AZURE_DIRECTORY_ID=${{ env.AZURE_DIRECTORY_ID }} --build-arg AZURE_CLIENT_SECRET=${{ env.AZURE_CLIENT_SECRET }} --build-arg DB_HOST=${{ env.DB_HOST }}
+          docker compose -f ${{ env.COMPOSE_FILE }} build \ 
+          --build-arg AZURE_KEY_VAULT_URL=${{ env.AZURE_KEY_VAULT_URL }} \
+          --build-arg AZURE_CLIENT_ID=${{ env.AZURE_CLIENT_ID }} \
+          --build-arg AZURE_DIRECTORY_ID=${{ env.AZURE_DIRECTORY_ID }} \
+          --build-arg AZURE_CLIENT_SECRET=${{ env.AZURE_CLIENT_SECRET }} \
+          --build-arg DB_HOST=${{ env.DB_HOST }} \
+          --build-arg VITE_API_URL_ARG=${{ env.VITE_API_URL }} \
+          --build-arg VITE_FIREBASE_API_KEY_ARG=${{ env.VITE_FIREBASE_API_KEY }}
 
       - name: Push backend container
         run: |
