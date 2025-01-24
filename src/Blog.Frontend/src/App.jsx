@@ -7,6 +7,8 @@ import Dashboard from "./pages/Dashboard.jsx";
 import Projects from "./pages/Projects.jsx";
 import Header from "./components/Header.jsx";
 import MyFooter from "./components/MyFooter.jsx";
+import PrivateRoute from "./components/PrivateRoute.jsx";
+
 export default function Main() {
     return (
         <BrowserRouter>
@@ -16,7 +18,9 @@ export default function Main() {
                 <Route path="/about" element={<About/>}/>
                 <Route path="/sign-in" element={<SignIn/>}/>
                 <Route path="/sign-up" element={<SignUp/>}/>
-                <Route path="/dashboard" element={<Dashboard/>}/>
+                <Route element={<PrivateRoute/>}>
+                    <Route path="/dashboard" element={<Dashboard/>}/>
+                </Route>
                 <Route path="/dashboard" element={<Dashboard/>}/>
                 <Route path="/projects" element={<Projects/>}/>
             </Routes>
