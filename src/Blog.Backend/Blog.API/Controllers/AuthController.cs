@@ -3,8 +3,6 @@ using Blog.API.Models.Response;
 using Blog.Application.Common;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Services;
-using Blog.Application.Models;
-using Blog.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.API.Controllers;
@@ -13,13 +11,11 @@ public class AuthController : BaseController
 {
     private readonly IUserService _userService;
     private readonly IJwtProvider _jwtProvider;
-    private readonly ICookieProvider _cookieProvider;
     private readonly IGoogleService _googleService;
-    
-    public AuthController(IUserService userService, ICookieProvider cookieProvider, IJwtProvider jwtProvider, IGoogleService googleService)
+
+    public AuthController(IUserService userService, IJwtProvider jwtProvider, IGoogleService googleService)
     {
         _userService = userService;
-        _cookieProvider = cookieProvider;
         _jwtProvider = jwtProvider;
         _googleService = googleService;
     }
@@ -47,55 +43,41 @@ public class AuthController : BaseController
 
         var validUser = validUserResult.Payload;
 
-        var accessTokenResult = _jwtProvider.GenerateToken(validUser.Id, validUser.Email, JwtType.Access);
-        var refreshTokenResult = _jwtProvider.GenerateToken(validUser.Id, validUser.Email, JwtType.Refresh);
-
-        if (!accessTokenResult.IsSucceed || !refreshTokenResult.IsSucceed)
-        {
-            return ErrorCode.JwtTokenIsUndefined;
-        }
-
-        var accessToken = accessTokenResult.Payload;
-        var refreshToken = refreshTokenResult.Payload;
-
-        _cookieProvider.AddTokens(HttpContext.Response, accessToken, refreshToken);
+        var accessToken = _jwtProvider.GenerateToken(validUser);
+        var refreshToken = await _jwtProvider.CreateRefreshTokenAsync(validUser, cancellationToken);
 
         return new SignInResponseModel
         {
             Id = validUser.Id,
             Email = validUser.Email,
             Username = validUser.Username,
-            ProfilePictureUrl = validUser.ProfilePictureUrl
+            ProfilePictureUrl = validUser.ProfilePictureUrl,
+            AccessToken = accessToken,
+            RefreshToken = refreshToken
         };
     }
 
     [HttpPost("google")]
-    public async Task<Result<GoogleSignInResponseModel>> GoogleSignIn([FromBody]GoogleSignInRequestModel request, CancellationToken cancellationToken)
+    public async Task<Result<GoogleSignInResponseModel>> GoogleSignIn([FromBody] GoogleSignInRequestModel request,
+        CancellationToken cancellationToken)
     {
         var validUserResult = await _googleService.FindOrCreateGoogleUserAsync(request.Email,
             request.Name, request.ProfilePictureUrl, cancellationToken);
-        
+
         var validUser = validUserResult.Payload;
-        
-        var accessTokenResult = _jwtProvider.GenerateToken(validUser.Id, validUser.Email, JwtType.Access);
-        var refreshTokenResult = _jwtProvider.GenerateToken(validUser.Id, validUser.Email, JwtType.Refresh);
-        
-        if (!accessTokenResult.IsSucceed || !refreshTokenResult.IsSucceed)
-        {
-            return ErrorCode.JwtTokenIsUndefined;
-        }
-        
-        var accessToken = accessTokenResult.Payload;
-        var refreshToken = refreshTokenResult.Payload;
-        
-        _cookieProvider.AddTokens(HttpContext.Response, accessToken, refreshToken);
+
+        var accessToken = _jwtProvider.GenerateToken(validUser);
+
+        var refreshToken = await _jwtProvider.CreateRefreshTokenAsync(validUser, cancellationToken);
 
         return new GoogleSignInResponseModel
         {
             Id = validUser.Id,
             Email = validUser.Email,
             Username = validUser.Username,
-            ProfilePictureUrl = validUser.ProfilePictureUrl
+            ProfilePictureUrl = validUser.ProfilePictureUrl,
+            AccessToken = accessToken,
+            RefreshToken = refreshToken
         };
     }
 }

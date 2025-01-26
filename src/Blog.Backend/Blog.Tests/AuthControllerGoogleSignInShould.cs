@@ -16,7 +16,6 @@ public class AuthControllerGoogleSignInShould
     private readonly AuthController _sut;
     private readonly Mock<IGoogleService> _googleServiceMock;
     private readonly Mock<IJwtProvider> _jwtProviderMock;
-    private readonly Mock<ICookieProvider> _cookieProviderMock;
     private readonly GoogleSignInRequestModel _request;
     private readonly GoogleSignInResponseModel _response;
     private readonly UserModel _expectedUserFromGoogleService;
@@ -26,11 +25,9 @@ public class AuthControllerGoogleSignInShould
     {
         var userServiceMock = new Mock<IUserService>();
         _jwtProviderMock = new Mock<IJwtProvider>();
-        _cookieProviderMock = new Mock<ICookieProvider>();
         _googleServiceMock = new Mock<IGoogleService>();
 
-        _sut = new AuthController(userServiceMock.Object, _cookieProviderMock.Object,
-            _jwtProviderMock.Object, _googleServiceMock.Object);
+        _sut = new AuthController(userServiceMock.Object, _jwtProviderMock.Object, _googleServiceMock.Object);
 
         _request = new GoogleSignInRequestModel
         {
@@ -69,18 +66,18 @@ public class AuthControllerGoogleSignInShould
         
         _jwtProviderMock.Setup(j =>
                 j.GenerateToken(_expectedUserFromGoogleService.Id, _expectedUserFromGoogleService.Email, JwtType.Access))
-            .Returns(ErrorCode.JwtTokenIsUndefined);
+            .Returns(ErrorCode.RefreshTokenHasExpired);
         
         _jwtProviderMock.Setup(j =>
                 j.GenerateToken(_expectedUserFromGoogleService.Id, _expectedUserFromGoogleService.Email, JwtType.Refresh))
-            .Returns(ErrorCode.JwtTokenIsUndefined);
+            .Returns(ErrorCode.RefreshTokenHasExpired);
         
         // Act
         var actual = await _sut.GoogleSignIn(_request, _clt);
         
         // Assert
         actual.IsSucceed.Should().BeFalse();
-        actual.ErrorCode.Should().Be(ErrorCode.JwtTokenIsUndefined);
+        actual.ErrorCode.Should().Be(ErrorCode.RefreshTokenHasExpired);
         actual.Payload.Should().BeNull();
     }
 
@@ -101,11 +98,6 @@ public class AuthControllerGoogleSignInShould
         _jwtProviderMock.Setup(j =>
                 j.GenerateToken(_expectedUserFromGoogleService.Id, _expectedUserFromGoogleService.Email, JwtType.Access))
             .Returns(accessToken);
-        _jwtProviderMock.Setup(j =>
-                j.GenerateToken(_expectedUserFromGoogleService.Id, _expectedUserFromGoogleService.Email, JwtType.Refresh))
-            .Returns(refreshToken);
-        _cookieProviderMock.Setup(c => c.AddTokens(httpContext.Response, accessToken,
-            refreshToken));
 
         // Act
         var actual = await _sut.GoogleSignIn(_request, _clt);
@@ -118,14 +110,5 @@ public class AuthControllerGoogleSignInShould
 
         _googleServiceMock.Verify(s => s.FindOrCreateGoogleUserAsync(_request.Email, _request.Name,
             _request.ProfilePictureUrl, _clt), Times.Once);
-
-        _jwtProviderMock.Verify(j => j.GenerateToken(_expectedUserFromGoogleService.Id,
-            _expectedUserFromGoogleService.Email,
-            JwtType.Access), Times.Once);
-        _jwtProviderMock.Verify(j => j.GenerateToken(_expectedUserFromGoogleService.Id,
-            _expectedUserFromGoogleService.Email,
-            JwtType.Refresh), Times.Once);
-        _cookieProviderMock.Verify(c => c.AddTokens(httpContext.Response, accessToken,
-            refreshToken), Times.Once);
     }
 }

@@ -2,7 +2,8 @@
 
 public enum ErrorCode
 {
-    JwtTokenIsUndefined,
+    RefreshTokenHasExpired,
+    InvalidRefreshToken,
     InvalidCredentials,
     UserAlreadyExists,
     InvalidModel,

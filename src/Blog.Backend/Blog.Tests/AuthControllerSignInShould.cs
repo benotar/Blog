@@ -1,14 +1,12 @@
 ﻿using Blog.API.Controllers;
 using Blog.API.Models.Request;
 using Blog.API.Models.Response;
-using Blog.Application.Common;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Services;
 using Blog.Application.Models;
 using Blog.Domain.Enums;
 using FluentAssertions;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Blog.Tests;
@@ -18,18 +16,15 @@ public class AuthControllerSignInShould
     private readonly AuthController _sut;
     private readonly Mock<IUserService> _userServiceMock;
     private readonly Mock<IJwtProvider> _jwtProviderMock;
-    private readonly Mock<ICookieProvider> _cookieProviderMock;
 
     public AuthControllerSignInShould()
     {
         _userServiceMock = new Mock<IUserService>();
         _jwtProviderMock = new Mock<IJwtProvider>();
-        _cookieProviderMock = new Mock<ICookieProvider>();
         var googleServiceMock = new Mock<IGoogleService>();
 
 
-        _sut = new AuthController(_userServiceMock.Object, _cookieProviderMock.Object,
-            _jwtProviderMock.Object, googleServiceMock.Object);
+        _sut = new AuthController(_userServiceMock.Object, _jwtProviderMock.Object, googleServiceMock.Object);
     }
 
     [Fact]
@@ -87,16 +82,6 @@ public class AuthControllerSignInShould
         _userServiceMock.Setup(s => s.GetCheckedUserAsync(
                 request.Email, request.Password, clt))
             .ReturnsAsync(expectedUserFromService);
-
-        _jwtProviderMock.Setup(j =>
-                j.GenerateToken(expectedUserFromService.Id, expectedUserFromService.Email, JwtType.Access))
-            .Returns(accessToken);
-        _jwtProviderMock.Setup(j =>
-                j.GenerateToken(expectedUserFromService.Id, expectedUserFromService.Email, JwtType.Refresh))
-            .Returns(refreshToken);
-        _cookieProviderMock.Setup(c => c.AddTokens(httpContext.Response, accessToken,
-            refreshToken));
-
         // Act
         var actual = await _sut.Login(request, clt);
 
@@ -108,11 +93,5 @@ public class AuthControllerSignInShould
 
         _userServiceMock.Verify(s => s.GetCheckedUserAsync(
             request.Email, request.Password, It.IsAny<CancellationToken>()), Times.Once);
-        _jwtProviderMock.Verify(j => j.GenerateToken(expectedUserFromService.Id, expectedUserFromService.Email,
-            JwtType.Access), Times.Once);
-        _jwtProviderMock.Verify(j => j.GenerateToken(expectedUserFromService.Id, expectedUserFromService.Email,
-            JwtType.Refresh), Times.Once);
-        _cookieProviderMock.Verify(c => c.AddTokens(httpContext.Response, accessToken,
-            refreshToken), Times.Once);
     }
 }

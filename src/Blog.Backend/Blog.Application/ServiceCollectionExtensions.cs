@@ -19,9 +19,8 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<IEncryptionProvider, HmacSha256Provider>();
         services.AddSingleton<IMomentProvider, MomentProvider>();
-        services.AddSingleton<IJwtProvider, JwtProvider>();
-        services.AddSingleton<ICookieProvider, CookieProvider>();
-
+        
+        services.AddScoped<IJwtProvider, JwtProvider>();
         services.AddScoped<IGoogleService, GoogleService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAzureTranslatorService, AzureTranslatorService>();

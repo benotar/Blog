@@ -7,15 +7,16 @@ namespace Blog.Persistence;
 public class UnitOfWork : IUnitOfWork
 {
     public IUserRepository UserRepository { get; }
+    public IRefreshTokenRepository RefreshTokenRepository { get; }
 
     private readonly IDbContext _dbContext;
     private bool _disposed = false;
 
-    public UnitOfWork(IDbContext dbContext, IUserRepository userRepository)
+    public UnitOfWork(IDbContext dbContext, IUserRepository userRepository, IRefreshTokenRepository refreshTokenRepository)
     {
         _dbContext = dbContext;
-        
         UserRepository = userRepository;
+        RefreshTokenRepository = refreshTokenRepository;
     }
 
     protected virtual void Dispose(bool disposing)

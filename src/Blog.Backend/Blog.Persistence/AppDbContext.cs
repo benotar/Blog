@@ -7,11 +7,13 @@ namespace Blog.Persistence;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IDbContext
 {
-     public DbSet<User> Users { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<RefreshToken> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfiguration(new UserTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new UserConfiguration());
+        modelBuilder.ApplyConfiguration(new RefreshTokenConfiguration());
 
         base.OnModelCreating(modelBuilder);
     }

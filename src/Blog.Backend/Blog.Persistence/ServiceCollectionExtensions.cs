@@ -28,10 +28,10 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IDbContext>(provider =>
             provider.GetRequiredService<AppDbContext>());
-
-
+        
         services.AddScoped<IUserRepository, UserRepository>();
-
+        services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        
         // Add UoW
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
