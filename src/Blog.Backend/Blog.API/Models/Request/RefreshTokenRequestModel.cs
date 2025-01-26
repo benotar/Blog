@@ -1,3 +1,9 @@
-﻿namespace Blog.API.Models.Request;
+﻿using System.ComponentModel.DataAnnotations;
 
-public sealed record RefreshTokenRequestModel(string RefreshToken);
+namespace Blog.API.Models.Request;
+
+public record RefreshTokenRequestModel
+{
+    [Required] public int UserId {get; init;}
+    [Required] public string RefreshToken {get; init;}
+}

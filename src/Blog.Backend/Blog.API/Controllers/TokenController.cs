@@ -16,11 +16,11 @@ public class TokenController : BaseController
     }
 
     [HttpPost("refresh")]
-    public async Task<Result<RefreshTokenResponseModel>> Refresh([FromBody] RefreshTokenRequestModel request,
+    public async Task<Result<TokensResponseModel>> Refresh([FromBody] RefreshTokenRequestModel request,
         CancellationToken cancellationToken = default)
     {
         var refreshTokenResult = await _jwtProvider
-             .VerifyAndGetRefreshTokenAsync(request.RefreshToken, cancellationToken);
+            .VerifyAndGetRefreshTokenAsync(request.RefreshToken, request.UserId, cancellationToken);
 
         if (!refreshTokenResult.IsSucceed)
         {
@@ -37,6 +37,6 @@ public class TokenController : BaseController
             return updateResult.ErrorCode;
         }
 
-        return new RefreshTokenResponseModel(accessToken, targetRefreshToken.Token);
+        return new TokensResponseModel(accessToken, updateResult.Payload);
     }
 }

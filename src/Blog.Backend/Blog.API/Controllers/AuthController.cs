@@ -28,8 +28,6 @@ public class AuthController : BaseController
     }
 
     [HttpPost("sign-in")]
-
-    // TODO Add dto
     public async Task<Result<SignInResponseModel>> Login([FromBody] SignInRequestModel model,
         CancellationToken cancellationToken)
     {
@@ -52,8 +50,7 @@ public class AuthController : BaseController
             Email = validUser.Email,
             Username = validUser.Username,
             ProfilePictureUrl = validUser.ProfilePictureUrl,
-            AccessToken = accessToken,
-            RefreshToken = refreshToken
+            Tokens = new TokensResponseModel(accessToken, refreshToken)
         };
     }
 
@@ -76,8 +73,7 @@ public class AuthController : BaseController
             Email = validUser.Email,
             Username = validUser.Username,
             ProfilePictureUrl = validUser.ProfilePictureUrl,
-            AccessToken = accessToken,
-            RefreshToken = refreshToken
+            Tokens = new TokensResponseModel(accessToken, refreshToken)
         };
     }
 }

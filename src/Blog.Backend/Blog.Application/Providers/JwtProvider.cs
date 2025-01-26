@@ -116,14 +116,20 @@ public class JwtProvider : IJwtProvider
 
         return refreshToken.Token;
     }
-    
-    public async Task<Result<RefreshTokenModel?>> VerifyAndGetRefreshTokenAsync(string refreshToken,
+
+    public async Task<Result<RefreshTokenModel?>> VerifyAndGetRefreshTokenAsync(string refreshToken, int userId,
         CancellationToken cancellationToken = default)
     {
         var existingRefreshToken =
-            await _unitOfWork.RefreshTokenRepository.GetRefreshTokenIncludeUserAsync(refreshToken, cancellationToken);
+            await _unitOfWork.RefreshTokenRepository.GetRefreshTokenIncludeUserAsync(refreshToken, userId,
+                cancellationToken);
 
-        if (existingRefreshToken is null || existingRefreshToken.ExpiresOnUtc < _momentProvider.DateTimeOffsetUtcNow)
+        if (existingRefreshToken is null)
+        {
+            return ErrorCode.InvalidRefreshToken;
+        }
+        
+        if (existingRefreshToken.ExpiresOnUtc < _momentProvider.DateTimeOffsetUtcNow)
         {
             return ErrorCode.RefreshTokenHasExpired;
         }
@@ -131,12 +137,13 @@ public class JwtProvider : IJwtProvider
         return existingRefreshToken.ToModel();
     }
 
-    public async Task<Result<string>> UpdateRefreshTokenAsync(string targetToken, UserModel user, CancellationToken cancellationToken = default)
+    public async Task<Result<string>> UpdateRefreshTokenAsync(string targetToken, UserModel user,
+        CancellationToken cancellationToken = default)
     {
         var newToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
         var newExpireOnUtc = _momentProvider.DateTimeOffsetUtcNow.AddDays(_jwtConfig.RefreshExpirationDays);
-        
-        var updateResult =  await _unitOfWork.RefreshTokenRepository.UpdateAsync(targetToken, newToken, newExpireOnUtc,
+
+        var updateResult = await _unitOfWork.RefreshTokenRepository.UpdateAsync(targetToken, newToken, newExpireOnUtc,
             cancellationToken);
 
         return updateResult.IsSucceed ? newToken : updateResult.ErrorCode;

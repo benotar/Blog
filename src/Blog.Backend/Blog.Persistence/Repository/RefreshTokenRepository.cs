@@ -22,12 +22,13 @@ public class RefreshTokenRepository : IRefreshTokenRepository
         _context.RefreshTokens.Add(refreshToken);
     }
 
-    public async Task<RefreshToken?> GetRefreshTokenIncludeUserAsync(string newRefreshToken,
+    public async Task<RefreshToken?> GetRefreshTokenIncludeUserAsync(string newRefreshToken, int userId,
         CancellationToken cancellationToken = default)
     {
         return await _context.RefreshTokens
             .Include(r => r.User)
-            .FirstOrDefaultAsync(r => r.Token == newRefreshToken, cancellationToken);
+            .FirstOrDefaultAsync(r => r.UserId == userId && r.Token == newRefreshToken,
+                cancellationToken);
     }
 
     public async Task<Result<None>> UpdateAsync(string targetToken, string newToken, DateTimeOffset newExpireOnUtc,
