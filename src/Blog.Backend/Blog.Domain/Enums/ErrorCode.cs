@@ -7,5 +7,6 @@ public enum ErrorCode
     InvalidCredentials,
     UserAlreadyExists,
     InvalidModel,
+    ThereIsNothingToDelete,
     UnexpectedError
 }

@@ -22,17 +22,27 @@ public class RefreshTokenRepository : IRefreshTokenRepository
         _context.RefreshTokens.Add(refreshToken);
     }
 
-    public async Task<RefreshToken?> GetRefreshTokenIncludeUserAsync(string newRefreshToken, int userId,
+    public async Task<RefreshToken?> GetIncludeUserAsync(string refreshToken, int userId,
         CancellationToken cancellationToken = default)
     {
         return await _context.RefreshTokens
-            .Where(r => r.UserId == userId && r.Token == newRefreshToken)
+            .Where(r => r.UserId == userId && r.Token == refreshToken)
             .Include(r => r.User)
             //.ToListAsync(cancellationToken);
-            .FirstOrDefaultAsync(r => r.UserId == userId && r.Token == newRefreshToken, cancellationToken);
+            .FirstOrDefaultAsync(r => r.UserId == userId && r.Token == refreshToken, cancellationToken);
     }
 
-    public async Task<Result<None>> UpdateAsync(int tokenId, string targetToken, string newToken, DateTimeOffset newExpire,
+    public async Task<RefreshToken?> Get(string refreshToken, int userId, CancellationToken cancellationToken = default)
+    {
+        return await _context.RefreshTokens
+            .Where(r => r.UserId == userId && r.Token == refreshToken)
+            //.Include(r => r.User)
+            //.ToListAsync(cancellationToken);
+            .FirstOrDefaultAsync(r => r.UserId == userId && r.Token == refreshToken, cancellationToken);
+    }
+
+    public async Task<Result<None>> UpdateAsync(int tokenId, string targetToken, string newToken,
+        DateTimeOffset newExpire,
         CancellationToken cancellationToken = default)
     {
         var rowsAffected = await _context.RefreshTokens
@@ -44,5 +54,22 @@ public class RefreshTokenRepository : IRefreshTokenRepository
             );
 
         return rowsAffected == 0 ? ErrorCode.InvalidRefreshToken : Result<None>.Success();
+    }
+
+    public async Task<Result<None>> DeleteAllAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        var rowsAffected = await _context.RefreshTokens
+            .Where(r => r.UserId == userId)
+            .ExecuteDeleteAsync(cancellationToken);
+        
+        return rowsAffected == 0 ? ErrorCode.ThereIsNothingToDelete : Result<None>.Success();
+    }
+
+    public async Task<int> GetUserIdByRefreshTokenAsync(string refreshToken,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.RefreshTokens.Where(r => r.Token == refreshToken)
+            .Select(r => r.UserId)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }

@@ -56,7 +56,7 @@ public class JwtProvider : IJwtProvider
             claims: claims,
             signingCredentials: credentials
         );
-        
+
         return new JwtSecurityTokenHandler().WriteToken(securityToken);
     }
 
@@ -79,11 +79,21 @@ public class JwtProvider : IJwtProvider
         return refreshToken.Token;
     }
 
+    public async Task<Result<RefreshTokenModel>?> GetRefreshTokenEntityAsync(string refreshToken, int userId,
+        CancellationToken cancellationToken = default)
+    {
+        var existingRefreshToken =
+            await _unitOfWork.RefreshTokenRepository.Get(refreshToken, userId,
+                cancellationToken);
+
+        return existingRefreshToken is not null ? existingRefreshToken.ToModel() : ErrorCode.InvalidRefreshToken;
+    }
+
     public async Task<Result<RefreshTokenModel?>> VerifyAndGetRefreshTokenAsync(string refreshToken, int userId,
         CancellationToken cancellationToken = default)
     {
         var existingRefreshToken =
-            await _unitOfWork.RefreshTokenRepository.GetRefreshTokenIncludeUserAsync(refreshToken, userId,
+            await _unitOfWork.RefreshTokenRepository.GetIncludeUserAsync(refreshToken, userId,
                 cancellationToken);
 
         if (existingRefreshToken is null)
@@ -110,5 +120,25 @@ public class JwtProvider : IJwtProvider
             cancellationToken);
 
         return updateResult.IsSucceed ? newToken : updateResult.ErrorCode;
+    }
+
+    public async Task<Result<None>> DeleteRefreshTokensResultAsync(int userId,
+        CancellationToken cancellationToken = default)
+    {
+        var deleteResult = await _unitOfWork
+            .RefreshTokenRepository
+            .DeleteAllAsync(userId, cancellationToken);
+
+        return deleteResult.IsSucceed ? Result<None>.Success() : deleteResult.ErrorCode;
+    }
+
+    public async Task<Result<int>> GetUserIdByRefreshTokenAsync(string refreshToken,
+        CancellationToken cancellationToken = default)
+    {
+        var userId = await _unitOfWork
+            .RefreshTokenRepository
+            .GetUserIdByRefreshTokenAsync(refreshToken, cancellationToken);
+
+        return userId == 0 ? ErrorCode.InvalidRefreshToken : userId;
     }
 }

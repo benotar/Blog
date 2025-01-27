@@ -76,4 +76,21 @@ public class AuthController : BaseController
             Tokens = new TokensResponseModel(accessToken, refreshToken)
         };
     }
+
+    [HttpPost("sign-out")]
+    public async Task<Result<None>> Logout([FromBody] LogoutRequestModel request,
+        CancellationToken cancellationToken)
+    {
+        var getUserIdResult = await _jwtProvider.GetUserIdByRefreshTokenAsync(request.RefreshToken, cancellationToken);
+
+        if (!getUserIdResult.IsSucceed)
+        {
+            return getUserIdResult.ErrorCode;
+        }
+
+        var deleteRefreshTokensResult = await _jwtProvider
+            .DeleteRefreshTokensResultAsync(getUserIdResult.Payload, cancellationToken);
+
+        return deleteRefreshTokensResult.IsSucceed ? Result<None>.Success() : deleteRefreshTokensResult.ErrorCode;
+    }
 }

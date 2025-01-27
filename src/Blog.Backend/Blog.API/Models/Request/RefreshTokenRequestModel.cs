@@ -4,6 +4,8 @@ namespace Blog.API.Models.Request;
 
 public record RefreshTokenRequestModel
 {
-    [Required] public int UserId {get; init;}
+    [Required]
+    [Range(1, int.MaxValue)]
+    public int UserId {get; init;}
     [Required] public string RefreshToken {get; init;}
 }
