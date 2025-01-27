@@ -26,19 +26,20 @@ public class RefreshTokenRepository : IRefreshTokenRepository
         CancellationToken cancellationToken = default)
     {
         return await _context.RefreshTokens
+            .Where(r => r.UserId == userId && r.Token == newRefreshToken)
             .Include(r => r.User)
-            .FirstOrDefaultAsync(r => r.UserId == userId && r.Token == newRefreshToken,
-                cancellationToken);
+            //.ToListAsync(cancellationToken);
+            .FirstOrDefaultAsync(r => r.UserId == userId && r.Token == newRefreshToken, cancellationToken);
     }
 
-    public async Task<Result<None>> UpdateAsync(string targetToken, string newToken, DateTimeOffset newExpireOnUtc,
+    public async Task<Result<None>> UpdateAsync(int tokenId, string targetToken, string newToken, DateTimeOffset newExpire,
         CancellationToken cancellationToken = default)
     {
         var rowsAffected = await _context.RefreshTokens
-            .Where(r => r.Token == targetToken)
+            .Where(r => r.Id == tokenId && r.Token == targetToken)
             .ExecuteUpdateAsync(updates => updates
                     .SetProperty(rf => rf.Token, newToken)
-                    .SetProperty(rf => rf.ExpiresOnUtc, newExpireOnUtc),
+                    .SetProperty(rf => rf.ExpiresOnUtc, newExpire),
                 cancellationToken
             );
 

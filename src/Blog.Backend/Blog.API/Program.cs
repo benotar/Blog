@@ -13,7 +13,8 @@ builder.Services.AddTextTranslator(builder.Configuration);
 // Application layers
 builder.Services
     .AddApplication()
-    .AddPersistence(builder.Configuration);
+    .AddPersistence(builder.Configuration)
+    .AddAuth(builder.Configuration);
 
 // Configured controllers
 builder.Services.AddControllersWithConfiguredApiBehavior(builder.Configuration);
@@ -23,6 +24,7 @@ builder.Services.AddExceptionHandlerWithProblemDetails();
 
 var app = builder.Build();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Use exceptions handling

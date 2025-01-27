@@ -34,43 +34,6 @@ public class JwtProvider : IJwtProvider
         _jwtConfig = jwtConfig.Value;
     }
 
-    public Result<string> GenerateToken(int userId, string email, JwtType jwtType)
-    {
-        if (jwtType == JwtType.Undefined)
-        {
-            return ErrorCode.RefreshTokenHasExpired;
-        }
-
-        var jwtKey = _configuration.GetSection(_jwtConfig.KeySectionName).Value;
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));
-        var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
-        var claims = new List<Claim>
-        {
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new(JwtRegisteredClaimNames.Email, email),
-            new(ClaimTypes.NameIdentifier, userId.ToString()),
-            new(JwtRegisteredClaimNames.Typ, jwtType.ToString())
-        };
-
-        var expires = jwtType switch
-        {
-            JwtType.Access => _momentProvider.DateTimeUtcNow.AddMinutes(_jwtConfig.AccessExpirationMinutes),
-            JwtType.Refresh => _momentProvider.DateTimeUtcNow.AddDays(_jwtConfig.RefreshExpirationDays)
-        };
-
-        var securityToken = new JwtSecurityToken(
-            issuer: _jwtConfig.Issuer,
-            audience: _jwtConfig.Audience,
-            expires: expires,
-            claims: claims,
-            signingCredentials: signingCredentials
-        );
-
-        return new JwtSecurityTokenHandler().WriteToken(securityToken);
-    }
-
     public string GenerateToken(UserModel user)
     {
         var secretKey = _configuration.GetSection(_jwtConfig.KeySectionName).Value;
@@ -78,24 +41,23 @@ public class JwtProvider : IJwtProvider
 
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-        var tokenDescriptor = new SecurityTokenDescriptor
+        var claims = new List<Claim>
         {
-            Subject = new ClaimsIdentity(
-            [
-                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            ]),
-            Expires = _momentProvider.DateTimeUtcNow.AddMinutes(_jwtConfig.AccessExpirationMinutes),
-            SigningCredentials = credentials,
-            Issuer = _jwtConfig.Issuer,
-            Audience = _jwtConfig.Audience,
+            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+            new(JwtRegisteredClaimNames.Email, user.Email),
         };
 
-        var handler = new JsonWebTokenHandler();
+        var expires = _momentProvider.DateTimeUtcNow.AddMinutes(_jwtConfig.AccessExpirationMinutes);
 
-        var token = handler.CreateToken(tokenDescriptor);
-
-        return token;
+        var securityToken = new JwtSecurityToken(
+            issuer: _jwtConfig.Issuer,
+            audience: _jwtConfig.Audience,
+            expires: expires,
+            claims: claims,
+            signingCredentials: credentials
+        );
+        
+        return new JwtSecurityTokenHandler().WriteToken(securityToken);
     }
 
     public async Task<string> CreateRefreshTokenAsync(UserModel user,
@@ -128,7 +90,7 @@ public class JwtProvider : IJwtProvider
         {
             return ErrorCode.InvalidRefreshToken;
         }
-        
+
         if (existingRefreshToken.ExpiresOnUtc < _momentProvider.DateTimeOffsetUtcNow)
         {
             return ErrorCode.RefreshTokenHasExpired;
@@ -137,13 +99,14 @@ public class JwtProvider : IJwtProvider
         return existingRefreshToken.ToModel();
     }
 
-    public async Task<Result<string>> UpdateRefreshTokenAsync(string targetToken, UserModel user,
+    public async Task<Result<string>> UpdateRefreshTokenAsync(int targetTokenId, string targetToken, UserModel user,
         CancellationToken cancellationToken = default)
     {
         var newToken = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
         var newExpireOnUtc = _momentProvider.DateTimeOffsetUtcNow.AddDays(_jwtConfig.RefreshExpirationDays);
 
-        var updateResult = await _unitOfWork.RefreshTokenRepository.UpdateAsync(targetToken, newToken, newExpireOnUtc,
+        var updateResult = await _unitOfWork.RefreshTokenRepository.UpdateAsync(targetTokenId, targetToken, newToken,
+            newExpireOnUtc,
             cancellationToken);
 
         return updateResult.IsSucceed ? newToken : updateResult.ErrorCode;

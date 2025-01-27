@@ -2,10 +2,12 @@
 using Blog.API.Models.Response;
 using Blog.Application.Common;
 using Blog.Application.Interfaces.Providers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.API.Controllers;
 
+[Authorize]
 public class TokenController : BaseController
 {
     private readonly IJwtProvider _jwtProvider;
@@ -29,14 +31,15 @@ public class TokenController : BaseController
 
         var targetRefreshToken = refreshTokenResult.Payload;
         var accessToken = _jwtProvider.GenerateToken(targetRefreshToken.User);
-        var updateResult = await _jwtProvider.UpdateRefreshTokenAsync(targetRefreshToken.Token,
+        
+        var updateTargetRefreshTokenResult = await _jwtProvider.UpdateRefreshTokenAsync(targetRefreshToken.Id, targetRefreshToken.Token,
             targetRefreshToken.User, cancellationToken);
 
-        if (!updateResult.IsSucceed)
+        if (!updateTargetRefreshTokenResult.IsSucceed)
         {
-            return updateResult.ErrorCode;
+            return updateTargetRefreshTokenResult.ErrorCode;
         }
 
-        return new TokensResponseModel(accessToken, updateResult.Payload);
+        return new TokensResponseModel(accessToken, updateTargetRefreshTokenResult.Payload);
     }
 }

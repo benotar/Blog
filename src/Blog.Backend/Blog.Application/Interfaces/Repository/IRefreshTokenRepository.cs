@@ -11,6 +11,6 @@ public interface IRefreshTokenRepository
     Task<RefreshToken?> GetRefreshTokenIncludeUserAsync(string newRefreshToken, int userId,
         CancellationToken cancellationToken = default);
 
-    Task<Result<None>> UpdateAsync(string targetToken, string newToken, DateTimeOffset newExpireOnUtc,
+    Task<Result<None>> UpdateAsync(int tokenId, string targetToken, string newToken, DateTimeOffset newExpire,
         CancellationToken cancellationToken = default);
 }
