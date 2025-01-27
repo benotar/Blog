@@ -22,8 +22,7 @@ public class AuthControllerSignInShould
         _userServiceMock = new Mock<IUserService>();
         _jwtProviderMock = new Mock<IJwtProvider>();
         var googleServiceMock = new Mock<IGoogleService>();
-
-
+        
         _sut = new AuthController(_userServiceMock.Object, _jwtProviderMock.Object, googleServiceMock.Object);
     }
 
@@ -59,12 +58,10 @@ public class AuthControllerSignInShould
 
         var accessToken = "access_token";
         var refreshToken = "refreshToken";
+        var tokensResponse = new TokensResponseModel(accessToken, refreshToken);
 
         var clt = CancellationToken.None;
-
-        var httpContext = new DefaultHttpContext();
-        _sut.ControllerContext.HttpContext = httpContext;
-
+        
         var expectedUserFromService = new UserModel
         {
             Email = request.Email,
@@ -76,12 +73,22 @@ public class AuthControllerSignInShould
         {
             Email = expectedUserFromService.Email,
             Username = expectedUserFromService.Username,
-            ProfilePictureUrl = expectedUserFromService.ProfilePictureUrl
+            ProfilePictureUrl = expectedUserFromService.ProfilePictureUrl,
+            Tokens = tokensResponse
         };
 
         _userServiceMock.Setup(s => s.GetCheckedUserAsync(
                 request.Email, request.Password, clt))
             .ReturnsAsync(expectedUserFromService);
+        
+        _jwtProviderMock.Setup(j =>
+                j.GenerateToken(expectedUserFromService))
+            .Returns(accessToken);
+
+        _jwtProviderMock.Setup(j =>
+                j.CreateRefreshTokenAsync(expectedUserFromService, clt))
+            .ReturnsAsync(refreshToken);
+        
         // Act
         var actual = await _sut.Login(request, clt);
 

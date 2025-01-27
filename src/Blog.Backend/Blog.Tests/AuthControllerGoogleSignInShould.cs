@@ -20,7 +20,9 @@ public class AuthControllerGoogleSignInShould
     private readonly GoogleSignInResponseModel _response;
     private readonly UserModel _expectedUserFromGoogleService;
     private readonly CancellationToken _clt;
-    
+    private readonly string _accessToken;
+    private readonly string _refreshToken;
+
     public AuthControllerGoogleSignInShould()
     {
         var userServiceMock = new Mock<IUserService>();
@@ -29,13 +31,17 @@ public class AuthControllerGoogleSignInShould
 
         _sut = new AuthController(userServiceMock.Object, _jwtProviderMock.Object, _googleServiceMock.Object);
 
+        _accessToken = "access_token";
+        _refreshToken = "refreshToken";
+        var tokensResponse = new TokensResponseModel(_accessToken, _refreshToken);
+        
         _request = new GoogleSignInRequestModel
         {
             Email = "email",
             Name = "username",
-            ProfilePictureUrl = "picture",
+            ProfilePictureUrl = "picture"
         };
-        
+
         _expectedUserFromGoogleService = new UserModel
         {
             Id = 1,
@@ -49,46 +55,17 @@ public class AuthControllerGoogleSignInShould
             Id = _expectedUserFromGoogleService.Id,
             Email = _expectedUserFromGoogleService.Email,
             Username = _expectedUserFromGoogleService.Username,
-            ProfilePictureUrl = _request.ProfilePictureUrl
+            ProfilePictureUrl = _request.ProfilePictureUrl,
+            Tokens = tokensResponse
         };
-        
-        _clt = CancellationToken.None;
-    }
 
-    [Fact]
-    public async Task ReturnError_WhenTokenTypeInvalid()
-    {
-        // Arrange
-        _googleServiceMock.Setup(g =>
-                g.FindOrCreateGoogleUserAsync(_request.Email, _request.Name, _request.ProfilePictureUrl,
-                    _clt))
-            .ReturnsAsync(_expectedUserFromGoogleService);
-        
-        _jwtProviderMock.Setup(j =>
-                j.GenerateToken(_expectedUserFromGoogleService.Id, _expectedUserFromGoogleService.Email, JwtType.Access))
-            .Returns(ErrorCode.RefreshTokenHasExpired);
-        
-        _jwtProviderMock.Setup(j =>
-                j.GenerateToken(_expectedUserFromGoogleService.Id, _expectedUserFromGoogleService.Email, JwtType.Refresh))
-            .Returns(ErrorCode.RefreshTokenHasExpired);
-        
-        // Act
-        var actual = await _sut.GoogleSignIn(_request, _clt);
-        
-        // Assert
-        actual.IsSucceed.Should().BeFalse();
-        actual.ErrorCode.Should().Be(ErrorCode.RefreshTokenHasExpired);
-        actual.Payload.Should().BeNull();
+        _clt = CancellationToken.None;
     }
 
     [Fact]
     public async Task ReturnUser_WhenGoogleSignInIsSuccessful()
     {
         // Arrange
-        var accessToken = "access_token";
-        var refreshToken = "refreshToken";
-        var httpContext = new DefaultHttpContext();
-        _sut.ControllerContext.HttpContext = httpContext;
 
         _googleServiceMock.Setup(g =>
                 g.FindOrCreateGoogleUserAsync(_request.Email, _request.Name, _request.ProfilePictureUrl,
@@ -96,8 +73,12 @@ public class AuthControllerGoogleSignInShould
             .ReturnsAsync(_expectedUserFromGoogleService);
 
         _jwtProviderMock.Setup(j =>
-                j.GenerateToken(_expectedUserFromGoogleService.Id, _expectedUserFromGoogleService.Email, JwtType.Access))
-            .Returns(accessToken);
+                j.GenerateToken(_expectedUserFromGoogleService))
+            .Returns(_accessToken);
+
+        _jwtProviderMock.Setup(j =>
+                j.CreateRefreshTokenAsync(_expectedUserFromGoogleService, _clt))
+            .ReturnsAsync(_refreshToken);
 
         // Act
         var actual = await _sut.GoogleSignIn(_request, _clt);
