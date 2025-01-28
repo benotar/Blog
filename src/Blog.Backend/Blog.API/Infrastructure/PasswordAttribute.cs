@@ -9,7 +9,6 @@ public partial class PasswordAttribute() : ValidationAttribute(DefaultErrorMessa
         "Password must contain at least one uppercase letter, one lowercase letter, one number and a minimum of 8 characters.";
 
     private static readonly Regex PasswordRegex = MyRegex();
-
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
         if (value is null || !PasswordRegex.IsMatch(value.ToString()))

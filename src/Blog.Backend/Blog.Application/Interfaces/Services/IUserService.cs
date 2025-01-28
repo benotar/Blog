@@ -15,6 +15,6 @@ public interface IUserService
     Task<Result<UserModel>> GetCheckedUserAsync(string email, string password,
         CancellationToken cancellationToken = default);
 
-    Task<Result<None>> UpdateAsync(int userId, string username, string email, string profilePictureUrl,
+    Task<Result<None>> UpdateAsync(int userId, string? username, string? email, string? profilePictureUrl,
         CancellationToken cancellationToken = default);
 }

@@ -103,7 +103,7 @@ public class UserService : IUserService
         };
     }
 
-    public async Task<Result<None>> UpdateAsync(int userId, string username, string email, string profilePictureUrl,
+    public async Task<Result<None>> UpdateAsync(int userId, string? username, string? email, string? profilePictureUrl,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(username)

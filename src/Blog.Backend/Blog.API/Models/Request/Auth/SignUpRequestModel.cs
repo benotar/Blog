@@ -6,7 +6,7 @@ namespace Blog.API.Models.Request.Auth;
 public record SignUpRequestModel
 {
     [Required]
-    [Length(6,20, ErrorMessage = $"{nameof(Username)} must be between 6 and 20 characters")]
+    [Username]
     public string Username { get; init; }
     
     [Required]
