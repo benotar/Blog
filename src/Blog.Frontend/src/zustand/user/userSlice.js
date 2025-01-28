@@ -1,5 +1,6 @@
 const initialState = {
     currentUser: null,
+    tokens: null,
     errorMessage: null,
     loading: false
 };
@@ -16,7 +17,8 @@ export const createUserSlice = (set) => ({
     signInSuccess: (payload) => {
         set((state) => ({
             ...state,
-            currentUser: payload,
+            currentUser: payload.currentUser,
+            tokens: payload.tokens,
             loading: false,
             errorMessage: null
         }));
@@ -25,6 +27,7 @@ export const createUserSlice = (set) => ({
         set((state) => ({
             ...state,
             currentUser: null,
+            tokens: null,
             loading: false,
             errorMessage: payload
         }));
