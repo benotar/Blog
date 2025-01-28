@@ -10,6 +10,7 @@ const $axios = axios.create({
     }
 });
 
+
 $axios.interceptors.request.use(config => {
 
     const storeState = useAppStore.getState();
@@ -23,5 +24,54 @@ $axios.interceptors.request.use(config => {
 }, error => {
     return Promise.reject(error);
 });
+
+$axios.interceptors.response.use(response => response,
+    async error => {
+
+        let storeState = useAppStore.getState();
+
+        if (!storeState.currentUser && !storeState.tokens?.refreshToken) {
+            return Promise.reject();
+        }
+
+        const refreshStart = storeState.refreshStart;
+        const refreshSuccess = storeState.refreshSuccess;
+        const refreshToken = storeState.tokens.refreshToken;
+        const currentUser = storeState.currentUser;
+        const originalRequest = error.config;
+        const errorResponse = error.response;
+
+        if (errorResponse.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+            try {
+                refreshStart();
+                const {data} = await $axios.post("token/refresh", {
+                    userId: currentUser.id,
+                    refreshToken
+                });
+
+                if (data.isSucceed === false) {
+                    // TODO add refresh failure
+                    return Promise.reject();
+                }
+
+                refreshSuccess(data.payload);
+                storeState = useAppStore.getState();
+
+                if (!storeState.tokens?.accessToken) {
+                    // TODO add refresh failure
+                    return Promise.reject();
+                }
+                const accessToken = storeState.tokens.accessToken;
+                originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+
+                return $axios(originalRequest);
+            } catch (error) {
+                // TODO add refresh failure
+
+            }
+        }
+
+    });
 
 export default $axios;

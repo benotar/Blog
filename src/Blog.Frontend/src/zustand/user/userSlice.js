@@ -31,6 +31,52 @@ export const createUserSlice = (set) => ({
             loading: false,
             errorMessage: payload
         }));
-    }
+    },
+    updateStart: () => {
+        set((state) => ({
+            ...state,
+            loading: true,
+            errorMessage: null
+        }));
+    },
+    updateSuccess: (payload) => {
+        set((state) => ({
+            ...state,
+            currentUser: payload.currentUser,
+            loading: false,
+            errorMessage: null
+        }));
+    },
+    updateFailure: (payload) => {
+        set((state) => ({
+            ...state,
+            loading: false,
+            errorMessage: payload
+        }));
+    },
+    refreshStart: () => {
+        set((state) => ({
+            ...state,
+            loading: true,
+            errorMessage: null
+        }));
+    },
+    refreshSuccess: (payload) => {
+        set((state) => ({
+            ...state,
+            tokens: payload,
+            loading: false,
+            errorMessage: null
+        }));
+    },
+    refreshFailure: (payload) => {
+        set((state) => ({
+            ...state,
+            currentUser: null,
+            tokens: null,
+            loading: false,
+            errorMessage: payload
+        }));
+    },
 });
 
