@@ -1,6 +1,8 @@
 ﻿using Blog.API.Controllers;
 using Blog.API.Models.Request;
+using Blog.API.Models.Request.Auth;
 using Blog.API.Models.Response;
+using Blog.API.Models.Response.Auth;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Services;
 using Blog.Application.Models;

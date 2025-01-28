@@ -102,4 +102,20 @@ public class UserService : IUserService
             ProfilePictureUrl = validUser.ProfilePictureUrl
         };
     }
+
+    public async Task<Result<None>> UpdateAsync(int userId, string username, string email, string profilePictureUrl,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrEmpty(username)
+            || string.IsNullOrEmpty(email)
+            || string.IsNullOrEmpty(profilePictureUrl))
+        {
+            return ErrorCode.InvalidCredentials;
+        }
+
+        var rowsAffected = await _unitOfWork.UserRepository
+            .UpdateAsync(userId, username, email, profilePictureUrl, cancellationToken);
+
+        return rowsAffected == 0 ? ErrorCode.NothingToUpdate : Result<None>.Success();
+    }
 }

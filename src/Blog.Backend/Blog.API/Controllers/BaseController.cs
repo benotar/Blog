@@ -1,4 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,5 +7,6 @@ namespace Blog.API.Controllers;
 [Route("api/[controller]")]
 public class BaseController : ControllerBase
 {
-    internal int UserId => int.Parse(this.User.FindFirstValue(JwtRegisteredClaimNames.Sub));
+    internal int UserId => int.Parse(User.Claims
+        .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
 }

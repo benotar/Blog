@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Blog.API.Infrastructure;
 
-namespace Blog.API.Models.Request;
+namespace Blog.API.Models.Request.Auth;
 
 public record SignUpRequestModel
 {

@@ -1,4 +1,4 @@
-﻿namespace Blog.API.Models.Response;
+﻿namespace Blog.API.Models.Response.Auth;
 
 public sealed record SignInResponseModel
 {

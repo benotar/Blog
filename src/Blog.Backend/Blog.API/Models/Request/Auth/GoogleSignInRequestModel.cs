@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Blog.API.Models.Request;
+namespace Blog.API.Models.Request.Auth;
 
 public record GoogleSignInRequestModel
 {

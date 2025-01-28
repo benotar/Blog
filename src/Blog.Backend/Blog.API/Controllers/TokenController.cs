@@ -1,5 +1,7 @@
 ﻿using Blog.API.Models.Request;
+using Blog.API.Models.Request.Auth;
 using Blog.API.Models.Response;
+using Blog.API.Models.Response.Auth;
 using Blog.Application.Common;
 using Blog.Application.Interfaces.Providers;
 using Microsoft.AspNetCore.Mvc;

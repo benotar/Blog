@@ -8,5 +8,8 @@ public enum ErrorCode
     UserAlreadyExists,
     InvalidModel,
     ThereIsNothingToDelete,
+    NothingToUpdate,
+    UserIdMissing,
+    YouAreNotAllowedToAccessThisResource,
     UnexpectedError
 }
