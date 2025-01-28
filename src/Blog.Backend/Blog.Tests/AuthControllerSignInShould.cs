@@ -1,14 +1,12 @@
 ﻿using Blog.API.Controllers;
-using Blog.API.Models.Request;
 using Blog.API.Models.Request.Auth;
-using Blog.API.Models.Response;
 using Blog.API.Models.Response.Auth;
+using Blog.API.Models.Response.User;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Services;
 using Blog.Application.Models;
 using Blog.Domain.Enums;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Moq;
 
 namespace Blog.Tests;
@@ -71,11 +69,17 @@ public class AuthControllerSignInShould
             ProfilePictureUrl = "url"
         };
 
-        var expectedSignInResponse = new SignInResponseModel
+        var userResponseModel = new UserResponseModel
         {
+            Id = expectedUserFromService.Id,
             Email = expectedUserFromService.Email,
             Username = expectedUserFromService.Username,
-            ProfilePictureUrl = expectedUserFromService.ProfilePictureUrl,
+            ProfilePictureUrl = expectedUserFromService.ProfilePictureUrl
+        };
+        
+        var expectedSignInResponse = new SignInResponseModel
+        {
+            CurrentUser = userResponseModel,
             Tokens = tokensResponse
         };
 

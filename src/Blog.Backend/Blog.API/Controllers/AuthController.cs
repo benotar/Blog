@@ -2,6 +2,7 @@
 using Blog.API.Models.Request.Auth;
 using Blog.API.Models.Response;
 using Blog.API.Models.Response.Auth;
+using Blog.API.Models.Response.User;
 using Blog.Application.Common;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Services;
@@ -48,16 +49,19 @@ public class AuthController : BaseController
 
         return new SignInResponseModel
         {
-            Id = validUser.Id,
-            Email = validUser.Email,
-            Username = validUser.Username,
-            ProfilePictureUrl = validUser.ProfilePictureUrl,
+            CurrentUser = new UserResponseModel
+            {
+                Id = validUser.Id,
+                Email = validUser.Email,
+                Username = validUser.Username,
+                ProfilePictureUrl = validUser.ProfilePictureUrl,
+            },
             Tokens = new TokensResponseModel(accessToken, refreshToken)
         };
     }
 
     [HttpPost("google")]
-    public async Task<Result<GoogleSignInResponseModel>> GoogleSignIn([FromBody] GoogleSignInRequestModel request,
+    public async Task<Result<SignInResponseModel>> GoogleSignIn([FromBody] GoogleSignInRequestModel request,
         CancellationToken cancellationToken)
     {
         var validUserResult = await _googleService.FindOrCreateGoogleUserAsync(request.Email,
@@ -69,12 +73,15 @@ public class AuthController : BaseController
 
         var refreshToken = await _jwtProvider.CreateRefreshTokenAsync(validUser, cancellationToken);
 
-        return new GoogleSignInResponseModel
+        return new SignInResponseModel
         {
-            Id = validUser.Id,
-            Email = validUser.Email,
-            Username = validUser.Username,
-            ProfilePictureUrl = validUser.ProfilePictureUrl,
+            CurrentUser = new UserResponseModel
+            {
+                Id = validUser.Id,
+                Email = validUser.Email,
+                Username = validUser.Username,
+                ProfilePictureUrl = validUser.ProfilePictureUrl,
+            },
             Tokens = new TokensResponseModel(accessToken, refreshToken)
         };
     }

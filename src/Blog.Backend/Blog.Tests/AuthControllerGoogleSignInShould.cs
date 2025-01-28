@@ -1,14 +1,11 @@
 ﻿using Blog.API.Controllers;
-using Blog.API.Models.Request;
 using Blog.API.Models.Request.Auth;
-using Blog.API.Models.Response;
 using Blog.API.Models.Response.Auth;
+using Blog.API.Models.Response.User;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Services;
 using Blog.Application.Models;
-using Blog.Domain.Enums;
 using FluentAssertions;
-using Microsoft.AspNetCore.Http;
 using Moq;
 
 namespace Blog.Tests;
@@ -19,7 +16,7 @@ public class AuthControllerGoogleSignInShould
     private readonly Mock<IGoogleService> _googleServiceMock;
     private readonly Mock<IJwtProvider> _jwtProviderMock;
     private readonly GoogleSignInRequestModel _request;
-    private readonly GoogleSignInResponseModel _response;
+    private readonly SignInResponseModel _response;
     private readonly UserModel _expectedUserFromGoogleService;
     private readonly CancellationToken _clt;
     private readonly string _accessToken;
@@ -51,13 +48,18 @@ public class AuthControllerGoogleSignInShould
             Username = "translated_username228",
             ProfilePictureUrl = _request.ProfilePictureUrl
         };
-        
-        _response = new GoogleSignInResponseModel
+
+        var userResponseModel = new UserResponseModel
         {
             Id = _expectedUserFromGoogleService.Id,
             Email = _expectedUserFromGoogleService.Email,
             Username = _expectedUserFromGoogleService.Username,
             ProfilePictureUrl = _request.ProfilePictureUrl,
+        };
+        
+        _response = new SignInResponseModel
+        {
+            CurrentUser = userResponseModel,
             Tokens = tokensResponse
         };
 
@@ -88,7 +90,7 @@ public class AuthControllerGoogleSignInShould
         // Assert
         actual.IsSucceed.Should().BeTrue();
         actual.ErrorCode.Should().BeNull();
-        actual.Payload.Should().BeOfType<GoogleSignInResponseModel>()
+        actual.Payload.Should().BeOfType<SignInResponseModel>()
             .Which.Should().Be(_response);
 
         _googleServiceMock.Verify(s => s.FindOrCreateGoogleUserAsync(_request.Email, _request.Name,
