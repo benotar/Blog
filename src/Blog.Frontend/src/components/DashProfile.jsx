@@ -104,16 +104,23 @@ export default function DashProfile() {
 
         try {
             updateStart();
+
             const {data} = await $axios.put(`user/update/${currentUser.id}`, formData);
 
             if (!data.isSucceed) {
-                updateFailure(data.payload);
-                setUpdateUserError(data.payload);
+                updateFailure(data.errorCode);
+                setUpdateUserError(data.errorCode);
             } else {
                 updateSuccess(data.payload);
                 setUpdateUserSuccess("User's profile updated successfully");
             }
         } catch (error) {
+            if(error.response) {
+                updateFailure(error.response.data.payload.detail);
+                setUpdateUserError(error.response.data.errorCode);
+                return;
+            }
+
             updateFailure(error.message);
             setUpdateUserError("The server is not responding. Please try again later.");
         }

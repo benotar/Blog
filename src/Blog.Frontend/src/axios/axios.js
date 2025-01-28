@@ -66,12 +66,12 @@ $axios.interceptors.response.use(response => response,
                 originalRequest.headers.Authorization = `Bearer ${accessToken}`;
 
                 return $axios(originalRequest);
-            } catch (error) {
+            } catch (catchError) {
                 // TODO add refresh failure
-
+                return Promise.reject(catchError);
             }
         }
-
+        return Promise.reject(error);
     });
 
 export default $axios;

@@ -1,4 +1,5 @@
-﻿using Blog.API.Models.Request;
+﻿using Blog.API.Extensions;
+using Blog.API.Models.Request;
 using Blog.API.Models.Request.Auth;
 using Blog.API.Models.Response;
 using Blog.API.Models.Response.Auth;
@@ -49,13 +50,7 @@ public class AuthController : BaseController
 
         return new SignInResponseModel
         {
-            CurrentUser = new UserResponseModel
-            {
-                Id = validUser.Id,
-                Email = validUser.Email,
-                Username = validUser.Username,
-                ProfilePictureUrl = validUser.ProfilePictureUrl,
-            },
+            CurrentUser = validUser.ToModel(),
             Tokens = new TokensResponseModel(accessToken, refreshToken)
         };
     }
@@ -75,13 +70,7 @@ public class AuthController : BaseController
 
         return new SignInResponseModel
         {
-            CurrentUser = new UserResponseModel
-            {
-                Id = validUser.Id,
-                Email = validUser.Email,
-                Username = validUser.Username,
-                ProfilePictureUrl = validUser.ProfilePictureUrl,
-            },
+            CurrentUser = validUser.ToModel(),
             Tokens = new TokensResponseModel(accessToken, refreshToken)
         };
     }

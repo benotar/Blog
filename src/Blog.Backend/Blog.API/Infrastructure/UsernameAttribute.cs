@@ -19,6 +19,6 @@ public partial class UsernameAttribute() : ValidationAttribute(DefaultErrorMessa
         return ValidationResult.Success;
     }
 
-    [GeneratedRegex(@"^[a-z0-9]{7,20}$", RegexOptions.Compiled)]
+    [GeneratedRegex(@"^[a-z0-9_]{7,20}$", RegexOptions.Compiled)]
     private static partial Regex MyRegex();
 }

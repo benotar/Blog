@@ -1,5 +1,7 @@
-﻿using Blog.API.Infrastructure;
+﻿using Blog.API.Extensions;
+using Blog.API.Infrastructure;
 using Blog.API.Models.Request.User;
+using Blog.API.Models.Response.User;
 using Blog.Application.Common;
 using Blog.Application.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -18,10 +20,17 @@ public class UserController : BaseController
         _userService = userService;
     }
 
-    [HttpPost("update/{userId:int}")]
-    public async Task<Result<None>> Update(int userId, [FromBody] UpdateUserRequestModel request)
+    [HttpPut("update/{userId:int}")]
+    public async Task<Result<UserResponseModel>> Update(int userId, [FromBody] UpdateUserRequestModel request)
     {
-        return await _userService
+        var updateUserResult =  await _userService
             .UpdateAsync(userId, request.Username, request.Email, request.ProfilePictureUrl);
+
+        if (!updateUserResult.IsSucceed)
+        {
+            return updateUserResult.ErrorCode;
+        }
+
+        return updateUserResult.Payload.ToModel();
     }
 }

@@ -17,6 +17,13 @@ public class UserRepository : IUserRepository
         _momentProvider = momentProvider;
     }
 
+    public async Task<User?> GetByIdAsync(int userId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Users
+            .AsTracking()
+            .FirstOrDefaultAsync(u => u.Id == userId, cancellationToken);
+    }
+
     public async Task<User?> GetUserByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Users

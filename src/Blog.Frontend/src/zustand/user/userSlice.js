@@ -42,7 +42,7 @@ export const createUserSlice = (set) => ({
     updateSuccess: (payload) => {
         set((state) => ({
             ...state,
-            currentUser: payload.currentUser,
+            currentUser: payload,
             loading: false,
             errorMessage: null
         }));

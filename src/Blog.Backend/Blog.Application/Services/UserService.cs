@@ -103,19 +103,55 @@ public class UserService : IUserService
         };
     }
 
-    public async Task<Result<None>> UpdateAsync(int userId, string? username, string? email, string? profilePictureUrl,
+    public async Task<Result<UserModel>> UpdateAsync(int userId, string? username, string? email,
+        string? profilePictureUrl,
         CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(username)
-            || string.IsNullOrEmpty(email)
-            || string.IsNullOrEmpty(profilePictureUrl))
+        var existingUser = await _unitOfWork.UserRepository
+            .GetByIdAsync(userId, cancellationToken);
+
+        if (existingUser is null)
         {
             return ErrorCode.InvalidCredentials;
         }
 
-        var rowsAffected = await _unitOfWork.UserRepository
-            .UpdateAsync(userId, username, email, profilePictureUrl, cancellationToken);
+        if ((username is null || string.Equals(existingUser.Username, username, StringComparison.OrdinalIgnoreCase))
+            && (email is null || string.Equals(existingUser.Email, email,
+                StringComparison.OrdinalIgnoreCase))
+            && (profilePictureUrl is null || string.Equals(existingUser.ProfilePictureUrl,
+                profilePictureUrl, StringComparison.OrdinalIgnoreCase)))
+        {
+            return ErrorCode.NothingToUpdate;
+        }
 
-        return rowsAffected == 0 ? ErrorCode.NothingToUpdate : Result<None>.Success();
+        if (username is not null)
+        {
+            existingUser.Username = username;
+        }
+
+        if (email is not null)
+        {
+            existingUser.Email = email;
+        }
+        
+        if (profilePictureUrl is not null)
+        {
+            existingUser.ProfilePictureUrl = profilePictureUrl;
+        }
+        existingUser.UpdatedAt = _momentProvider.DateTimeOffsetUtcNow;
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return new UserModel
+        {
+            Id = existingUser.Id,
+            Email = existingUser.Email,
+            Username = existingUser.Username,
+            ProfilePictureUrl = existingUser.ProfilePictureUrl
+        };
+        // var rowsAffected = await _unitOfWork.UserRepository
+        //     .UpdateAsync(userId, username, email, profilePictureUrl, cancellationToken);
+        //
+        // return rowsAffected == 0 ? ErrorCode.NothingToUpdate : Result<None>.Success();
     }
 }
