@@ -122,24 +122,27 @@ public class UserService : IUserService
         }
 
         var isPasswordUpdated = false;
-
-        var currentUserPassword = new SaltAndHash(existingUser.PasswordSalt, existingUser.PasswordHash);
-
-        if (!_encryptionProvider.VerifyPasswordHash(currentPassword!, currentUserPassword))
+        
+        if (!string.IsNullOrEmpty(currentPassword) && !string.IsNullOrEmpty(newPassword))
         {
-            return ErrorCode.PasswordDontMatch;
-        }
+            var currentUserPassword = new SaltAndHash(existingUser.PasswordSalt, existingUser.PasswordHash);
 
-        if (!_encryptionProvider.VerifyPasswordHash(newPassword!, currentUserPassword))
-        {
-            var newUserPassword = _encryptionProvider.HashPassword(newPassword!);
-            
-            existingUser.PasswordSalt = newUserPassword.Salt;
-            existingUser.PasswordHash = newUserPassword.Hash;
-            
-            isPasswordUpdated = true;
-        }
+            if (!_encryptionProvider.VerifyPasswordHash(currentPassword!, currentUserPassword))
+            {
+                return ErrorCode.PasswordDontMatch;
+            }
 
+            if (!_encryptionProvider.VerifyPasswordHash(newPassword!, currentUserPassword))
+            {
+                var newUserPassword = _encryptionProvider.HashPassword(newPassword!);
+            
+                existingUser.PasswordSalt = newUserPassword.Salt;
+                existingUser.PasswordHash = newUserPassword.Hash;
+            
+                isPasswordUpdated = true;
+            }
+        }
+        
         if (!isPasswordUpdated &&
             (string.IsNullOrEmpty(username) ||
              string.Equals(existingUser.Username, username, StringComparison.OrdinalIgnoreCase))
