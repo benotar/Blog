@@ -41,19 +41,9 @@ public class UserRepository : IUserRepository
         _dbContext.Users.Add(user);
     }
 
-    public async Task<int> UpdateAsync(int userId, string username, string email, string profilePictureUrl,
-        CancellationToken cancellationToken = default)
+    public async Task<int> DeleteAsync(int userId, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Users
-            .Where(u => u.Id == userId
-                        && (u.Username != username
-                            || u.Email != email
-                            || u.ProfilePictureUrl != profilePictureUrl))
-            .ExecuteUpdateAsync(updates =>
-                    updates.SetProperty(u => u.Email, email)
-                        .SetProperty(u => u.Username, username)
-                        .SetProperty(u => u.ProfilePictureUrl, profilePictureUrl)
-                        .SetProperty(u => u.UpdatedAt, _momentProvider.DateTimeOffsetUtcNow),
-                cancellationToken);
+        return await  _dbContext.Users.Where(u => u.Id == userId)
+            .ExecuteDeleteAsync(cancellationToken);
     }
 }

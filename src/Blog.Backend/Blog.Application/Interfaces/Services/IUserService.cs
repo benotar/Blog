@@ -17,4 +17,5 @@ public interface IUserService
 
     Task<Result<UserModel>> UpdateAsync(int userId, string? username, string? email, string? profilePictureUrl,
         string? currentPassword, string? newPassword, CancellationToken cancellationToken = default);
+    Task<Result<None>> DeleteAsync(int userId, CancellationToken cancellationToken = default);
 }

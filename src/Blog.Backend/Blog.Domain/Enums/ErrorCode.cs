@@ -9,8 +9,8 @@ public enum ErrorCode
     InvalidModel,
     ThereIsNothingToDelete,
     NothingToUpdate,
+    NothingToDelete,
     UserIdMissing,
-    YouAreNotAllowedToAccessThisResource,
     EnterYourCurrentAndNewPassword,
     PasswordDontMatch,
     UnexpectedError

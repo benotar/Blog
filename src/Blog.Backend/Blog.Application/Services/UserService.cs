@@ -172,4 +172,11 @@ public class UserService : IUserService
             ProfilePictureUrl = existingUser.ProfilePictureUrl
         };
     }
+
+    public async Task<Result<None>> DeleteAsync(int userId, CancellationToken cancellationToken = default)
+    {
+        var rowsAffected = await _unitOfWork.UserRepository.DeleteAsync(userId, cancellationToken);
+
+        return rowsAffected == 0 ? ErrorCode.NothingToDelete : new None();
+    }
 }

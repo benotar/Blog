@@ -21,11 +21,12 @@ public class UserController : BaseController
     }
 
     [HttpPut("update/{userId:int}")]
-    public async Task<Result<UserResponseModel>> Update(int userId, [FromBody] UpdateUserRequestModel request)
+    public async Task<Result<UserResponseModel>> Update([FromRoute] int userId,
+        [FromBody] UpdateUserRequestModel request, CancellationToken cancellationToken=default)
     {
         var updateUserResult = await _userService
             .UpdateAsync(userId, request.Username, request.Email, request.ProfilePictureUrl,
-                request.CurrentPassword, request.NewPassword);
+                request.CurrentPassword, request.NewPassword, cancellationToken);
 
         if (!updateUserResult.IsSucceed)
         {
@@ -33,5 +34,11 @@ public class UserController : BaseController
         }
 
         return updateUserResult.Payload.ToModel();
+    }
+
+    [HttpDelete("delete/{userId:int}")]
+    public async Task<Result<None>> Delete([FromRoute] int userId, CancellationToken cancellationToken=default)
+    {
+        return await _userService.DeleteAsync(userId, cancellationToken);
     }
 }
