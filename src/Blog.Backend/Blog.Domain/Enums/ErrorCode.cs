@@ -11,5 +11,7 @@ public enum ErrorCode
     NothingToUpdate,
     UserIdMissing,
     YouAreNotAllowedToAccessThisResource,
+    EnterYourCurrentAndNewPassword,
+    PasswordDontMatch,
     UnexpectedError
 }

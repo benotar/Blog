@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Blog.API.Infrastructure;
 
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
 public partial class PasswordAttribute() : ValidationAttribute(DefaultErrorMessage)
 {
     private const string DefaultErrorMessage =
@@ -11,12 +12,14 @@ public partial class PasswordAttribute() : ValidationAttribute(DefaultErrorMessa
     private static readonly Regex PasswordRegex = MyRegex();
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
-        if (value is null || !PasswordRegex.IsMatch(value.ToString()))
+        if (value == null)
         {
-            return new ValidationResult(ErrorMessage ?? DefaultErrorMessage);
+            return ValidationResult.Success;
         }
-
-        return ValidationResult.Success;
+        
+        return !PasswordRegex.IsMatch(value.ToString())
+            ? new ValidationResult(ErrorMessage ?? DefaultErrorMessage)
+            : ValidationResult.Success;
     }
 
     [GeneratedRegex(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$", RegexOptions.Compiled)]

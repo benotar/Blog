@@ -1,4 +1,5 @@
-﻿using Blog.Application.Common;
+﻿using System.Security.Cryptography;
+using Blog.Application.Common;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Services;
 using Blog.Application.Interfaces.UnitOfWork;
@@ -104,7 +105,7 @@ public class UserService : IUserService
     }
 
     public async Task<Result<UserModel>> UpdateAsync(int userId, string? username, string? email,
-        string? profilePictureUrl,
+        string? profilePictureUrl, string? currentPassword, string? newPassword,
         CancellationToken cancellationToken = default)
     {
         var existingUser = await _unitOfWork.UserRepository
@@ -115,29 +116,47 @@ public class UserService : IUserService
             return ErrorCode.InvalidCredentials;
         }
 
-        if ((username is null || string.Equals(existingUser.Username, username, StringComparison.OrdinalIgnoreCase))
-            && (email is null || string.Equals(existingUser.Email, email,
-                StringComparison.OrdinalIgnoreCase))
-            && (profilePictureUrl is null || string.Equals(existingUser.ProfilePictureUrl,
+        if (!string.IsNullOrEmpty(currentPassword) ^ !string.IsNullOrEmpty(newPassword))
+        {
+            return ErrorCode.EnterYourCurrentAndNewPassword;
+        }
+
+        var isPasswordUpdated = false;
+
+        var currentUserPassword = new SaltAndHash(existingUser.PasswordSalt, existingUser.PasswordHash);
+
+        if (!_encryptionProvider.VerifyPasswordHash(currentPassword!, currentUserPassword))
+        {
+            return ErrorCode.PasswordDontMatch;
+        }
+
+        if (!_encryptionProvider.VerifyPasswordHash(newPassword!, currentUserPassword))
+        {
+            var newUserPassword = _encryptionProvider.HashPassword(newPassword!);
+            
+            existingUser.PasswordSalt = newUserPassword.Salt;
+            existingUser.PasswordHash = newUserPassword.Hash;
+            
+            isPasswordUpdated = true;
+        }
+
+        if (!isPasswordUpdated &&
+            (string.IsNullOrEmpty(username) ||
+             string.Equals(existingUser.Username, username, StringComparison.OrdinalIgnoreCase))
+            && (string.IsNullOrEmpty(email) ||
+                string.Equals(existingUser.Email, email, StringComparison.OrdinalIgnoreCase))
+            && (string.IsNullOrEmpty(profilePictureUrl) || string.Equals(existingUser.ProfilePictureUrl,
                 profilePictureUrl, StringComparison.OrdinalIgnoreCase)))
         {
             return ErrorCode.NothingToUpdate;
         }
 
-        if (username is not null)
-        {
-            existingUser.Username = username;
-        }
+        if (!string.IsNullOrEmpty(username)) existingUser.Username = username;
 
-        if (email is not null)
-        {
-            existingUser.Email = email;
-        }
-        
-        if (profilePictureUrl is not null)
-        {
-            existingUser.ProfilePictureUrl = profilePictureUrl;
-        }
+        if (!string.IsNullOrEmpty(email)) existingUser.Email = email;
+
+        if (!string.IsNullOrEmpty(profilePictureUrl)) existingUser.ProfilePictureUrl = profilePictureUrl;
+
         existingUser.UpdatedAt = _momentProvider.DateTimeOffsetUtcNow;
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
@@ -149,9 +168,5 @@ public class UserService : IUserService
             Username = existingUser.Username,
             ProfilePictureUrl = existingUser.ProfilePictureUrl
         };
-        // var rowsAffected = await _unitOfWork.UserRepository
-        //     .UpdateAsync(userId, username, email, profilePictureUrl, cancellationToken);
-        //
-        // return rowsAffected == 0 ? ErrorCode.NothingToUpdate : Result<None>.Success();
     }
 }

@@ -23,8 +23,9 @@ public class UserController : BaseController
     [HttpPut("update/{userId:int}")]
     public async Task<Result<UserResponseModel>> Update(int userId, [FromBody] UpdateUserRequestModel request)
     {
-        var updateUserResult =  await _userService
-            .UpdateAsync(userId, request.Username, request.Email, request.ProfilePictureUrl);
+        var updateUserResult = await _userService
+            .UpdateAsync(userId, request.Username, request.Email, request.ProfilePictureUrl,
+                request.CurrentPassword, request.NewPassword);
 
         if (!updateUserResult.IsSucceed)
         {
