@@ -19,21 +19,25 @@ export default function DashProfile() {
     const {
         currentUser,
         errorMessage,
+        tokens,
         updateStart,
         updateSuccess,
         updateFailure,
         deleteStart,
         deleteSuccess,
-        deleteFailure
+        deleteFailure,
+        doSignOut
     } = useAppStore(useShallow((state) => ({
         currentUser: state.currentUser,
-        errorMessage:state.errorMessage,
+        errorMessage: state.errorMessage,
+        tokens: state.tokens,
         updateStart: state.updateStart,
         updateSuccess: state.updateSuccess,
         updateFailure: state.updateFailure,
         deleteStart: state.deleteStart,
         deleteSuccess: state.deleteSuccess,
-        deleteFailure: state.deleteFailure
+        deleteFailure: state.deleteFailure,
+        doSignOut: state.doSignOut
     })));
 
     const [imageFile, setImageFile] = useState(null);
@@ -144,7 +148,7 @@ export default function DashProfile() {
             deleteStart();
             const {data} = await $axios.delete(`user/delete/${currentUser.id}`);
 
-            if(!data.isSucceed) {
+            if (!data.isSucceed) {
                 deleteFailure(data.errorCode);
             } else {
                 deleteSuccess();
@@ -156,6 +160,22 @@ export default function DashProfile() {
             } else {
                 deleteFailure(error.message);
             }
+        }
+    };
+
+    const handleSignOut = async () => {
+        try {
+            const {data} = await $axios.post("auth/sign-out", {
+                refreshToken: tokens.refreshToken
+            });
+
+            if (!data.isSucceed) {
+                doSignOut();
+            } else {
+                doSignOut();
+            }
+        } catch (error) {
+            console.log(error.message);
         }
     };
 
@@ -252,7 +272,12 @@ export default function DashProfile() {
                     >
                         Delete Account
                     </span>
-                    <span className="cursor-pointer">Sign Out</span>
+                    <span
+                        className="cursor-pointer"
+                        onClick={handleSignOut}
+                    >
+                        Sign Out
+                    </span>
                 </div>
                 {updateUserSuccess &&
                     <Alert

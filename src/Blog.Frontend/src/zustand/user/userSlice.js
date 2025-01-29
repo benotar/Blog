@@ -101,5 +101,14 @@ export const createUserSlice = (set) => ({
             errorMessage: payload
         }));
     },
+    doSignOut:() => {
+        set((state) => ({
+            ...state,
+            currentUser: null,
+            tokens: null,
+            loading: false,
+            errorMessage: null
+        }));
+    }
 });
 
