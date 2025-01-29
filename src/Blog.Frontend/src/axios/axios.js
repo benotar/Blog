@@ -3,13 +3,12 @@ import {useAppStore} from "../zustand/useAppStore.js";
 
 const $axios = axios.create({
     baseURL: "/api",
-    timeout: 10000,
+    timeout: 50000,
     withCredentials: true,
     headers: {
         "Content-Type": "application/json"
     }
 });
-
 
 $axios.interceptors.request.use(config => {
 
@@ -28,21 +27,23 @@ $axios.interceptors.request.use(config => {
 $axios.interceptors.response.use(response => response,
     async error => {
 
-        let storeState = useAppStore.getState();
-
-        if (!storeState.currentUser && !storeState.tokens?.refreshToken) {
-            return Promise.reject();
-        }
-
-        const refreshStart = storeState.refreshStart;
-        const refreshSuccess = storeState.refreshSuccess;
-        const refreshToken = storeState.tokens.refreshToken;
-        const currentUser = storeState.currentUser;
         const originalRequest = error.config;
         const errorResponse = error.response;
 
         if (errorResponse.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
+
+            let storeState = useAppStore.getState();
+
+            if (!storeState.currentUser && !storeState.tokens?.refreshToken) {
+                return Promise.reject();
+            }
+
+            const refreshStart = storeState.refreshStart;
+            const refreshSuccess = storeState.refreshSuccess;
+            const refreshToken = storeState.tokens.refreshToken;
+            const currentUser = storeState.currentUser;
+
             try {
                 refreshStart();
                 const {data} = await $axios.post("token/refresh", {

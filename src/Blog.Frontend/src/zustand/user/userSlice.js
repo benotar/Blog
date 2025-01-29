@@ -54,6 +54,29 @@ export const createUserSlice = (set) => ({
             errorMessage: payload
         }));
     },
+    deleteStart: () => {
+        set((state) => ({
+            ...state,
+            loading: true,
+            errorMessage: null
+        }));
+    },
+    deleteSuccess: () => {
+        set((state) => ({
+            ...state,
+            currentUser: null,
+            tokens: null,
+            loading: false,
+            errorMessage: null
+        }));
+    },
+    deleteFailure: (payload) => {
+        set((state) => ({
+            ...state,
+            loading: false,
+            errorMessage: payload
+        }));
+    },
     refreshStart: () => {
         set((state) => ({
             ...state,
