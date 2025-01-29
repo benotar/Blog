@@ -36,6 +36,8 @@ $axios.interceptors.response.use(response => response,
             let storeState = useAppStore.getState();
 
             if (!storeState.currentUser && !storeState.tokens?.refreshToken) {
+                const refreshFailure = storeState.refreshFailure;
+                refreshFailure("You have been logged out due to inactivity. Please log in again.");
                 return Promise.reject();
             }
 
@@ -52,7 +54,8 @@ $axios.interceptors.response.use(response => response,
                 });
 
                 if (data.isSucceed === false) {
-                    // TODO add refresh failure
+                    const refreshFailure = storeState.refreshFailure;
+                    refreshFailure("You have been logged out due to inactivity. Please log in again.");
                     return Promise.reject();
                 }
 
@@ -60,7 +63,8 @@ $axios.interceptors.response.use(response => response,
                 storeState = useAppStore.getState();
 
                 if (!storeState.tokens?.accessToken) {
-                    // TODO add refresh failure
+                    const refreshFailure = storeState.refreshFailure;
+                    refreshFailure("You have been logged out due to inactivity. Please log in again.");
                     return Promise.reject();
                 }
                 const accessToken = storeState.tokens.accessToken;
@@ -68,7 +72,8 @@ $axios.interceptors.response.use(response => response,
 
                 return $axios(originalRequest);
             } catch (catchError) {
-                // TODO add refresh failure
+                const refreshFailure = storeState.refreshFailure;
+                refreshFailure();
                 return Promise.reject(catchError);
             }
         }
