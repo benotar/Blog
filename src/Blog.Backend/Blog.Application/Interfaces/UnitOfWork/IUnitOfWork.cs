@@ -2,9 +2,9 @@
 
 namespace Blog.Application.Interfaces.UnitOfWork;
 
-public interface IUnitOfWork: IDisposable
+public interface IUnitOfWork : IDisposable
 {
-    IUserRepository UserRepository { get; }
-    public IRefreshTokenRepository RefreshTokenRepository { get; }
+    IRepository<T> GetRepository<T>() where T : class;
+    TRepository GetEntityRepository<TRepository>() where TRepository : class;
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

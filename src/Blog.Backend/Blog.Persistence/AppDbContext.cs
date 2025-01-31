@@ -1,11 +1,10 @@
-﻿using Blog.Application.Interfaces.DbContext;
-using Blog.Domain.Entities;
+﻿using Blog.Domain.Entities;
 using Blog.Persistence.EntityTypeConfiguration;
 using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Persistence;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options), IDbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<User> Users { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }

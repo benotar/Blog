@@ -13,7 +13,7 @@ namespace Blog.Tests;
 public class GoogleServiceAuthShould
 {
     private readonly GoogleService _sut;
-    private readonly Mock<IUnitOfWork> _unitOfWorkMock;
+    private readonly Mock<IUnitOfWorkTemp> _unitOfWorkMock;
     private readonly  Mock<IUserService> _userServiceMock;
     private readonly  Mock<IAzureTranslatorService> _azureTranslatorServiceMock;
 
@@ -26,7 +26,7 @@ public class GoogleServiceAuthShould
 
     public GoogleServiceAuthShould()
     {
-        _unitOfWorkMock = new Mock<IUnitOfWork>();
+        _unitOfWorkMock = new Mock<IUnitOfWorkTemp>();
         _userServiceMock = new Mock<IUserService>();
         _azureTranslatorServiceMock = new Mock<IAzureTranslatorService>();
         

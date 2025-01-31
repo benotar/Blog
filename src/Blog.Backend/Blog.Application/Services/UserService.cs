@@ -1,6 +1,6 @@
-﻿using System.Security.Cryptography;
-using Blog.Application.Common;
+﻿using Blog.Application.Common;
 using Blog.Application.Interfaces.Providers;
+using Blog.Application.Interfaces.Repository;
 using Blog.Application.Interfaces.Services;
 using Blog.Application.Interfaces.UnitOfWork;
 using Blog.Application.Models;
@@ -11,21 +11,27 @@ namespace Blog.Application.Services;
 
 public class UserService : IUserService
 {
-    private readonly IUnitOfWork _unitOfWork;
+    // readonly IUnitOfWorkTemp _unitOfWorkTempTemp;
     private readonly IMomentProvider _momentProvider;
     private readonly IEncryptionProvider _encryptionProvider;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IRepository<User> _userRepository;
 
-    public UserService(IMomentProvider momentProvider, IUnitOfWork unitOfWork, IEncryptionProvider encryptionProvider)
+    public UserService(IMomentProvider momentProvider, IEncryptionProvider encryptionProvider, IUnitOfWork unitOfWork)
     {
         _momentProvider = momentProvider;
-        _unitOfWork = unitOfWork;
+        //_unitOfWorkTempTemp = unitOfWorkTempTemp;
         _encryptionProvider = encryptionProvider;
+        _unitOfWork = unitOfWork;
+        _userRepository = unitOfWork.GetRepository<User>();
     }
 
     public async Task<Result<None>> CreateAsync(string username, string email, string password,
         CancellationToken cancellationToken = default)
     {
-        var isUserExist = await _unitOfWork.UserRepository.AnyByEmailAsync(email, cancellationToken);
+        var isUserExist = await _userRepository.AnyAsync(user => user.Email == email, cancellationToken);
+
+        //var isUserExist = await _unitOfWorkTempTemp.UserRepository.AnyByEmailAsync(email, cancellationToken);
 
         if (isUserExist)
         {
@@ -43,11 +49,14 @@ public class UserService : IUserService
             CreatedAt = _momentProvider.DateTimeOffsetUtcNow
         };
 
-        _unitOfWork.UserRepository.Add(newUser);
-
+        await _userRepository.AddAsync(newUser, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return Result<None>.Success();
+        //_unitOfWorkTempTemp.UserRepository.Add(newUser);
+
+        //await _unitOfWorkTempTemp.SaveChangesAsync(cancellationToken);
+
+        return new None();
     }
 
     public async Task<Result<UserModel>> CreateGoogleAsync(string username, string email, string password,
@@ -66,8 +75,12 @@ public class UserService : IUserService
             CreatedAt = _momentProvider.DateTimeOffsetUtcNow
         };
 
-        _unitOfWork.UserRepository.Add(newUser);
+        await _userRepository.AddAsync(newUser, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+
+        // _unitOfWorkTempTemp.UserRepository.Add(newUser);
+        // await _unitOfWorkTempTemp.SaveChangesAsync(cancellationToken);
 
         return new UserModel
         {
@@ -81,7 +94,9 @@ public class UserService : IUserService
     public async Task<Result<UserModel>> GetCheckedUserAsync(string email, string password,
         CancellationToken cancellationToken = default)
     {
-        var validUser = await _unitOfWork.UserRepository.GetUserByEmailAsync(email, cancellationToken);
+        //var validUser = await _unitOfWorkTempTemp.UserRepository.GetUserByEmailAsync(email, cancellationToken);
+
+        var validUser = await _userRepository.FirstOrDefaultAsync(user => user.Email == email, cancellationToken);
 
         if (validUser is null)
         {
@@ -108,8 +123,10 @@ public class UserService : IUserService
         string? profilePictureUrl, string? currentPassword, string? newPassword,
         CancellationToken cancellationToken = default)
     {
-        var existingUser = await _unitOfWork.UserRepository
-            .GetByIdAsync(userId, cancellationToken);
+        // var existingUser = await _unitOfWorkTempTemp.UserRepository
+        //     .GetByIdAsync(userId, cancellationToken);
+
+        var existingUser = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
         if (existingUser is null)
         {
@@ -122,7 +139,7 @@ public class UserService : IUserService
         }
 
         var isPasswordUpdated = false;
-        
+
         if (!string.IsNullOrEmpty(currentPassword) && !string.IsNullOrEmpty(newPassword))
         {
             var currentUserPassword = new SaltAndHash(existingUser.PasswordSalt, existingUser.PasswordHash);
@@ -135,14 +152,14 @@ public class UserService : IUserService
             if (!_encryptionProvider.VerifyPasswordHash(newPassword!, currentUserPassword))
             {
                 var newUserPassword = _encryptionProvider.HashPassword(newPassword!);
-            
+
                 existingUser.PasswordSalt = newUserPassword.Salt;
                 existingUser.PasswordHash = newUserPassword.Hash;
-            
+
                 isPasswordUpdated = true;
             }
         }
-        
+
         if (!isPasswordUpdated &&
             (string.IsNullOrEmpty(username) ||
              string.Equals(existingUser.Username, username, StringComparison.OrdinalIgnoreCase))
@@ -162,7 +179,9 @@ public class UserService : IUserService
 
         existingUser.UpdatedAt = _momentProvider.DateTimeOffsetUtcNow;
 
+        _userRepository.Update(existingUser);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+        //await _unitOfWorkTempTemp.SaveChangesAsync(cancellationToken);
 
         return new UserModel
         {
@@ -175,7 +194,8 @@ public class UserService : IUserService
 
     public async Task<Result<None>> DeleteAsync(int userId, CancellationToken cancellationToken = default)
     {
-        var rowsAffected = await _unitOfWork.UserRepository.DeleteAsync(userId, cancellationToken);
+        var rowsAffected = await _userRepository.RemoveAsync(user => user.Id == userId, cancellationToken);
+        //var rowsAffected = await _unitOfWorkTempTemp.UserRepository.DeleteAsync(userId, cancellationToken);
 
         return rowsAffected == 0 ? ErrorCode.NothingToDelete : new None();
     }

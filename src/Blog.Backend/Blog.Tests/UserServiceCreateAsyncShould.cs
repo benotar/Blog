@@ -15,7 +15,7 @@ namespace Blog.Tests;
 public class UserServiceCreateAsyncShould
 {
     private readonly UserService _sut;
-    private readonly Mock<IUnitOfWork> _mockUnitOfWork;
+    private readonly Mock<IUnitOfWorkTemp> _mockUnitOfWork;
     private readonly Mock<IEncryptionProvider> _mockEncryptionProvider;
     private readonly ISetup<IMomentProvider, DateTimeOffset> _nowSetup;
 
@@ -26,7 +26,7 @@ public class UserServiceCreateAsyncShould
 
         _mockEncryptionProvider = new Mock<IEncryptionProvider>();
         
-        _mockUnitOfWork = new Mock<IUnitOfWork>();
+        _mockUnitOfWork = new Mock<IUnitOfWorkTemp>();
 
         _sut = new UserService(mockMomentProvider.Object, _mockUnitOfWork.Object,
             _mockEncryptionProvider.Object);

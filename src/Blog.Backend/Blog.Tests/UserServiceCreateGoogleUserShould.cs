@@ -14,7 +14,7 @@ public class UserServiceCreateGoogleUserShould
 {
     private readonly ISetup<IMomentProvider, DateTimeOffset> _nowSetup;
     private readonly Mock<IEncryptionProvider> _mockEncryptionProvider;
-    private readonly Mock<IUnitOfWork> _mockUnitOfWork;
+    private readonly Mock<IUnitOfWorkTemp> _mockUnitOfWork;
 
     private readonly UserService _sut;
 
@@ -23,7 +23,7 @@ public class UserServiceCreateGoogleUserShould
         var mockMomentProvider = new Mock<IMomentProvider>();
         _nowSetup = mockMomentProvider.Setup(momentProvider => momentProvider.DateTimeOffsetUtcNow);
 
-        _mockUnitOfWork = new Mock<IUnitOfWork>();
+        _mockUnitOfWork = new Mock<IUnitOfWorkTemp>();
 
         _mockEncryptionProvider = new Mock<IEncryptionProvider>();
 
