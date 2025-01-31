@@ -1,5 +1,6 @@
 ﻿using Blog.Application.Common;
 using Blog.Application.Models;
+using Blog.Application.Models.Response.User;
 
 namespace Blog.Application.Interfaces.Services;
 

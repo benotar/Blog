@@ -1,5 +1,7 @@
 ﻿using Blog.Application.Common;
 using Blog.Application.Models;
+using Blog.Application.Models.Response.Auth;
+using Blog.Application.Models.Response.User;
 using Blog.Domain.Enums;
 
 namespace Blog.Application.Interfaces.Providers;

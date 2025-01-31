@@ -11,6 +11,7 @@ public enum ErrorCode
     NothingToUpdate,
     NothingToDelete,
     UserIdMissing,
+    InvalidUserId,
     EnterYourCurrentAndNewPassword,
     PasswordDontMatch,
     UnexpectedError

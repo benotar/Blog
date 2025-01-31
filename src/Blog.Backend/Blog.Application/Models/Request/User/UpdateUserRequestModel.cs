@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Blog.API.Infrastructure;
+using Blog.Application.Common.ValidationAttributes;
 
-namespace Blog.API.Models.Request.User;
+namespace Blog.Application.Models.Request.User;
 
 public record UpdateUserRequestModel
 {

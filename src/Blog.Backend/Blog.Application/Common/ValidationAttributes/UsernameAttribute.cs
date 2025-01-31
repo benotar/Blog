@@ -1,15 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
-namespace Blog.API.Infrastructure;
+namespace Blog.Application.Common.ValidationAttributes;
 
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field | AttributeTargets.Parameter)]
-public partial class PasswordAttribute() : ValidationAttribute(DefaultErrorMessage)
+public partial class UsernameAttribute() : ValidationAttribute(DefaultErrorMessage)
 {
-    private const string DefaultErrorMessage =
-        "Password must contain at least one uppercase letter, one lowercase letter, one number and a minimum of 8 characters.";
+    private const string DefaultErrorMessage = "Username must be between 7 and 20 characters and cannot contain spaces";
 
-    private static readonly Regex PasswordRegex = MyRegex();
+    private static readonly Regex UsernameRegex = MyRegex();
+
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
         if (value == null)
@@ -17,11 +17,11 @@ public partial class PasswordAttribute() : ValidationAttribute(DefaultErrorMessa
             return ValidationResult.Success;
         }
         
-        return !PasswordRegex.IsMatch(value.ToString())
+        return !UsernameRegex.IsMatch(value.ToString())
             ? new ValidationResult(ErrorMessage ?? DefaultErrorMessage)
             : ValidationResult.Success;
     }
 
-    [GeneratedRegex(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d]{8,}$", RegexOptions.Compiled)]
+    [GeneratedRegex(@"^[a-z0-9_]{7,20}$", RegexOptions.Compiled)]
     private static partial Regex MyRegex();
 }

@@ -1,9 +1,8 @@
-﻿using Blog.API.Extensions;
-using Blog.API.Infrastructure;
-using Blog.API.Models.Request.User;
-using Blog.API.Models.Response.User;
-using Blog.Application.Common;
+﻿using Blog.Application.Common;
+using Blog.Application.Common.ValidationAttributes;
 using Blog.Application.Interfaces.Services;
+using Blog.Application.Models.Request.User;
+using Blog.Application.Models.Response.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,23 +20,22 @@ public class UserController : BaseController
     }
 
     [HttpPut("update/{userId:int}")]
-    public async Task<Result<UserResponseModel>> Update([FromRoute] int userId,
-        [FromBody] UpdateUserRequestModel request, CancellationToken cancellationToken=default)
+    public async Task<Result<UserModel>> Update([FromRoute] int userId,
+        [FromBody] UpdateUserRequestModel request, CancellationToken cancellationToken = default)
     {
         var updateUserResult = await _userService
-            .UpdateAsync(userId, request.Username, request.Email, request.ProfilePictureUrl,
-                request.CurrentPassword, request.NewPassword, cancellationToken);
+            .UpdateAsync(userId, request, cancellationToken);
 
         if (!updateUserResult.IsSucceed)
         {
             return updateUserResult.ErrorCode;
         }
 
-        return updateUserResult.Payload.ToModel();
+        return updateUserResult.Payload;
     }
 
     [HttpDelete("delete/{userId:int}")]
-    public async Task<Result<None>> Delete([FromRoute] int userId, CancellationToken cancellationToken=default)
+    public async Task<Result<None>> Delete([FromRoute] int userId, CancellationToken cancellationToken = default)
     {
         return await _userService.DeleteAsync(userId, cancellationToken);
     }

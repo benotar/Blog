@@ -9,6 +9,8 @@ using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Repository;
 using Blog.Application.Interfaces.UnitOfWork;
 using Blog.Application.Models;
+using Blog.Application.Models.Response.Auth;
+using Blog.Application.Models.Response.User;
 using Blog.Domain.Entities;
 using Blog.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -77,20 +79,13 @@ public class JwtProvider : IJwtProvider
 
         await _refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        //_unitOfWorkTemp.RefreshTokenRepository.Add(refreshToken);
-
-        //await _unitOfWorkTemp.SaveChangesAsync(cancellationToken);
-
+        
         return refreshToken.Token;
     }
 
     public async Task<Result<RefreshTokenModel>?> GetRefreshTokenEntityAsync(string refreshToken, int userId,
         CancellationToken cancellationToken = default)
     {
-        // var existingRefreshToken =
-        //     await _unitOfWorkTemp.RefreshTokenRepository.Get(refreshToken, userId,
-        //         cancellationToken);
-
         var existingRefreshToken = await _refreshTokenRepository
             .FirstOrDefaultAsync(r => r.UserId == userId && r.Token == refreshToken, cancellationToken);
 
@@ -105,10 +100,6 @@ public class JwtProvider : IJwtProvider
             .Where(refresh => refresh.UserId == userId && refresh.Token == refreshToken)
             .FirstOrDefaultAsync(cancellationToken);
         
-        // var existingRefreshToken =
-        //     await _unitOfWorkTemp.RefreshTokenRepository.GetIncludeUserAsync(refreshToken, userId,
-        //         cancellationToken);
-
         if (existingRefreshToken is null)
         {
             return ErrorCode.InvalidRefreshToken;
@@ -142,12 +133,6 @@ public class JwtProvider : IJwtProvider
         _refreshTokenRepository.Update(existingRefreshToken);
 
         return existingRefreshToken.Token;
-        // var updateResult = await _unitOfWorkTemp.RefreshTokenRepository.UpdateAsync(targetTokenId, targetToken,
-        //     newToken,
-        //     newExpireOnUtc,
-        //     cancellationToken);
-        //
-        // return updateResult.IsSucceed ? newToken : updateResult.ErrorCode;
     }
 
     public async Task<Result<None>> DeleteRefreshTokensResultAsync(int userId,
@@ -157,11 +142,6 @@ public class JwtProvider : IJwtProvider
             await _refreshTokenRepository.RemoveAsync(refresh => refresh.UserId == userId, cancellationToken);
 
         return rowsAffected == 0 ? ErrorCode.ThereIsNothingToDelete : new None();
-        // var deleteResult = await _unitOfWorkTemp
-        //     .RefreshTokenRepository
-        //     .DeleteAllAsync(userId, cancellationToken);
-        //
-        // return deleteResult.IsSucceed ? Result<None>.Success() : deleteResult.ErrorCode;
     }
 
     public async Task<Result<int>> GetUserIdByRefreshTokenAsync(string refreshToken,
@@ -172,10 +152,6 @@ public class JwtProvider : IJwtProvider
             .Where(refresh => refresh.Token == refreshToken)
             .Select(refresh => refresh.UserId)
             .FirstOrDefaultAsync(cancellationToken);
-
-        // var userId = await _unitOfWorkTemp
-        //     .RefreshTokenRepository
-        //     .GetUserIdByRefreshTokenAsync(refreshToken, cancellationToken);
 
         return userId == 0 ? ErrorCode.InvalidRefreshToken : userId;
     }

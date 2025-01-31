@@ -1,12 +1,8 @@
-﻿using Blog.API.Extensions;
-using Blog.API.Models.Request;
-using Blog.API.Models.Request.Auth;
-using Blog.API.Models.Response;
-using Blog.API.Models.Response.Auth;
-using Blog.API.Models.Response.User;
-using Blog.Application.Common;
+﻿using Blog.Application.Common;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Services;
+using Blog.Application.Models.Request.Auth;
+using Blog.Application.Models.Response.Auth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.API.Controllers;
@@ -50,7 +46,7 @@ public class AuthController : BaseController
 
         return new SignInResponseModel
         {
-            CurrentUser = validUser.ToModel(),
+            CurrentUser = validUser,
             Tokens = new TokensResponseModel(accessToken, refreshToken)
         };
     }
@@ -70,7 +66,7 @@ public class AuthController : BaseController
 
         return new SignInResponseModel
         {
-            CurrentUser = validUser.ToModel(),
+            CurrentUser = validUser,
             Tokens = new TokensResponseModel(accessToken, refreshToken)
         };
     }

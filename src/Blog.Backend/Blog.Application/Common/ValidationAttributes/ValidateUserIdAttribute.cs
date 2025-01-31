@@ -1,10 +1,10 @@
 ﻿using System.Security.Claims;
-using Blog.Application.Common;
 using Blog.Domain.Enums;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Blog.API.Infrastructure;
+namespace Blog.Application.Common.ValidationAttributes;
 
 public class ValidateUserIdAttribute : Attribute, IAuthorizationFilter
 {
@@ -27,7 +27,7 @@ public class ValidateUserIdAttribute : Attribute, IAuthorizationFilter
 
         if (userIdFromClaim != userIdFromRoute.ToString())
         {
-            context.Result = new ObjectResult(Result<None>.Error(ErrorCode.UserIdMissing))
+            context.Result = new ObjectResult(Result<None>.Error(ErrorCode.InvalidUserId))
             {
                 StatusCode = StatusCodes.Status403Forbidden
             };

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Blog.API.Models.Request.Auth;
+namespace Blog.Application.Models.Request.Auth;
 
 public record RefreshTokenRequestModel
 {

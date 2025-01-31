@@ -1,21 +1,19 @@
-﻿using Blog.Application.Models;
+﻿using Blog.Application.Models.Response.User;
 using Blog.Domain.Entities;
 
-namespace Blog.Application.Extensions;
+namespace Blog.Application.Models.Response.Auth;
 
-public static class ModelExtensions
+public sealed record RefreshTokenModel
 {
-    public static UserModel ToModel(this User user)
-    {
-        return new UserModel
-        {
-            Id = user.Id,
-            Username = user.Username,
-            Email = user.Email,
-            ProfilePictureUrl = user.ProfilePictureUrl,
-        };
-    }
+    public int Id { get; set; }
+    public string Token { get; set; }
+    public int UserId { get; set; }
+    public DateTimeOffset ExpiresOnUtc { get; set; }
+    public UserModel User { get; set; }
+}
 
+public static class RefreshTokenModelExtensions
+{
     public static RefreshTokenModel ToModel(this RefreshToken refreshToken)
     {
         return new RefreshTokenModel
