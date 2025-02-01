@@ -2,9 +2,19 @@ import {Sidebar} from "flowbite-react";
 import {HiArrowSmRight, HiUser} from "react-icons/hi";
 import {Link, useLocation} from "react-router-dom";
 import {useEffect, useState} from "react";
+import {useAppStore} from "../zustand/useAppStore.js";
+import {useShallow} from "zustand/react/shallow";
+import $axios from "../axios/axios.js";
 
 export default function DashSidebar() {
 
+    const {
+        tokens,
+        doSignOut
+    } = useAppStore(useShallow((state) => ({
+        tokens: state.tokens,
+        doSignOut: state.doSignOut,
+    })));
     const location = useLocation();
     const [tab, setTab] = useState("");
 
@@ -16,6 +26,18 @@ export default function DashSidebar() {
         }
     }, [location.search]);
 
+    const handleSignOut = async () => {
+        try {
+            const {data} = await $axios.post("auth/sign-out", {
+                refreshToken: tokens.refreshToken
+            });
+
+            doSignOut();
+
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
 
     return (
         <Sidebar className="w-full md:w-56">
@@ -35,6 +57,7 @@ export default function DashSidebar() {
                     <Sidebar.Item
                         icon={HiArrowSmRight}
                         className="cursor-pointer"
+                        onClick={handleSignOut}
                     >
                         Sign out
                     </Sidebar.Item>

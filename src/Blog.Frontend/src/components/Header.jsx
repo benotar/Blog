@@ -3,15 +3,36 @@ import {Link, useLocation} from "react-router-dom";
 import {AiOutlineSearch} from "react-icons/ai"
 import {FaMoon, FaSun} from "react-icons/fa";
 import {useAppStore} from "../zustand/useAppStore.js";
+import $axios from "../axios/axios.js";
+import {useShallow} from "zustand/react/shallow";
 
 export default function Header() {
 
+    const {
+        tokens,
+        doSignOut
+    } = useAppStore(useShallow((state) => ({
+        tokens: state.tokens,
+        doSignOut: state.doSignOut,
+    })));
     const path = useLocation().pathname;
 
     const currentUser = useAppStore((state) => state.currentUser);
     const toggleTheme = useAppStore((state) => state.toggleTheme);
     const theme = useAppStore((state) => state.theme);
 
+    const handleSignOut = async () => {
+        try {
+            const {data} = await $axios.post("auth/sign-out", {
+                refreshToken: tokens.refreshToken
+            });
+
+            doSignOut();
+
+        } catch (error) {
+            console.log(error.message);
+        }
+    };
 
     return (
         <Navbar className="border-b-2">
@@ -66,7 +87,7 @@ export default function Header() {
                             <Dropdown.Item>Profile</Dropdown.Item>
                         </Link>
                         <Dropdown.Divider/>
-                        <Dropdown.Item>Sign out</Dropdown.Item>
+                        <Dropdown.Item onClick={handleSignOut}>Sign out</Dropdown.Item>
                     </Dropdown>
                 ) : (
                     <Link to="/sign-in">

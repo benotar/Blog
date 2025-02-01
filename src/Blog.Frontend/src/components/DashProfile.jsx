@@ -169,11 +169,8 @@ export default function DashProfile() {
                 refreshToken: tokens.refreshToken
             });
 
-            if (!data.isSucceed) {
-                doSignOut();
-            } else {
-                doSignOut();
-            }
+            doSignOut();
+
         } catch (error) {
             console.log(error.message);
         }
