@@ -13,6 +13,7 @@ import 'react-circular-progressbar/dist/styles.css';
 import $axios from "../axios/axios.js";
 import {useShallow} from "zustand/react/shallow";
 import {HiOutlineExclamationCircle} from "react-icons/hi";
+import {Link} from "react-router-dom";
 
 
 export default function DashProfile() {
@@ -26,7 +27,8 @@ export default function DashProfile() {
         deleteStart,
         deleteSuccess,
         deleteFailure,
-        doSignOut
+        doSignOut,
+        loading
     } = useAppStore(useShallow((state) => ({
         currentUser: state.currentUser,
         errorMessage: state.errorMessage,
@@ -37,7 +39,8 @@ export default function DashProfile() {
         deleteStart: state.deleteStart,
         deleteSuccess: state.deleteSuccess,
         deleteFailure: state.deleteFailure,
-        doSignOut: state.doSignOut
+        doSignOut: state.doSignOut,
+        loading: state.loading
     })));
 
     const [imageFile, setImageFile] = useState(null);
@@ -258,10 +261,23 @@ export default function DashProfile() {
                     type="submit"
                     gradientDuoTone="purpleToBlue"
                     outline
-
+                    disabled={loading || imageFileUploading}
                 >
-                    Update
+                    {loading ? "Loading..." : "Update"}
                 </Button>
+                {
+                    currentUser.role === "Admin" && (
+                        <Link to={"/create-post"}>
+                            <Button
+                                type="button"
+                                gradientDuoTone="purpleToPink"
+                                className="w-full"
+                            >
+                                Create a post
+                            </Button>
+                        </Link>
+                    )
+                }
                 <div className="text-red-500 flex justify-between mt-5">
                     <span
                         className="cursor-pointer"

@@ -100,6 +100,7 @@ public class JwtProvider : IJwtProvider
         var existingRefreshToken = await _refreshTokenRepository
             .AsQueryable()
             .Where(refresh => refresh.UserId == userId && refresh.Token == refreshToken)
+            .Include(refresh => refresh.User)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (existingRefreshToken is null)

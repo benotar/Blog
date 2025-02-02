@@ -54,6 +54,7 @@ $axios.interceptors.response.use(response => response,
                 });
 
                 if (data.isSucceed === false) {
+                    console.log(data.errorCode);
                     const refreshFailure = storeState.refreshFailure;
                     refreshFailure("You have been logged out due to inactivity. Please log in again.");
                     return Promise.reject();
