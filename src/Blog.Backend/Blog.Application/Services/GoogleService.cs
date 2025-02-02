@@ -43,8 +43,8 @@ public class GoogleService : IGoogleService
         {
             Username = username,
             Email = email,
-            PictureUrl = username,
-            Password = pictureUrl,
+            PictureUrl = pictureUrl,
+            Password = username,
         }, cancellationToken);
     }
 }

@@ -19,6 +19,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.ProfilePictureUrl)
             .IsRequired()
             .HasDefaultValue("https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png");
+
+        builder.Property(user => user.Role)
+            .IsRequired()
+            .HasDefaultValue("User");
         
         builder.HasIndex(user => new { user.Username, user.Email })
             .IsUnique();

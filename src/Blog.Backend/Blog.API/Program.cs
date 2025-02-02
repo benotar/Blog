@@ -1,7 +1,6 @@
 using Blog.API;
 using Blog.Application;
 using Blog.Persistence;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +35,10 @@ app.MapControllers();
 // var scope = app.Services.CreateScope();
 // await using var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 // await dbContext.Database.MigrateAsync();
+if (app.Environment.IsDevelopment())
+{
+    app.ApplyMigrations();
+}
 
 // Standard route for the home page
 app.MapGet("/", () => $"Welcome to the Home Page Blog API!\nUTC Time: {DateTime.UtcNow}");

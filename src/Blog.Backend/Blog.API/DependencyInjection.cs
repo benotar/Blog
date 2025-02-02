@@ -5,7 +5,9 @@ using Blog.Application.Common;
 using Blog.Application.Common.Converters;
 using Blog.Application.Configurations;
 using Blog.Domain.Enums;
+using Blog.Persistence;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blog.API;
 
@@ -17,13 +19,13 @@ public static class DependencyInjection
         // Add database configurations
         services.Configure<DatabaseConfiguration>(
             configuration.GetSection(DatabaseConfiguration.ConfigurationKey));
-        
+
         services.Configure<JwtConfiguration>(
             configuration.GetSection(JwtConfiguration.ConfigurationKey));
 
         services.Configure<AzureKeyVault>(
             configuration.GetSection(AzureKeyVault.ConfigurationKey));
-        
+
         services.Configure<TranslatorConfiguration>(
             configuration.GetSection(TranslatorConfiguration.ConfigurationKey));
 
@@ -78,7 +80,7 @@ public static class DependencyInjection
 
         return services;
     }
-    
+
     public static void AddConfiguredAzureKeyVault(this WebApplicationBuilder builder)
     {
         var azureServicesConfig = new AzureKeyVault();
@@ -94,5 +96,12 @@ public static class DependencyInjection
         var azureCredential = new ClientSecretCredential(tenantId, clientId, clientSecret);
 
         builder.Configuration.AddAzureKeyVault(keyVaultUrl, azureCredential);
+    }
+
+    public static void ApplyMigrations(this IApplicationBuilder app)
+    {
+        using var scope = app.ApplicationServices.CreateScope();
+        using var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        dbContext.Database.Migrate();
     }
 }

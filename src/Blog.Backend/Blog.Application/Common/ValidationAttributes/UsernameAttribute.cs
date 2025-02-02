@@ -12,7 +12,7 @@ public partial class UsernameAttribute() : ValidationAttribute(DefaultErrorMessa
 
     protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
-        if (value == null)
+        if (string.IsNullOrEmpty(value.ToString()))
         {
             return ValidationResult.Success;
         }

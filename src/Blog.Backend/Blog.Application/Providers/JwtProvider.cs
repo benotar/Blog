@@ -48,8 +48,10 @@ public class JwtProvider : IJwtProvider
 
         var claims = new List<Claim>
         {
-            new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new(JwtRegisteredClaimNames.Email, user.Email),
+            new(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+            new(ClaimTypes.Name, user.Id.ToString()),
+            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Role, user.Role)
         };
 
         var expires = _momentProvider.DateTimeUtcNow.AddMinutes(_jwtConfig.AccessExpirationMinutes);
@@ -79,7 +81,7 @@ public class JwtProvider : IJwtProvider
 
         await _refreshTokenRepository.AddAsync(refreshToken, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-        
+
         return refreshToken.Token;
     }
 
@@ -99,7 +101,7 @@ public class JwtProvider : IJwtProvider
             .AsQueryable()
             .Where(refresh => refresh.UserId == userId && refresh.Token == refreshToken)
             .FirstOrDefaultAsync(cancellationToken);
-        
+
         if (existingRefreshToken is null)
         {
             return ErrorCode.InvalidRefreshToken;

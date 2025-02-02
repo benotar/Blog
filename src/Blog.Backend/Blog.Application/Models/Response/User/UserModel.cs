@@ -6,6 +6,7 @@ public record UserModel
     public string Username { get; init; }
     public string Email { get; init; }
     public string ProfilePictureUrl { get; init; }
+    public string Role { get; set; }
 }
 
 public static class UserModelExtensions
@@ -18,6 +19,7 @@ public static class UserModelExtensions
             Username = user.Username,
             Email = user.Email,
             ProfilePictureUrl = user.ProfilePictureUrl,
+            Role = user.Role,
         };
     }
     

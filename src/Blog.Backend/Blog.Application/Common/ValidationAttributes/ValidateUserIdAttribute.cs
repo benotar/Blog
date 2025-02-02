@@ -17,7 +17,7 @@ public class ValidateUserIdAttribute : Attribute, IAuthorizationFilter
         }
 
         var userIdFromClaim = context.HttpContext.User.Claims
-            .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            .FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value;
 
         if (userIdFromClaim == null)
         {
