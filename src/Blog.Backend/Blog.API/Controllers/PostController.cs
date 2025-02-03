@@ -2,6 +2,7 @@
 using Blog.Application.Interfaces.Services;
 using Blog.Application.Models.Request;
 using Blog.Application.Models.Response;
+using Blog.Domain.Enums;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,8 +20,15 @@ public class PostController : BaseController
 
     [Authorize(Roles = "Admin")]
     [HttpPost("create")]
-    public async Task<Result<PostModel>> Create([FromBody] CreatePostRequest request, CancellationToken cancellationToken = default)
+    public async Task<Result<PostModel>> Create([FromBody] CreatePostRequest request,
+        CancellationToken cancellationToken = default)
     {
         return await _postService.CreateAsync(UserId, request, cancellationToken);
+    }
+
+    [HttpGet("get-categories")]
+    public Result<IEnumerable<PostCategory>> GetCategories()
+    {
+        return _postService.GetCategories();
     }
 }

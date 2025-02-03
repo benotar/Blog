@@ -60,6 +60,11 @@ public partial class PostService : IPostService
         return newPost.ToModel();
     }
 
+    public Result<IEnumerable<PostCategory>> GetCategories()
+    {
+        return Enum.GetValues<PostCategory>();
+    }
+
     [GeneratedRegex("[^a-zA-Z0-9-]")]
     private static partial Regex MyRegex();
 }
