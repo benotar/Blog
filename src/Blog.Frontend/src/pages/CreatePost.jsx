@@ -7,8 +7,7 @@ import {getDownloadURL, getStorage, ref, uploadBytesResumable} from "firebase/st
 import {app} from "../firebase.js";
 import {CircularProgressbar} from 'react-circular-progressbar';
 import 'react-circular-progressbar/dist/styles.css';
-
-
+import {useNavigate} from "react-router-dom";
 
 const CreatePost = () => {
     const [file, setFile] = useState(null);
@@ -16,6 +15,9 @@ const CreatePost = () => {
     const [imageUploadProgress, setImageUploadProgress] = useState(null);
     const [imageUploadError, setImageUploadError] = useState(null);
     const [formData, setFormData] = useState({});
+    const [publishError, setPublishError] = useState(null);
+
+    const navigate = useNavigate();
 
     useEffect(() => {
         const getCategories = async () => {
@@ -71,6 +73,24 @@ const CreatePost = () => {
         }
     };
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+
+        try {
+            const {data} = await $axios.post("post/create", formData);
+
+            if (!data.isSucceed) {
+                setPublishError(data.errorCode);
+                return;
+            }
+            setPublishError(null);
+            navigate(`/post/${data.payload.slug}`);
+        } catch (error) {
+            console.error(error);
+            setPublishError("Something went wrong");
+        }
+    };
+
     return (
         <div className="p-3 max-w-3xl mx-auto min-h-screen">
             <h1
@@ -80,6 +100,7 @@ const CreatePost = () => {
             </h1>
             <form
                 className="flex flex-col gap-4"
+                onSubmit={handleSubmit}
             >
                 <div className="flex flex-col gap-4 sm:flex-row justify-between">
                     <TextInput
@@ -88,8 +109,16 @@ const CreatePost = () => {
                         required
                         id="title"
                         className="flex-1"
+                        onChange={(e) =>
+                            setFormData({...formData, [e.target.id]: e.target.value})
+                        }
                     />
-                    <Select>
+                    <Select
+                        id="category"
+                        onChange={(e) =>
+                            setFormData({...formData, [e.target.id]: e.target.value})
+                        }
+                    >
                         {
                             categories.map(category => {
                                 let categoryValue = category.charAt(0).toLowerCase() + category.slice(1);
@@ -127,14 +156,16 @@ const CreatePost = () => {
                         disabled={imageUploadProgress}
                     >
                         {
-                            imageUploadProgress ?
+                            imageUploadProgress ? (
                                 <div className="w-16 h-16">
                                     <CircularProgressbar
                                         value={imageUploadProgress}
                                         text={`${imageUploadProgress || 0}%`}
                                     />
                                 </div>
-                                : "Upload Image"
+                            ) : (
+                                "Upload Image"
+                            )
                         }
                     </Button>
                 </div>
@@ -159,6 +190,11 @@ const CreatePost = () => {
                     placeholder="Write something"
                     className="h-72 mb-12"
                     required
+                    onChange={
+                        (value) => {
+                            setFormData({...formData, content: value});
+                        }
+                    }
                 />
                 <Button
                     type="submit"
@@ -166,6 +202,14 @@ const CreatePost = () => {
                 >
                     Publish
                 </Button>
+                {
+                    publishError && <Alert
+                        color="failure"
+                        className="mt-5"
+                    >
+                        {publishError}
+                    </Alert>
+                }
             </form>
         </div>
     );
