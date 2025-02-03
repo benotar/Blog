@@ -2,6 +2,8 @@
 
 public enum ErrorCode
 {
+    UserNotFound,
+    PostTitleAlreadyExists,
     RefreshTokenHasExpired,
     InvalidRefreshToken,
     InvalidCredentials,

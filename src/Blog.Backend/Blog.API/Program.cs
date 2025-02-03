@@ -9,11 +9,13 @@ builder.Services.AddCustomConfigurations(builder.Configuration);
 builder.AddConfiguredAzureKeyVault();
 builder.Services.AddTextTranslator(builder.Configuration);
 
+builder.Services.AddAuth(builder.Configuration);
+
 // Application layers
 builder.Services
     .AddApplication()
-    .AddPersistence(builder.Configuration)
-    .AddAuth(builder.Configuration);
+    .AddPersistence(builder.Configuration);
+
 
 // Configured controllers
 builder.Services.AddControllersWithConfiguredApiBehavior(builder.Configuration);

@@ -8,5 +8,5 @@ namespace Blog.API.Controllers;
 public class BaseController : ControllerBase
 {
     internal int UserId => int.Parse(User.Claims
-        .FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value);
+        .First(claim => claim.Type == ClaimTypes.Name)?.Value);
 }

@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Security.Claims;
+using System.Text;
 using System.Text.Json;
 using Azure;
 using Azure.AI.Translation.Text;
@@ -27,7 +28,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IGoogleService, GoogleService>();
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAzureTranslatorService, AzureTranslatorService>();
-
+        services.AddScoped<IPostService, PostService>();
 
         // Add JsonSerializerOptions 
         var jsonOptions = new JsonSerializerOptions
@@ -66,9 +67,14 @@ public static class ServiceCollectionExtensions
                     ValidateIssuerSigningKey = true,
                     ValidIssuer = jwtConfig.Issuer,
                     ValidAudience = jwtConfig.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+                    RoleClaimType = ClaimTypes.Role
                 };
             });
+
+        services.AddAuthorizationBuilder()
+            .AddPolicy("admin", policy => policy.RequireRole("Admin"))
+            .AddPolicy("user", policy => policy.RequireRole("User"));
 
         return services;
     }

@@ -134,6 +134,7 @@ public class JwtProvider : IJwtProvider
         existingRefreshToken.ExpiresOnUtc = newExpireOnUtc;
 
         _refreshTokenRepository.Update(existingRefreshToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return existingRefreshToken.Token;
     }

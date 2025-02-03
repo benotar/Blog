@@ -1,4 +1,5 @@
-﻿using Azure.Identity;
+﻿using System.Text.Json.Serialization;
+using Azure.Identity;
 using Blog.API.Extensions;
 using Blog.API.Infrastructure;
 using Blog.Application.Common;
@@ -38,8 +39,10 @@ public static class DependencyInjection
     {
         services.AddControllers()
             .AddJsonOptions(options =>
-                options.JsonSerializerOptions.Converters
-                    .Add(new ServerResponseStringEnumConverter<ErrorCode>()))
+            {
+                options.JsonSerializerOptions.Converters.Add(new ServerResponseStringEnumConverter<ErrorCode>());
+                options.JsonSerializerOptions.Converters.Add(new PostCategoryStringEnumConverter<PostCategory>());
+            })
             .ConfigureApiBehaviorOptions(options =>
             {
                 options.InvalidModelStateResponseFactory = context =>
