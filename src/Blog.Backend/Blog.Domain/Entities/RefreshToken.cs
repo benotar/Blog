@@ -9,6 +9,6 @@ public class RefreshToken
     public int UserId { get; set; }
     public DateTimeOffset ExpiresOnUtc { get; set; }
 
-    [JsonIgnore]
-    public User? User { get; set; }
+    // EF Navigation Property
+    [JsonIgnore] public User? User { get; set; }
 }

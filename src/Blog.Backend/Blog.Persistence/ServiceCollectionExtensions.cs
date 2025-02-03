@@ -2,6 +2,7 @@
 using Blog.Application.Configurations;
 using Blog.Application.Interfaces.Repository;
 using Blog.Application.Interfaces.UnitOfWork;
+using Blog.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -21,16 +22,10 @@ public static class ServiceCollectionExtensions
             var connectionString = string.Format(dbConfig.ConnectionString, dbConfig.User, dbConfig.Password,
                 dbConfig.Host, dbConfig.DbName);
 
-            options.UseNpgsql(connectionString);
+            options.UseNpgsql(connectionString,
+                dbContextOptionsBuilder => dbContextOptionsBuilder.MapEnum<PostCategory>("category"));
         });
-
-
-        //services.AddScoped<IUserRepository, UserRepository>();
-        //services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-
-        // Add UoW
-        //services.AddScoped<IUnitOfWorkTemp, UnitOfWorkTemp>();
-
+        
         services.AddScoped<IUnitOfWork, UnitOfWork.UnitOfWork>();
         services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 
