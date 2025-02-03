@@ -1,8 +1,31 @@
 import {Button, FileInput, Select, TextInput} from "flowbite-react";
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import {useEffect, useState} from "react";
+import $axios from "../axios/axios.js";
 
 const CreatePost = () => {
+
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        const getCategories = async () => {
+            try {
+                const {data} = await $axios.get("post/get-categories");
+
+                if (data) {
+                    setCategories(data.payload);
+                }
+            } catch (error) {
+                console.error("Error fetching categories:", error);
+            }
+        }
+
+        getCategories();
+    }, []);
+
+    console.log(categories);
+
     return (
         <div className="p-3 max-w-3xl mx-auto min-h-screen">
             <h1
@@ -22,10 +45,23 @@ const CreatePost = () => {
                         className="flex-1"
                     />
                     <Select>
-                        <option value="uncategorized">Select a category</option>
-                        <option value="dotnet">C#/.NET</option>
-                        <option value="reactjs">React.js</option>
-                        <option value="javascript">JavaScript</option>
+                        {
+                            categories.map(category => {
+                                let categoryValue = category.charAt(0).toLowerCase() + category.slice(1);
+
+                                return (
+                                    <option key={categoryValue} value={categoryValue}>
+                                        {
+                                            categoryValue === "uncategorized"
+                                                ? "Select a category"
+                                                : categoryValue === "dotnet"
+                                                    ? "C#/.NET"
+                                                    : category
+                                        }
+                                    </option>
+                                );
+                            })
+                        }
                     </Select>
                 </div>
                 <div
