@@ -11,19 +11,25 @@ public static class AppDbInitializer
     {
         using var scope = host.Services.CreateScope();
         var services = scope.ServiceProvider;
-
+        var logger = services.GetRequiredService<ILogger<AppDbContext>>();
         try
         {
             var context = services.GetRequiredService<AppDbContext>();
+            
+            var pendingMigrations = await context.Database.GetPendingMigrationsAsync();
 
-            if (context.Database.IsNpgsql() && context.Database.HasPendingModelChanges())
+            if (pendingMigrations.Any())
             {
                 await context.Database.MigrateAsync();
+                logger.LogInformation("Migrations applied successfully.");
+            }
+            else
+            {
+                logger.LogInformation("No migrations applied.");
             }
         }
         catch (Exception ex)
         {
-            var logger = services.GetRequiredService<ILogger<AppDbContext>>();
             logger.LogError(ex, "An error occured while initializing the database.");
             throw;
         }

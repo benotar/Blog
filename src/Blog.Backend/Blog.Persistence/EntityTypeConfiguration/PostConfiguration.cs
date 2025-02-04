@@ -27,5 +27,7 @@ public class PostConfiguration : IEntityTypeConfiguration<Post>
         builder.Property(p => p.Slug).IsRequired();
 
         builder.HasIndex(post => new { post.Title, post.Slug }).IsUnique();
+
+        builder.HasIndex(post => new { post.Category, post.Slug, post.Title });
     }
 }

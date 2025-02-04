@@ -8,5 +8,6 @@ namespace Blog.Application.Interfaces.Services;
 public interface IPostService
 {
     Task<Result<PostModel>> CreateAsync(int userId, CreatePostRequest request, CancellationToken cancellationToken = default);
+    Task<Result<GetPostsResponseModel>> GetPostsAsync(GetPostsRequestModel request, CancellationToken cancellationToken = default);
     Result<IEnumerable<PostCategory>> GetCategories();
 }

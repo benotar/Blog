@@ -1,5 +1,7 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Linq.Expressions;
+using System.Text.RegularExpressions;
 using Blog.Application.Common;
+using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Repository;
 using Blog.Application.Interfaces.Services;
 using Blog.Application.Interfaces.UnitOfWork;
@@ -7,6 +9,7 @@ using Blog.Application.Models.Request;
 using Blog.Application.Models.Response;
 using Blog.Domain.Entities;
 using Blog.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Application.Services;
 
@@ -14,10 +17,12 @@ public partial class PostService : IPostService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRepository<Post> _postRepository;
+    private readonly IMomentProvider _momentProvider;
 
-    public PostService(IUnitOfWork unitOfWork)
+    public PostService(IUnitOfWork unitOfWork, IMomentProvider momentProvider)
     {
         _unitOfWork = unitOfWork;
+        _momentProvider = momentProvider;
         _postRepository = _unitOfWork.GetRepository<Post>();
     }
 
@@ -46,7 +51,8 @@ public partial class PostService : IPostService
             Title = request.Title,
             Content = request.Content,
             Category = request.Category,
-            Slug = slug
+            Slug = slug,
+            CreatedAt = _momentProvider.DateTimeOffsetUtcNow
         };
 
         if (!string.IsNullOrEmpty(request.ImageUrl))
@@ -60,6 +66,52 @@ public partial class PostService : IPostService
         return newPost.ToModel();
     }
 
+    public async Task<Result<GetPostsResponseModel>> GetPostsAsync(GetPostsRequestModel request,
+        CancellationToken cancellationToken = default)
+    {
+        var postsQuery = _postRepository.AsQueryable();
+
+        var lastMonthPostsCount = await postsQuery.Where(post =>
+                post.CreatedAt >= _momentProvider.DateTimeOffsetUtcNow.AddMonths(-1))
+            .CountAsync(cancellationToken);
+        
+        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+        {
+            if (int.TryParse(request.SearchTerm, out var searchUserId))
+            {
+                postsQuery = postsQuery.Where(post => post.UserId == searchUserId);
+            }
+            else
+            {
+                postsQuery = postsQuery.Where(post =>
+                    EF.Functions.ILike(post.Category.ToString(), $"%{request.SearchTerm}%") ||
+                    EF.Functions.ILike(post.Slug, $"%{request.SearchTerm}%") ||
+                    EF.Functions.ILike(post.Title, $"%{request.SearchTerm}%") ||
+                    EF.Functions.ILike(post.Content, $"%{request.SearchTerm}%"));
+            }
+        }
+
+        postsQuery = request.SortOrder?.ToLower() == "desc"
+            ? postsQuery.OrderByDescending(GetSortProperty(request))
+            : postsQuery.OrderBy(GetSortProperty(request));
+        
+        var postModels = postsQuery.Select(post => post.ToModel());
+
+        var responseItems = await PagedList<PostModel>.CreateAsync(
+            postModels,
+            request.Page,
+            request.PageSize,
+            cancellationToken);
+        
+        
+        
+        return new GetPostsResponseModel
+        {
+            Items =  responseItems,
+            LastMonthPostsCount =  lastMonthPostsCount
+        };
+    }
+
     public Result<IEnumerable<PostCategory>> GetCategories()
     {
         return Enum.GetValues<PostCategory>();
@@ -67,4 +119,17 @@ public partial class PostService : IPostService
 
     [GeneratedRegex("[^a-zA-Z0-9-]")]
     private static partial Regex MyRegex();
+
+    private static Expression<Func<Post, object>> GetSortProperty(GetPostsRequestModel request)
+    {
+        return request.SortColumn?.ToLower() switch
+        {
+            "userid" => post => post.UserId,
+            "content" => post => post.Content,
+            "title" => post => post.Title,
+            "category" => post => post.Category,
+            "slug" => post => post.Slug,
+            _ => post => post.UpdatedAt ?? DateTimeOffset.MinValue
+        };
+    }
 }

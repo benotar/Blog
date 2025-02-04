@@ -26,6 +26,14 @@ public class PostController : BaseController
         return await _postService.CreateAsync(UserId, request, cancellationToken);
     }
 
+    [AllowAnonymous]
+    [HttpGet("get-posts")]
+    public async Task<Result<GetPostsResponseModel>> Get([FromQuery] GetPostsRequestModel request,
+        CancellationToken cancellationToken = default)
+    {
+        return await _postService.GetPostsAsync(request, cancellationToken);
+    }
+
     [HttpGet("get-categories")]
     public Result<IEnumerable<PostCategory>> GetCategories()
     {
