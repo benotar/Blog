@@ -74,21 +74,22 @@ public partial class PostService : IPostService
         var lastMonthPostsCount = await postsQuery.Where(post =>
                 post.CreatedAt >= _momentProvider.DateTimeOffsetUtcNow.AddMonths(-1))
             .CountAsync(cancellationToken);
-        
-        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+
+        if (!string.IsNullOrWhiteSpace(request.UserId))
         {
-            if (int.TryParse(request.SearchTerm, out var searchUserId))
+            if (int.TryParse(request.UserId, out var searchUserId))
             {
                 postsQuery = postsQuery.Where(post => post.UserId == searchUserId);
             }
-            else
-            {
-                postsQuery = postsQuery.Where(post =>
-                    EF.Functions.ILike(post.Category.ToString(), $"%{request.SearchTerm}%") ||
-                    EF.Functions.ILike(post.Slug, $"%{request.SearchTerm}%") ||
-                    EF.Functions.ILike(post.Title, $"%{request.SearchTerm}%") ||
-                    EF.Functions.ILike(post.Content, $"%{request.SearchTerm}%"));
-            }
+        }
+        
+        if (!string.IsNullOrWhiteSpace(request.SearchTerm))
+        {
+            postsQuery = postsQuery.Where(post =>
+                EF.Functions.ILike(post.Category.ToString(), $"%{request.SearchTerm}%") ||
+                EF.Functions.ILike(post.Slug, $"%{request.SearchTerm}%") ||
+                EF.Functions.ILike(post.Title, $"%{request.SearchTerm}%") ||
+                EF.Functions.ILike(post.Content, $"%{request.SearchTerm}%"));
         }
 
         postsQuery = request.SortOrder?.ToLower() == "desc"
@@ -107,7 +108,7 @@ public partial class PostService : IPostService
         
         return new GetPostsResponseModel
         {
-            Items =  responseItems,
+            Data =  responseItems,
             LastMonthPostsCount =  lastMonthPostsCount
         };
     }

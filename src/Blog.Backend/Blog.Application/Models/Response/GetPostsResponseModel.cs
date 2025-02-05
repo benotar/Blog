@@ -2,6 +2,6 @@
 
 public sealed record GetPostsResponseModel
 {
-    public PagedList<PostModel> Items { get; init; }
+    public PagedList<PostModel> Data { get; init; }
     public int LastMonthPostsCount { get; init; }
 }

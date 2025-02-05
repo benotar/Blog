@@ -1,7 +1,7 @@
 ﻿namespace Blog.Application.Models.Request;
 
 public record GetPostsRequestModel(
-    int? UserId,
+    string? UserId,
     string? SearchTerm,
     string? SortColumn,
     string? SortOrder,

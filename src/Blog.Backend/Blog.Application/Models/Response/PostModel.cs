@@ -11,6 +11,7 @@ public record PostModel
     public string ImageUrl { get; init; }
     public PostCategory Category { get; init; }
     public string Slug { get; init; }
+    public DateTimeOffset UpdatedAt { get; init; }
 };
 
 public static class PostModelExtensions
@@ -25,6 +26,7 @@ public static class PostModelExtensions
             ImageUrl = post.ImageUrl,
             Category = post.Category,
             Slug = post.Slug,
+            UpdatedAt = post.UpdatedAt ?? post.CreatedAt
         };
     }
 }
