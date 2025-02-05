@@ -10,16 +10,21 @@ const DashPost = () => {
     const {currentUser} = useAppStore(useShallow((state) => ({
         currentUser: state.currentUser
     })));
+    const [showMore, setShowMore] = useState(true);
     const [userPosts, setUserPosts] = useState([]);
-
+    const pageSize = 9;
 
     useEffect(() => {
         const fetchPosts = async () => {
             try {
-                const {data} = await $axios.get(`post/get-posts?userId=${currentUser.id}&page=${1}&pageSize=${999}`);
+                const {data} = await $axios.get(`post/get-posts?userId=${currentUser.id}&page=${1}&pageSize=${pageSize}`);
 
                 if (data.isSucceed) {
                     setUserPosts(data.payload.data.items);
+
+                    if (!data.payload.data.hasNextPage) {
+                        setShowMore(false);
+                    }
                 }
 
             } catch (error) {
@@ -31,6 +36,23 @@ const DashPost = () => {
             fetchPosts();
         }
     }, [currentUser.id]);
+
+    const handleShowMore = async () => {
+
+        const nextPageIndex = Math.ceil(userPosts.length / pageSize) + 1;
+        try {
+            const {data} = await $axios.get(`post/get-posts?userId=${currentUser.id}&page=${nextPageIndex}&pageSize=${pageSize}`);
+
+            if (data.isSucceed) {
+                setUserPosts((prev) => [...prev, ...data.payload.data.items]);
+                if (!data.payload.data.hasNextPage) {
+                    setShowMore(false);
+                }
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
 
     console.log(userPosts);
 
@@ -118,6 +140,14 @@ const DashPost = () => {
                                     </Table.Body>
                                 )}
                             </Table>
+                            {showMore && (
+                                <button
+                                    onClick={handleShowMore}
+                                    className="w-full text-teal-500 self-center text-sm py-7"
+                                >
+                                    Show more
+                                </button>
+                            )}
                         </>
                     )
                     : (
