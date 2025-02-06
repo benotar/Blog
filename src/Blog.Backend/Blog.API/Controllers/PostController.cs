@@ -34,6 +34,14 @@ public class PostController : BaseController
         return await _postService.GetPostsAsync(request, cancellationToken);
     }
 
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("delete-posts")]
+    public async Task<Result<None>> Get([FromQuery] int postId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _postService.DeletePostAsync(UserId, postId, cancellationToken);
+    }
+
     [HttpGet("get-categories")]
     public Result<IEnumerable<PostCategory>> GetCategories()
     {

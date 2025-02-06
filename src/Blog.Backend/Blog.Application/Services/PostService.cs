@@ -82,7 +82,7 @@ public partial class PostService : IPostService
                 postsQuery = postsQuery.Where(post => post.UserId == searchUserId);
             }
         }
-        
+
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
         {
             postsQuery = postsQuery.Where(post =>
@@ -95,7 +95,7 @@ public partial class PostService : IPostService
         postsQuery = request.SortOrder?.ToLower() == "desc"
             ? postsQuery.OrderByDescending(GetSortProperty(request))
             : postsQuery.OrderBy(GetSortProperty(request));
-        
+
         var postModels = postsQuery.Select(post => post.ToModel());
 
         var responseItems = await PagedList<PostModel>.CreateAsync(
@@ -103,14 +103,22 @@ public partial class PostService : IPostService
             request.Page,
             request.PageSize,
             cancellationToken);
-        
-        
-        
+
+
         return new GetPostsResponseModel
         {
-            Data =  responseItems,
-            LastMonthPostsCount =  lastMonthPostsCount
+            Data = responseItems,
+            LastMonthPostsCount = lastMonthPostsCount
         };
+    }
+
+    public async Task<Result<None>> DeletePostAsync(int userId, int postId,
+        CancellationToken cancellationToken = default)
+    {
+        var rowsAffected = await _postRepository
+            .RemoveAsync(post => post.UserId == userId && post.Id == postId, cancellationToken);
+
+        return rowsAffected == 0 ? ErrorCode.NothingToDelete : new None();
     }
 
     public Result<IEnumerable<PostCategory>> GetCategories()
