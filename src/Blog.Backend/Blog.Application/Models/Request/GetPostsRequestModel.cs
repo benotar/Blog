@@ -5,5 +5,5 @@ public record GetPostsRequestModel(
     string? SearchTerm,
     string? SortColumn,
     string? SortOrder,
-    int Page,
-    int PageSize);
+    int? StartIndex,
+    int? Limit);

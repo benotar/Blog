@@ -35,8 +35,8 @@ public class PostController : BaseController
     }
 
     [Authorize(Roles = "Admin")]
-    [HttpDelete("delete-posts")]
-    public async Task<Result<None>> Get([FromQuery] int postId,
+    [HttpDelete("delete-post/{postId:int}")]
+    public async Task<Result<None>> Get([FromRoute] int postId,
         CancellationToken cancellationToken = default)
     {
         return await _postService.DeletePostAsync(UserId, postId, cancellationToken);

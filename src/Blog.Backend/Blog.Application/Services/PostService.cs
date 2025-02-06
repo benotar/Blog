@@ -98,10 +98,13 @@ public partial class PostService : IPostService
 
         var postModels = postsQuery.Select(post => post.ToModel());
 
+        var startIndex = request.StartIndex ?? 0;
+        var limit = request.Limit ?? 9;
+
         var responseItems = await PagedList<PostModel>.CreateAsync(
             postModels,
-            request.Page,
-            request.PageSize,
+            startIndex,
+            limit,
             cancellationToken);
 
 
@@ -138,7 +141,7 @@ public partial class PostService : IPostService
             "title" => post => post.Title,
             "category" => post => post.Category,
             "slug" => post => post.Slug,
-            _ => post => post.UpdatedAt ?? DateTimeOffset.MinValue
+            _ => post => post.Id
         };
     }
 }
