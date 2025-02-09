@@ -12,6 +12,7 @@ public sealed record CreatePostRequest
     [MinLength(3)]
     public string Title { get; init; }
     
+    [Url]
     public string? ImageUrl { get; init; }
     
     [Required] 

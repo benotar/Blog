@@ -24,7 +24,7 @@ const DashPost = () => {
                 const {data} = await $axios.get(`post/get-posts?userId=${currentUser.id}`);
                 if (data.isSucceed) {
                     setItems(data.payload.data.items);
-                    if(data.payload.data.items.length < ITEMS_PER_PAGE) {
+                    if(data.payload.data.items.length <= ITEMS_PER_PAGE) {
                         setShowMore(false);
                     }
                 }
@@ -44,7 +44,7 @@ const DashPost = () => {
             const {data} = await $axios.get(`post/get-posts?userId=${currentUser.id}&&startIndex=${startIndex}`);
             if (data.isSucceed) {
                 setItems((prev) => [...prev, ...data.payload.data.items]);
-                if(data.payload.data.items.length < 9) {
+                if(data.payload.data.items.length <= 9) {
                     setShowMore(false)
                 }
             }
@@ -56,7 +56,7 @@ const DashPost = () => {
     const handleDeletePost = async () => {
         setShowModal(false);
         try {
-            const {data} = await $axios.delete(`post/delete-post/${postIdToDelete}`);
+            const {data} = await $axios.delete(`post/delete-post/${postIdToDelete}/${currentUser.id}`);
 
             if (data.isSucceed) {
                 setItems((prevItems) => prevItems.filter(item => item.id !== postIdToDelete));

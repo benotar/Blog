@@ -71,16 +71,20 @@ public partial class PostService : IPostService
     {
         var postsQuery = _postRepository.AsQueryable();
 
-        var lastMonthPostsCount = await postsQuery.Where(post =>
-                post.CreatedAt >= _momentProvider.DateTimeOffsetUtcNow.AddMonths(-1))
-            .CountAsync(cancellationToken);
+        var lastMonthPostsCount = 0;
 
-        if (!string.IsNullOrWhiteSpace(request.UserId))
+        if (request.UserId.HasValue)
         {
-            if (int.TryParse(request.UserId, out var searchUserId))
-            {
-                postsQuery = postsQuery.Where(post => post.UserId == searchUserId);
-            }
+            postsQuery = postsQuery.Where(post => post.UserId == request.UserId);
+
+            lastMonthPostsCount = await postsQuery.Where(post =>
+                    post.CreatedAt >= _momentProvider.DateTimeOffsetUtcNow.AddMonths(-1))
+                .CountAsync(cancellationToken);
+        }
+
+        if (request.PostId.HasValue)
+        {
+            postsQuery = postsQuery.Where(post => post.Id == request.PostId);
         }
 
         if (!string.IsNullOrWhiteSpace(request.SearchTerm))
@@ -107,7 +111,6 @@ public partial class PostService : IPostService
             limit,
             cancellationToken);
 
-
         return new GetPostsResponseModel
         {
             Data = responseItems,
@@ -122,6 +125,50 @@ public partial class PostService : IPostService
             .RemoveAsync(post => post.UserId == userId && post.Id == postId, cancellationToken);
 
         return rowsAffected == 0 ? ErrorCode.NothingToDelete : new None();
+    }
+
+    public async Task<Result<PostModel>> UpdatePostAsync(int userId, int postId, UpdatePostRequestModel request,
+        CancellationToken cancellationToken = default)
+    {
+        var existingPost = await _postRepository.GetByIdAsync(postId, cancellationToken);
+
+        if (existingPost is null)
+        {
+            return ErrorCode.PostNotFound;
+        }
+
+        if (request.Title != existingPost.Title && !string.IsNullOrEmpty(request.Title))
+        {
+            existingPost.Title = request.Title;
+        }
+
+        if (request.Category != existingPost.Category && request.Category.HasValue)
+        {
+            existingPost.Category = request.Category.Value;
+        }
+
+        if (request.Content != existingPost.Content && !string.IsNullOrEmpty(request.Content))
+        {
+            existingPost.Content = request.Content;
+        }
+
+        if (request.ImageUrl != existingPost.ImageUrl && !string.IsNullOrEmpty(request.ImageUrl))
+        {
+            existingPost.ImageUrl = request.ImageUrl;
+        }
+
+        if (!_postRepository.IsModified(existingPost))
+        {
+            return ErrorCode.NothingToUpdate;
+        }
+
+        existingPost.UpdatedAt = _momentProvider.DateTimeOffsetUtcNow;
+        
+        _postRepository.Update(existingPost);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return existingPost.ToModel();
     }
 
     public Result<IEnumerable<PostCategory>> GetCategories()
