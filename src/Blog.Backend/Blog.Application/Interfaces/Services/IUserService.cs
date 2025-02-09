@@ -12,6 +12,6 @@ public interface IUserService
     Task<Result<UserModel>> CreateGoogleAsync(CreateGoogleRequestModel createGoogleRequestModel,
         CancellationToken cancellationToken = default);
     Task<Result<UserModel>> GetCheckedUserAsync(string email, string password, CancellationToken cancellationToken = default);
-    Task<Result<UserModel>> UpdateAsync(int userId, UpdateUserRequestModel updateUserRequestModel, CancellationToken cancellationToken = default);
+    Task<Result<UserModel>> UpdateAsync(int userId, UpdateUserRequestModel request, CancellationToken cancellationToken = default);
     Task<Result<None>> DeleteAsync(int userId, CancellationToken cancellationToken = default);
 }

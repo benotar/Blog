@@ -94,64 +94,56 @@ public class UserService : IUserService
         return validUser.ToModel();
     }
 
-    public async Task<Result<UserModel>> UpdateAsync(int userId, UpdateUserRequestModel updateUserRequestModel,
+    public async Task<Result<UserModel>> UpdateAsync(int userId, UpdateUserRequestModel request,
         CancellationToken cancellationToken = default)
     {
         var existingUser = await _userRepository.GetByIdAsync(userId, cancellationToken);
 
         if (existingUser is null)
         {
-            return ErrorCode.InvalidCredentials;
+            return ErrorCode.UserNotFound;
         }
 
-        if (!string.IsNullOrEmpty(updateUserRequestModel.CurrentPassword) ^
-            !string.IsNullOrEmpty(updateUserRequestModel.NewPassword))
-        {
-            return ErrorCode.EnterYourCurrentAndNewPassword;
-        }
-
-        var isPasswordUpdated = false;
-
-        if (!string.IsNullOrEmpty(updateUserRequestModel.CurrentPassword) &&
-            !string.IsNullOrEmpty(updateUserRequestModel.NewPassword))
+        if (!string.IsNullOrEmpty(request.CurrentPassword) && !string.IsNullOrEmpty(request.NewPassword))
         {
             var currentUserPassword = new SaltAndHash(existingUser.PasswordSalt, existingUser.PasswordHash);
 
-            if (!_encryptionProvider.VerifyPasswordHash(updateUserRequestModel.CurrentPassword!, currentUserPassword))
+            if (!_encryptionProvider.VerifyPasswordHash(request.CurrentPassword, currentUserPassword))
             {
                 return ErrorCode.PasswordDontMatch;
             }
-
-            if (!_encryptionProvider.VerifyPasswordHash(updateUserRequestModel.NewPassword!, currentUserPassword))
+            
+            if (_encryptionProvider.VerifyPasswordHash(request.NewPassword!, currentUserPassword))
             {
-                var newUserPassword = _encryptionProvider.HashPassword(updateUserRequestModel.NewPassword!);
-
-                existingUser.PasswordSalt = newUserPassword.Salt;
-                existingUser.PasswordHash = newUserPassword.Hash;
-
-                isPasswordUpdated = true;
+                return ErrorCode.InvalidCredentials;
             }
+            
+            var newUserPassword = _encryptionProvider.HashPassword(request.NewPassword!);
+
+            existingUser.PasswordSalt = newUserPassword.Salt;
+            existingUser.PasswordHash = newUserPassword.Hash;
         }
 
-        if (!isPasswordUpdated &&
-            (string.IsNullOrEmpty(updateUserRequestModel.Username) ||
-             string.Equals(existingUser.Username, updateUserRequestModel.Username, StringComparison.OrdinalIgnoreCase))
-            && (string.IsNullOrEmpty(updateUserRequestModel.Email) ||
-                string.Equals(existingUser.Email, updateUserRequestModel.Email, StringComparison.OrdinalIgnoreCase))
-            && (string.IsNullOrEmpty(updateUserRequestModel.ProfilePictureUrl) || string.Equals(
-                existingUser.ProfilePictureUrl,
-                updateUserRequestModel.ProfilePictureUrl, StringComparison.OrdinalIgnoreCase)))
+        if (request.Username != existingUser.Username && !string.IsNullOrEmpty(request.Username))
+        {
+            existingUser.Username = request.Username;
+        }
+
+        if (request.Email != existingUser.Email && !string.IsNullOrEmpty(request.Email))
+        {
+            existingUser.Email = request.Email;
+        }
+
+        if (request.ProfilePictureUrl != existingUser.ProfilePictureUrl &&
+            !string.IsNullOrEmpty(request.ProfilePictureUrl))
+        {
+            existingUser.ProfilePictureUrl = request.ProfilePictureUrl;
+        }
+
+        if (!_userRepository.IsModified(existingUser))
         {
             return ErrorCode.NothingToUpdate;
         }
-
-        if (!string.IsNullOrEmpty(updateUserRequestModel.Username))
-            existingUser.Username = updateUserRequestModel.Username;
-
-        if (!string.IsNullOrEmpty(updateUserRequestModel.Email)) existingUser.Email = updateUserRequestModel.Email;
-
-        if (!string.IsNullOrEmpty(updateUserRequestModel.ProfilePictureUrl))
-            existingUser.ProfilePictureUrl = updateUserRequestModel.ProfilePictureUrl;
 
         existingUser.UpdatedAt = _momentProvider.DateTimeOffsetUtcNow;
 
