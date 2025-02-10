@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.API.Controllers;
 
-[Authorize]
+[Authorize(Roles = "Admin")]
 public class PostController : BaseController
 {
     private readonly IPostService _postService;
@@ -18,8 +18,7 @@ public class PostController : BaseController
     {
         _postService = postService;
     }
-
-    [Authorize(Roles = "Admin")]
+    
     [HttpPost("create")]
     public async Task<Result<PostModel>> Create([FromBody] CreatePostRequest request,
         CancellationToken cancellationToken = default)
@@ -36,7 +35,6 @@ public class PostController : BaseController
     }
 
     [ValidateUserId]
-    [Authorize(Roles = "Admin")]
     [HttpPut("update-post/{postId:int}/{userId:int}")]
     public async Task<Result<PostModel>> Update([FromRoute] int postId, [FromRoute] int userId,
         UpdatePostRequestModel request, CancellationToken cancellationToken = default)
@@ -45,14 +43,13 @@ public class PostController : BaseController
     }
 
     [ValidateUserId]
-    [Authorize(Roles = "Admin")]
     [HttpDelete("delete-post/{postId:int}/{userId:int}")]
     public async Task<Result<None>> Delete([FromRoute] int postId, [FromRoute] int userId,
         CancellationToken cancellationToken = default)
     {
         return await _postService.DeletePostAsync(userId, postId, cancellationToken);
     }
-
+    
     [HttpGet("get-categories")]
     public Result<IEnumerable<PostCategory>> GetCategories()
     {
