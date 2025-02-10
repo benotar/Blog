@@ -33,11 +33,16 @@ public class UserService : IUserService
     public async Task<Result<None>> CreateAsync(string username, string email, string password,
         CancellationToken cancellationToken = default)
     {
-        var isUserExist = await _userRepository.AnyAsync(user => user.Email == email, cancellationToken);
-
-        if (isUserExist)
+        if (await _userRepository.AnyAsync(user => user.Username == username,
+                cancellationToken))
         {
-            return ErrorCode.UserAlreadyExists;
+            return ErrorCode.UsernameAlreadyExists;
+        }
+
+        if (await _userRepository.AnyAsync(user => user.Email == email,
+                cancellationToken))
+        {
+            return ErrorCode.EmailAlreadyExists;
         }
 
         var hashedPassword = _encryptionProvider.HashPassword(password);
@@ -130,11 +135,21 @@ public class UserService : IUserService
 
         if (request.Username != existingUser.Username && !string.IsNullOrEmpty(request.Username))
         {
+            if (await _userRepository.AnyAsync(user => user.Username == request.Username, cancellationToken))
+            {
+                return ErrorCode.UsernameAlreadyExists;
+            }
+
             existingUser.Username = request.Username;
         }
 
         if (request.Email != existingUser.Email && !string.IsNullOrEmpty(request.Email))
         {
+            if (await _userRepository.AnyAsync(user => user.Email == request.Email, cancellationToken))
+            {
+                return ErrorCode.EmailAlreadyExists;
+            }
+
             existingUser.Email = request.Email;
         }
 

@@ -25,6 +25,7 @@ export default function SignUp() {
             setErrorMessage(null);
             const {data} = await $axios.post("auth/sign-up", formData);
             if (data.isSucceed === false) {
+                setLoading(false);
                 return setErrorMessage(data.errorCode);
             } else {
                 navigate("/sign-in");
@@ -34,7 +35,8 @@ export default function SignUp() {
             if(error.code === "ECONNABORTED") {
                 errorMessage = "Request timeout!";
             }
-            signInFailure(errorMessage);
+            setErrorMessage(errorMessage);
+            setLoading(false);
         }
     }
 

@@ -15,6 +15,8 @@ public enum ErrorCode
     NothingToDelete,
     UserIdMissing,
     InvalidUserId,
+    UsernameAlreadyExists,
+    EmailAlreadyExists,
     EnterYourCurrentAndNewPassword,
     PasswordDontMatch,
     UnexpectedError

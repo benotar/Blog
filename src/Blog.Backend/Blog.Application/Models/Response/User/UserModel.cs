@@ -7,6 +7,7 @@ public record UserModel
     public string Email { get; init; }
     public string ProfilePictureUrl { get; init; }
     public string Role { get; set; }
+    public DateTimeOffset CreatedAt { get; init; }
 }
 
 public static class UserModelExtensions
@@ -20,6 +21,7 @@ public static class UserModelExtensions
             Email = user.Email,
             ProfilePictureUrl = user.ProfilePictureUrl,
             Role = user.Role,
+            CreatedAt = user.CreatedAt
         };
     }
     

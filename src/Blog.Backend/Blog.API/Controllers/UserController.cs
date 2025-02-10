@@ -35,8 +35,7 @@ public class UserController : BaseController
 
         return updateUserResult.Payload;
     }
-
-    [ValidateUserId]
+    
     [HttpDelete("delete/{userId:int}")]
     public async Task<Result<None>> Delete([FromRoute] int userId, CancellationToken cancellationToken = default)
     {
