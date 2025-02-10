@@ -1,6 +1,6 @@
 ﻿namespace Blog.Application.Models.Request;
 
-public record GetPostsRequestModel(
+public sealed record GetPostsRequestModel(
     int? UserId,
     int? PostId,
     string? SearchTerm,

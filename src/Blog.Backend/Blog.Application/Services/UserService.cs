@@ -1,13 +1,17 @@
-﻿using Blog.Application.Common;
+﻿using System.Linq.Expressions;
+using Blog.Application.Common;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Repository;
 using Blog.Application.Interfaces.Services;
 using Blog.Application.Interfaces.UnitOfWork;
+using Blog.Application.Models.Request;
 using Blog.Application.Models.Request.Auth;
 using Blog.Application.Models.Request.User;
+using Blog.Application.Models.Response;
 using Blog.Application.Models.Response.User;
 using Blog.Domain.Entities;
 using Blog.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Application.Services;
 
@@ -112,12 +116,12 @@ public class UserService : IUserService
             {
                 return ErrorCode.PasswordDontMatch;
             }
-            
+
             if (_encryptionProvider.VerifyPasswordHash(request.NewPassword!, currentUserPassword))
             {
                 return ErrorCode.InvalidCredentials;
             }
-            
+
             var newUserPassword = _encryptionProvider.HashPassword(request.NewPassword!);
 
             existingUser.PasswordSalt = newUserPassword.Salt;
@@ -158,5 +162,38 @@ public class UserService : IUserService
         var rowsAffected = await _userRepository.RemoveAsync(user => user.Id == userId, cancellationToken);
 
         return rowsAffected == 0 ? ErrorCode.NothingToDelete : new None();
+    }
+
+    public async Task<Result<GetUsersResponseModel>> GetAsync(GetUsersRequestModel request,
+        CancellationToken cancellationToken = default)
+    {
+        var usersQuery = _userRepository.AsQueryable();
+
+        var lastMonthUsersCount = await usersQuery.Where(user =>
+                user.CreatedAt >= _momentProvider.DateTimeOffsetUtcNow.AddMonths(-1))
+            .CountAsync(cancellationToken);
+
+        Expression<Func<User, object>> sortProperty = user => user.CreatedAt;
+
+        usersQuery = request.SortOrder?.ToLower() == "desc"
+            ? usersQuery.OrderByDescending(sortProperty)
+            : usersQuery.OrderBy(sortProperty);
+
+        var userModels = usersQuery.Select(user => user.ToModel());
+
+        var startIndex = request.StartIndex ?? 0;
+        var limit = request.Limit ?? 9;
+
+        var responseItems = await PagedList<UserModel>.CreateAsync(
+            userModels,
+            startIndex,
+            limit,
+            cancellationToken);
+
+        return new GetUsersResponseModel
+        {
+            Data = responseItems,
+            LastMonthUsersCount = lastMonthUsersCount
+        };
     }
 }
