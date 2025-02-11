@@ -29,6 +29,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserService, UserService>();
         services.AddScoped<IAzureTranslatorService, AzureTranslatorService>();
         services.AddScoped<IPostService, PostService>();
+        services.AddScoped<ICommentService, CommentService>();
 
         // Add JsonSerializerOptions 
         var jsonOptions = new JsonSerializerOptions
