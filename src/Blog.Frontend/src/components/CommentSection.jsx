@@ -1,0 +1,78 @@
+import {useAppStore} from "../zustand/useAppStore.js";
+import {Link} from "react-router-dom";
+import {Button, Textarea} from "flowbite-react";
+import {useState} from "react";
+
+const COMMENT_MAX_LENGTH = 200;
+
+const CommentSection = ({postId}) => {
+    const currentUser = useAppStore(state => state.currentUser);
+    const [comment, setComment] = useState("");
+
+    const handleSubmit = async () => {
+
+    }
+
+    return (
+        <div className="max-w-2xl mx-auto w-full p-3">
+            {
+                currentUser
+                    ? (
+                        <div className="flex items-center gap-1 my-5 text-gray-500 text-sm">
+                            <p>Signed in as:</p>
+                            <img
+                                className="h-5 w-5 object-cover rounded-full"
+                                src={currentUser.profilePictureUrl}
+                                alt="profile-image"/>
+                            <Link
+                                className="text-xs text-cyan-500 hover:underline"
+                                to={"/dashboard?tab=profile"}
+                            >
+                                @{currentUser.username}
+                            </Link>
+                        </div>
+                    )
+                    : (
+                        <div className="flex gap-1 text-sm text-teal-500 my-5">
+                            You must be signed in to comment.
+                            <Link
+                                className="text-blue-500 hover:underline"
+                                to="/sign-in">
+                                Sign In
+                            </Link>
+                        </div>
+                    )
+            }
+            {
+                currentUser && (
+                    <form
+                        onSubmit={handleSubmit}
+                        className="border border-teal-500 rounded-md p-3"
+                    >
+                        <Textarea
+                            placeholder="Add a comment..."
+                            rows={3}
+                            maxLength={COMMENT_MAX_LENGTH}
+                            onChange={(e) => setComment(e.target.value)}
+                            value={comment}
+                        />
+                        <div className="flex justify-between items-center mt-5">
+                            <p className="text-gray-500 text-xs">
+                                {COMMENT_MAX_LENGTH- comment.length} characters remaining
+                            </p>
+                            <Button
+                                outline
+                                gradientDuoTone="purpleToBlue"
+                                type="submit"
+                            >
+                                Submit
+                            </Button>
+                        </div>
+                    </form>
+                )
+            }
+        </div>
+    );
+}
+
+export default CommentSection;
