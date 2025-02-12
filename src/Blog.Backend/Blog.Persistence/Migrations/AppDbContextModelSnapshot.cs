@@ -52,7 +52,7 @@ namespace Blog.Persistence.Migrations
 
                     b.HasIndex("AuthorId");
 
-                    b.HasIndex("PostId", "CreatedAt");
+                    b.HasIndex("PostId");
 
                     b.ToTable("Comments", (string)null);
                 });
@@ -148,7 +148,7 @@ namespace Blog.Persistence.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("RefreshTokens", (string)null);
                 });
 
             modelBuilder.Entity("Blog.Domain.Entities.User", b =>

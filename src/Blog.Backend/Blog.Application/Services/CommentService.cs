@@ -5,6 +5,7 @@ using Blog.Application.Interfaces.Services;
 using Blog.Application.Interfaces.UnitOfWork;
 using Blog.Application.Models.Request;
 using Blog.Application.Models.Response;
+using Blog.Application.Models.Response.User;
 using Blog.Domain.Entities;
 using Blog.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
@@ -54,7 +55,7 @@ public class CommentService : ICommentService
         return newComment.ToModel();
     }
 
-    public async Task<Result<IEnumerable<CommentModel>>> GetAsync(int postId,
+    public async Task<Result<IEnumerable<CommentDetailModel>>> GetAsync(int postId,
         CancellationToken cancellationToken = default)
     {
         if (!await _unitOfWork.GetRepository<Post>().AnyAsync(post => post.Id == postId, cancellationToken))
@@ -62,19 +63,33 @@ public class CommentService : ICommentService
             return ErrorCode.PostNotFound;
         }
 
-        return await _commentRepository.AsQueryable()
+        var result = await _commentRepository.AsQueryable()
             .Where(comment => comment.PostId == postId)
             .OrderBy(comment => comment.CreatedAt)
-            .Select(comment => new CommentModel
+            .Select(comment => new CommentDetailModel
             {
                 Id = comment.Id,
                 Content = comment.Content,
                 PostId = comment.PostId,
-                AuthorId = comment.AuthorId,
-                Likes = comment.Likes.Select(like => like.ToModel()),
+                Author = new UserModel
+                {
+                    Id = comment.Author.Id,
+                    Username = comment.Author.Username,
+                    Email = comment.Author.Email,
+                    ProfilePictureUrl = comment.Author.ProfilePictureUrl,
+                    Role = comment.Author.Role,
+                    CreatedAt = comment.Author.CreatedAt
+                },
+                Likes = comment.Likes.Select(like => new LikeModel
+                {
+                    CommentId = like.CommentId,
+                    UserId = like.UserId
+                }),
                 CountOfLikes = comment.CountOfLikes,
                 CreatedAt = comment.CreatedAt
             })
             .ToListAsync(cancellationToken);
+
+        return result;
     }
 }
