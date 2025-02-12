@@ -1,8 +1,10 @@
 import {useAppStore} from "../zustand/useAppStore.js";
 import {Link} from "react-router-dom";
 import {Alert, Button, Textarea} from "flowbite-react";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import $axios from "../axios/axios.js";
+import Comment from "./Comment.jsx";
+
 
 const COMMENT_MAX_LENGTH = 200;
 
@@ -10,6 +12,7 @@ const CommentSection = ({postId}) => {
     const currentUser = useAppStore(state => state.currentUser);
     const [comment, setComment] = useState("");
     const [commentError, setCommentError] = useState(null);
+    const [comments, setComments] = useState([]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -34,6 +37,27 @@ const CommentSection = ({postId}) => {
             setCommentError(error.message);
         }
     }
+
+    useEffect(() => {
+        const fetchComments = async () => {
+            try {
+                const {data} = await $axios.get(`comment/get-comments/${postId}`);
+
+                if (!data.isSucceed) {
+                    setCommentError(data.errorCode);
+                    return;
+                }
+
+                setCommentError(null);
+                setComments(data.payload);
+            } catch (error) {
+                console.log(error.message);
+            }
+        }
+
+        fetchComments();
+    }, [postId]);
+
 
     return (
         <div className="max-w-2xl mx-auto w-full p-3">
@@ -101,6 +125,27 @@ const CommentSection = ({postId}) => {
                     </form>
                 )
             }
+            {comments.length === 0 ? (
+                <p className="text-sm my-5">No comments yet!</p>
+            ) : (
+                <>
+                    <div className="flex items-center gap-1 text-sm my-5">
+                        <p>Comments</p>
+                        <div className="border border-gray-400 py-1 px-2 rounded-sm">
+                            <p>{comments.length}</p>
+                        </div>
+                    </div>
+                    {
+                        comments.map(comment => (
+                            <Comment
+                                key={comment.id}
+                                comment={comment}
+                            />
+                        ))
+                    }
+                </>
+
+            )}
         </div>
     );
 }
