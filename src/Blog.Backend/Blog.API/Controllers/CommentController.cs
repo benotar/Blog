@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Blog.API.Controllers;
 
+[Authorize]
 public class CommentController : BaseController
 {
     private readonly ICommentService _commentService;
@@ -17,11 +18,18 @@ public class CommentController : BaseController
         _commentService = commentService;
     }
 
-    [Authorize]
     [ValidateUserId]
     [HttpPost("create-comment/{userId:int}")]
-    public async Task<Result<CommentModel>> Create([FromRoute]int userId, [FromBody] CreateCommentRequestModel request, CancellationToken cancellationToken)
+    public async Task<Result<CommentModel>> Create([FromRoute] int userId, [FromBody] CreateCommentRequestModel request,
+        CancellationToken cancellationToken = default)
     {
         return await _commentService.CreateAsync(userId, request, cancellationToken);
+    }
+
+    [AllowAnonymous]
+    [HttpGet("get-comments/{postId:int}")]
+    public async Task<Result<IEnumerable<CommentModel>>> Get([FromRoute]int postId, CancellationToken cancellationToken = default)
+    {
+        return await _commentService.GetAsync(postId, cancellationToken);
     }
 }

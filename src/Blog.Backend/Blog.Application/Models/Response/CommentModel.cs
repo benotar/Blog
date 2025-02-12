@@ -10,6 +10,7 @@ public sealed record CommentModel
     public int AuthorId { get; init; }
     public IEnumerable<LikeModel> Likes { get; init; }
     public int CountOfLikes { get; init; }
+    public DateTimeOffset CreatedAt { get; init; }
 }
 
 public static class CommentModelExtensions
@@ -24,6 +25,7 @@ public static class CommentModelExtensions
             AuthorId = comment.AuthorId,
             Likes = comment.Likes.Select(like => like.ToModel()),
             CountOfLikes = comment.CountOfLikes,
+            CreatedAt = comment.CreatedAt
         };
     }
 }

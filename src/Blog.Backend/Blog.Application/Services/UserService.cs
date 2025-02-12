@@ -194,7 +194,15 @@ public class UserService : IUserService
             ? usersQuery.OrderByDescending(sortProperty)
             : usersQuery.OrderBy(sortProperty);
 
-        var userModels = usersQuery.Select(user => user.ToModel());
+        var userModels = usersQuery.Select(user => new UserModel
+        {
+            Id = user.Id,
+            Username = user.Username,
+            Email = user.Email,
+            ProfilePictureUrl = user.ProfilePictureUrl,
+            Role = user.Role,
+            CreatedAt = user.CreatedAt
+        });
 
         var startIndex = request.StartIndex ?? 0;
         var limit = request.Limit ?? 9;

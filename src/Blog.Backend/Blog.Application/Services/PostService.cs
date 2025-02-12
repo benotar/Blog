@@ -100,7 +100,16 @@ public partial class PostService : IPostService
             ? postsQuery.OrderByDescending(GetSortProperty(request))
             : postsQuery.OrderBy(GetSortProperty(request));
 
-        var postModels = postsQuery.Select(post => post.ToModel());
+        var postModels = postsQuery.Select(post => new PostModel
+        {
+            Id = post.Id,
+            Content = post.Content,
+            Title = post.Title,
+            ImageUrl = post.ImageUrl,
+            Category = post.Category,
+            Slug = post.Slug,
+            UpdatedAt = post.UpdatedAt ?? post.CreatedAt
+        });
 
         var startIndex = request.StartIndex ?? 0;
         var limit = request.Limit ?? 9;
@@ -163,7 +172,7 @@ public partial class PostService : IPostService
         }
 
         existingPost.UpdatedAt = _momentProvider.DateTimeOffsetUtcNow;
-        
+
         _postRepository.Update(existingPost);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);

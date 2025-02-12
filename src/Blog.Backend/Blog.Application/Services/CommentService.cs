@@ -7,6 +7,7 @@ using Blog.Application.Models.Request;
 using Blog.Application.Models.Response;
 using Blog.Domain.Entities;
 using Blog.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Application.Services;
 
@@ -24,7 +25,7 @@ public class CommentService : ICommentService
     }
 
     public async Task<Result<CommentModel>> CreateAsync(int userId, CreateCommentRequestModel request,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken = default)
     {
         if (!await _unitOfWork.GetRepository<Post>()
                 .AnyAsync(post => post.Id == request.PostId, cancellationToken))
@@ -51,5 +52,29 @@ public class CommentService : ICommentService
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return newComment.ToModel();
+    }
+
+    public async Task<Result<IEnumerable<CommentModel>>> GetAsync(int postId,
+        CancellationToken cancellationToken = default)
+    {
+        if (!await _unitOfWork.GetRepository<Post>().AnyAsync(post => post.Id == postId, cancellationToken))
+        {
+            return ErrorCode.PostNotFound;
+        }
+
+        return await _commentRepository.AsQueryable()
+            .Where(comment => comment.PostId == postId)
+            .OrderBy(comment => comment.CreatedAt)
+            .Select(comment => new CommentModel
+            {
+                Id = comment.Id,
+                Content = comment.Content,
+                PostId = comment.PostId,
+                AuthorId = comment.AuthorId,
+                Likes = comment.Likes.Select(like => like.ToModel()),
+                CountOfLikes = comment.CountOfLikes,
+                CreatedAt = comment.CreatedAt
+            })
+            .ToListAsync(cancellationToken);
     }
 }
