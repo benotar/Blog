@@ -1,16 +1,38 @@
 import {useAppStore} from "../zustand/useAppStore.js";
 import {Link} from "react-router-dom";
-import {Button, Textarea} from "flowbite-react";
+import {Alert, Button, Textarea} from "flowbite-react";
 import {useState} from "react";
+import $axios from "../axios/axios.js";
 
 const COMMENT_MAX_LENGTH = 200;
 
 const CommentSection = ({postId}) => {
     const currentUser = useAppStore(state => state.currentUser);
     const [comment, setComment] = useState("");
+    const [commentError, setCommentError] = useState(null);
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (comment.length > 200) {
+            return;
+        }
 
+        try {
+            const {data} = await $axios.post(`comment/create-comment/${currentUser.id}`, {
+                postId,
+                content: comment
+            });
+
+            if (!data.isSucceed) {
+                setCommentError(data.errorCode);
+                return;
+            }
+
+            setCommentError(null);
+            setComment('');
+        } catch (error) {
+            setCommentError(error.message);
+        }
     }
 
     return (
@@ -58,7 +80,7 @@ const CommentSection = ({postId}) => {
                         />
                         <div className="flex justify-between items-center mt-5">
                             <p className="text-gray-500 text-xs">
-                                {COMMENT_MAX_LENGTH- comment.length} characters remaining
+                                {COMMENT_MAX_LENGTH - comment.length} characters remaining
                             </p>
                             <Button
                                 outline
@@ -68,6 +90,14 @@ const CommentSection = ({postId}) => {
                                 Submit
                             </Button>
                         </div>
+                        {commentError && (
+                            <Alert
+                                className="mt-5"
+                                color="failure"
+                            >
+                                {commentError}
+                            </Alert>
+                        )}
                     </form>
                 )
             }
