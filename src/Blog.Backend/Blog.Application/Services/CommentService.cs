@@ -34,8 +34,9 @@ public class CommentService : ICommentService
             return ErrorCode.PostNotFound;
         }
 
-        if (!await _unitOfWork.GetRepository<User>()
-                .AnyAsync(user => user.Id == userId, cancellationToken))
+        var existingUser =  await _unitOfWork.GetRepository<User>().GetByIdAsync(userId, cancellationToken);
+        
+        if (existingUser is null)
         {
             return ErrorCode.UserNotFound;
         }
@@ -44,6 +45,7 @@ public class CommentService : ICommentService
         {
             Content = request.Content,
             AuthorId = userId,
+            Author = existingUser,
             PostId = request.PostId,
             CreatedAt = _momentProvider.DateTimeOffsetUtcNow
         };
@@ -55,7 +57,7 @@ public class CommentService : ICommentService
         return newComment.ToModel();
     }
 
-    public async Task<Result<IEnumerable<CommentDetailModel>>> GetAsync(int postId,
+    public async Task<Result<IEnumerable<CommentModel>>> GetAsync(int postId,
         CancellationToken cancellationToken = default)
     {
         if (!await _unitOfWork.GetRepository<Post>().AnyAsync(post => post.Id == postId, cancellationToken))
@@ -63,10 +65,10 @@ public class CommentService : ICommentService
             return ErrorCode.PostNotFound;
         }
 
-        var result = await _commentRepository.AsQueryable()
+        return await _commentRepository.AsQueryable()
             .Where(comment => comment.PostId == postId)
-            .OrderBy(comment => comment.CreatedAt)
-            .Select(comment => new CommentDetailModel
+            .OrderByDescending(comment => comment.CreatedAt)
+            .Select(comment => new CommentModel
             {
                 Id = comment.Id,
                 Content = comment.Content,
@@ -89,7 +91,5 @@ public class CommentService : ICommentService
                 CreatedAt = comment.CreatedAt
             })
             .ToListAsync(cancellationToken);
-
-        return result;
     }
 }

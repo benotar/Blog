@@ -28,7 +28,7 @@ public class CommentController : BaseController
 
     [AllowAnonymous]
     [HttpGet("get-comments/{postId:int}")]
-    public async Task<Result<IEnumerable<CommentDetailModel>>> Get([FromRoute]int postId, CancellationToken cancellationToken = default)
+    public async Task<Result<IEnumerable<CommentModel>>> Get([FromRoute]int postId, CancellationToken cancellationToken = default)
     {
         return await _commentService.GetAsync(postId, cancellationToken);
     }

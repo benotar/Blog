@@ -8,17 +8,6 @@ public sealed record CommentModel
     public int Id { get; init; }
     public string Content { get; init; }
     public int PostId { get; init; }
-    public int AuthorId { get; init; }
-    public IEnumerable<LikeModel> Likes { get; init; }
-    public int CountOfLikes { get; init; }
-    public DateTimeOffset CreatedAt { get; init; }
-}
-
-public sealed record CommentDetailModel
-{
-    public int Id { get; init; }
-    public string Content { get; init; }
-    public int PostId { get; init; }
     public UserModel Author { get; init; }
     public IEnumerable<LikeModel> Likes { get; init; }
     public int CountOfLikes { get; init; }
@@ -34,7 +23,7 @@ public static class CommentModelExtensions
             Id = comment.Id,
             Content = comment.Content,
             PostId = comment.PostId,
-            AuthorId = comment.AuthorId,
+            Author = comment.Author?.ToModel(),
             Likes = comment.Likes.Select(like => like.ToModel()),
             CountOfLikes = comment.CountOfLikes,
             CreatedAt = comment.CreatedAt

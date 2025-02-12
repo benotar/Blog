@@ -33,6 +33,7 @@ const CommentSection = ({postId}) => {
 
             setCommentError(null);
             setComment('');
+            setComments([data.payload, ...comments]);
         } catch (error) {
             setCommentError(error.message);
         }
