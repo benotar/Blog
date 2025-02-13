@@ -12,8 +12,9 @@ public class OffsetPagination<TEntity> : IPagination<TEntity>
         var startIndex = start is >= 0 ? start.Value : 0;
         var itemsSize = limit is > 0 ? limit.Value : 9;
         var totalCount = await query.CountAsync(cancellationToken);
-        var hasNextPage = start + limit < totalCount;
-        var hasPreviousPage = start > 0;
+        
+        var hasNextPage = (startIndex + 1) * itemsSize < totalCount;
+        var hasPreviousPage = startIndex > 0;
 
         var items = await query
             .Skip(startIndex)

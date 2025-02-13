@@ -12,8 +12,9 @@ public class PagedPagination<TEntity> : IPagination<TEntity>
         var page = start is > 0 ? start.Value : 1;
         var pageSize = limit is > 0 ? limit.Value : 10;
         var totalCount = await query.CountAsync(cancellationToken);
-        var hasNextPage = start * limit < totalCount;
-        var hasPreviousPage = start > 1;
+        
+        var hasNextPage = page * pageSize < totalCount;
+        var hasPreviousPage = page > 1;
 
         var items = await query
             .Skip((page - 1) * pageSize)
