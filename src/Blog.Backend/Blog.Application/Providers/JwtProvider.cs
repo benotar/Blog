@@ -98,7 +98,7 @@ public class JwtProvider : IJwtProvider
         CancellationToken cancellationToken = default)
     {
         var existingRefreshToken = await _refreshTokenRepository
-            .AsQueryable()
+            .AsNoTracking()
             .Where(refresh => refresh.UserId == userId && refresh.Token == refreshToken)
             .Include(refresh => refresh.User)
             .FirstOrDefaultAsync(cancellationToken);
@@ -152,7 +152,7 @@ public class JwtProvider : IJwtProvider
         CancellationToken cancellationToken = default)
     {
         var userId = await _refreshTokenRepository
-            .AsQueryable()
+            .AsNoTracking()
             .Where(refresh => refresh.Token == refreshToken)
             .Select(refresh => refresh.UserId)
             .FirstOrDefaultAsync(cancellationToken);

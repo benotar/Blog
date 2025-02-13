@@ -1,28 +1,24 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿namespace Blog.Application.Models.Response;
 
-namespace Blog.Application.Models.Response;
+public sealed record PaginationParameters(int Start, int Limit, int TotalCount, bool HasNextPage, bool HasPreviousPage);
 
-public class PagedList<T>
+public sealed record PagedList<T>
 {
-    private PagedList(List<T> items, int startIndex, int limit, int totalCount)
-    {
-        Items = items;
-        StartIndex = startIndex;
-        Limit = limit;
-        TotalCount = totalCount;
-    }
-
     public List<T> Items { get; }
-    public int StartIndex { get; }
+    public int Start { get; }
     public int Limit { get; }
     public int TotalCount { get; }
-    
-    public static async Task<PagedList<T>> CreateAsync(IQueryable<T> query, int startIndex, int limit, CancellationToken cancellationToken = default)
+    public bool HasNextPage { get; }
+    public bool HasPreviousPage { get; }
+
+    public PagedList(List<T> items, PaginationParameters paginationParameters)
     {
-        var totalCount = await query.CountAsync(cancellationToken);
-
-        var items = await query.Skip(startIndex).Take(limit).ToListAsync(cancellationToken);
-
-        return new PagedList<T>(items, startIndex, limit, totalCount);
+        Items = items;
+        Start = paginationParameters.Start;
+        Limit = paginationParameters.Limit;
+        TotalCount = paginationParameters.TotalCount;
+        HasNextPage = paginationParameters.HasNextPage;
+        HasPreviousPage = paginationParameters.HasPreviousPage;
     }
+    private PagedList() { }
 }

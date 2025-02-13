@@ -16,7 +16,7 @@ public interface IRepository<T> where T : class
     Task<int> RemoveAsync(Expression<Func<T, bool>>? predicate = null,
         CancellationToken cancellationToken = default);
 
-    IQueryable<T> AsQueryable();
+    IQueryable<T> AsNoTracking();
 
     bool IsModified(T entity);
 }

@@ -35,7 +35,7 @@ public class Repository<T> : IRepository<T> where T : class
             ? await _dbSet.FirstOrDefaultAsync(cancellationToken: cancellationToken)
             : await _dbSet.FirstOrDefaultAsync(predicate, cancellationToken);
     }
-    
+
     public async Task AddAsync(T entity, CancellationToken cancellationToken = default)
     {
         await _dbSet.AddAsync(entity, cancellationToken: cancellationToken);
@@ -59,15 +59,15 @@ public class Repository<T> : IRepository<T> where T : class
         return await query.ExecuteDeleteAsync(cancellationToken: cancellationToken);
     }
 
-    public IQueryable<T> AsQueryable()
+    public IQueryable<T> AsNoTracking()
     {
         return _dbSet.AsNoTracking();
     }
-    
+
     public bool IsModified(T entity)
     {
         var entry = _dbSet.Entry(entity);
-        
+
         return entry.State == EntityState.Modified;
     }
 }

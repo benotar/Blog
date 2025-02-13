@@ -5,6 +5,8 @@ using Azure;
 using Azure.AI.Translation.Text;
 using Blog.Application.Common.Converters;
 using Blog.Application.Configurations;
+using Blog.Application.FactoryMethod;
+using Blog.Application.Interfaces.FactoryMethod;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Services;
 using Blog.Application.Providers;
@@ -30,6 +32,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAzureTranslatorService, AzureTranslatorService>();
         services.AddScoped<IPostService, PostService>();
         services.AddScoped<ICommentService, CommentService>();
+
+        services.AddTransient(typeof(IPaginationFactory<>), typeof(PaginationFactory<>));
 
         // Add JsonSerializerOptions 
         var jsonOptions = new JsonSerializerOptions

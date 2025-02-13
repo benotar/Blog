@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Blog.Application.Common;
+using Blog.Application.Interfaces.FactoryMethod;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Repository;
 using Blog.Application.Interfaces.Services;
@@ -21,12 +22,15 @@ public class UserService : IUserService
     private readonly IEncryptionProvider _encryptionProvider;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRepository<User> _userRepository;
+    private readonly IPaginationFactory<UserModel> _userPaginationFactory;
 
-    public UserService(IMomentProvider momentProvider, IEncryptionProvider encryptionProvider, IUnitOfWork unitOfWork)
+    public UserService(IMomentProvider momentProvider, IEncryptionProvider encryptionProvider, IUnitOfWork unitOfWork,
+        IPaginationFactory<UserModel> userPaginationFactory)
     {
         _momentProvider = momentProvider;
         _encryptionProvider = encryptionProvider;
         _unitOfWork = unitOfWork;
+        _userPaginationFactory = userPaginationFactory;
         _userRepository = unitOfWork.GetRepository<User>();
     }
 
@@ -182,7 +186,7 @@ public class UserService : IUserService
     public async Task<Result<GetUsersResponseModel>> GetAsync(GetUsersRequestModel request,
         CancellationToken cancellationToken = default)
     {
-        var usersQuery = _userRepository.AsQueryable();
+        var usersQuery = _userRepository.AsNoTracking();
 
         var lastMonthUsersCount = await usersQuery.Where(user =>
                 user.CreatedAt >= _momentProvider.DateTimeOffsetUtcNow.AddMonths(-1))
@@ -203,15 +207,14 @@ public class UserService : IUserService
             Role = user.Role,
             CreatedAt = user.CreatedAt
         });
-
-        var startIndex = request.StartIndex ?? 0;
-        var limit = request.Limit ?? 9;
-
-        var responseItems = await PagedList<UserModel>.CreateAsync(
-            userModels,
-            startIndex,
-            limit,
-            cancellationToken);
+        
+        var responseItems = await _userPaginationFactory
+            .CreatePaginationFactory(PaginationType.Offset)
+            .CreatePagedListAsync(
+                userModels,
+                request.StartIndex,
+                request.Limit,
+                cancellationToken);
 
         return new GetUsersResponseModel
         {

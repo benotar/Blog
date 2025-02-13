@@ -7,6 +7,9 @@ namespace Blog.Application.Interfaces.Services;
 
 public interface ICommentService
 {
-    Task<Result<CommentModel>> CreateAsync(int userId, CreateCommentRequestModel request, CancellationToken cancellationToken = default);
-    Task<Result<IEnumerable<CommentModel>>> GetAsync(int postId, CancellationToken cancellationToken = default);
+    Task<Result<CommentModel>> CreateAsync(int userId, CreateCommentRequestModel request,
+        CancellationToken cancellationToken = default);
+
+    Task<Result<PagedList<CommentModel>>> GetAsync(int postId, GetCommentsOfPostRequestModel request,
+        CancellationToken cancellationToken = default);
 }

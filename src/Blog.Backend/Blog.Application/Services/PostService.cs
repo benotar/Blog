@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using System.Text.RegularExpressions;
 using Blog.Application.Common;
+using Blog.Application.Interfaces.FactoryMethod;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Repository;
 using Blog.Application.Interfaces.Services;
@@ -18,11 +19,14 @@ public partial class PostService : IPostService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRepository<Post> _postRepository;
     private readonly IMomentProvider _momentProvider;
+    private readonly IPaginationFactory<PostModel> _paginationFactory;
 
-    public PostService(IUnitOfWork unitOfWork, IMomentProvider momentProvider)
+    public PostService(IUnitOfWork unitOfWork, IMomentProvider momentProvider,
+        IPaginationFactory<PostModel> paginationFactory)
     {
         _unitOfWork = unitOfWork;
         _momentProvider = momentProvider;
+        _paginationFactory = paginationFactory;
         _postRepository = _unitOfWork.GetRepository<Post>();
     }
 
@@ -69,7 +73,7 @@ public partial class PostService : IPostService
     public async Task<Result<GetPostsResponseModel>> GetPostsAsync(GetPostsRequestModel request,
         CancellationToken cancellationToken = default)
     {
-        var postsQuery = _postRepository.AsQueryable();
+        var postsQuery = _postRepository.AsNoTracking();
 
         var lastMonthPostsCount = 0;
 
@@ -110,15 +114,14 @@ public partial class PostService : IPostService
             Slug = post.Slug,
             UpdatedAt = post.UpdatedAt ?? post.CreatedAt
         });
-
-        var startIndex = request.StartIndex ?? 0;
-        var limit = request.Limit ?? 9;
-
-        var responseItems = await PagedList<PostModel>.CreateAsync(
-            postModels,
-            startIndex,
-            limit,
-            cancellationToken);
+        
+        var responseItems = await _paginationFactory
+            .CreatePaginationFactory(PaginationType.Offset)
+            .CreatePagedListAsync(
+                postModels, 
+                request.StartIndex, 
+                request.Limit, 
+                cancellationToken);
 
         return new GetPostsResponseModel
         {
