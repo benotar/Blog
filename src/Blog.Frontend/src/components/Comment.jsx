@@ -1,16 +1,21 @@
 import moment from "moment";
+import {Button} from "flowbite-react";
+import {FaThumbsUp} from "react-icons/fa";
+import {useAppStore} from "../zustand/useAppStore.js";
 
-const Comment = ({key, comment}) => {
+const Comment = ({comment, onLike}) => {
 
-    const user = comment.author;
+    const commentAuthor = comment.author;
+    const currentUser = useAppStore(state => state.currentUser);
+
 
     return(
         <div className="flex p-4 border-b dark:border-gray-600 text-sm">
             <div className="flex-shrink-0 mr-3">
                 <img
                     className="w-10 h-10 rounded-full bg-gray-200"
-                    src={user.profilePictureUrl}
-                    alt={user.username}
+                    src={commentAuthor.profilePictureUrl}
+                    alt={commentAuthor.username}
                 />
             </div>
             <div className="flex-1">
@@ -18,7 +23,7 @@ const Comment = ({key, comment}) => {
                     <span
                         className="font-bold mr-1 text-xs truncate"
                     >
-                        {user ? `@${user.username}` : "anonymous user"}
+                        {commentAuthor ? `@${commentAuthor.username}` : "anonymous commentAuthor"}
                     </span>
                     <span
                         className="text-gray-500 text-xs"
@@ -27,6 +32,20 @@ const Comment = ({key, comment}) => {
                     </span>
                 </div>
                 <p className="text-gray-500 mb-2">{comment.content}</p>
+                <div className="flex items-center pt-2 text-xs border-t dark:border-gray-700 max-w-fit gap-2">
+                    <button
+                        type="button"
+                        onClick={() => onLike(comment.id)}
+                        className={`text-gray-400 hover:text-blue-500 ${currentUser 
+                        && comment.likes.some(like => like.userId === currentUser.id) && "!text-blue-500"}`}>
+                        <FaThumbsUp />
+                    </button>
+                    <p
+                        className="text-gray-400"
+                    >{comment.countOfLikes > 0 && comment.countOfLikes + " " + (
+                        comment.countOfLikes === 1 ? "like" : "likes"
+                    )}</p>
+                </div>
             </div>
         </div>
     );

@@ -72,6 +72,7 @@ public class CommentService : ICommentService
         var commentsQuery = _commentRepository
             .AsNoTracking()
             .Where(comment => comment.PostId == postId)
+            .Include(comment => comment.Likes)
             .OrderByDescending(comment => comment.CreatedAt);
 
         var commentsModels = commentsQuery
@@ -112,6 +113,7 @@ public class CommentService : ICommentService
     {
         var existingComment = await _commentRepository
             .AsQueryable()
+            .Include(comment => comment.Author)
             .Include(comment => comment.Likes)
             .FirstOrDefaultAsync(comment => comment.Id == commentId, cancellationToken);
 

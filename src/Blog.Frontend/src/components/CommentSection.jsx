@@ -4,7 +4,7 @@ import {Alert, Button, Textarea} from "flowbite-react";
 import {useEffect, useState} from "react";
 import $axios from "../axios/axios.js";
 import Comment from "./Comment.jsx";
-
+import {useNavigate} from "react-router-dom";
 
 const COMMENT_MAX_LENGTH = 200;
 
@@ -13,7 +13,7 @@ const CommentSection = ({postId}) => {
     const [comment, setComment] = useState("");
     const [commentError, setCommentError] = useState(null);
     const [comments, setComments] = useState([]);
-
+    const navigate = useNavigate();
     const [currentPage, setCurrentPage] = useState(1);
     const [commentsPerPage] = useState(6);
     const [hasNextPage, setHasNextPage] = useState(false);
@@ -67,9 +67,34 @@ const CommentSection = ({postId}) => {
     }, [postId, currentPage]);
 
 
-    console.log(currentPage);
-    console.log(hasNextPage);
-    console.log(hasPreviousPage);
+    const handleLike = async (commentId) => {
+        try {
+            if (!currentUser) {
+                navigate("sign-in");
+                return;
+            }
+
+            const {data} = await $axios.put(`comment/like-comment/${commentId}`);
+
+            if (data.isSucceed) {
+                setComments(
+                    comments.map((cm) =>
+                        cm.id === commentId
+                            ? {
+                                ...cm,
+                                likes: data.payload.likes,
+                                countOfLikes: data.payload.countOfLikes
+                            }
+                            : cm
+                    )
+                );
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    console.log(comments);
 
     return (
         <div className="max-w-2xl mx-auto w-full p-3">
@@ -144,7 +169,7 @@ const CommentSection = ({postId}) => {
                     gradientDuoTone="greenToBlue"
                     disabled={!hasPreviousPage}
                     onClick={() => {
-                        if(hasPreviousPage) {
+                        if (hasPreviousPage) {
                             setCurrentPage(prev => prev - 1);
                         }
                     }}
@@ -162,7 +187,7 @@ const CommentSection = ({postId}) => {
                     gradientDuoTone="greenToBlue"
                     disabled={!hasNextPage}
                     onClick={() => {
-                        if(hasNextPage) {
+                        if (hasNextPage) {
                             setCurrentPage(prev => prev + 1);
                         }
                     }}
@@ -185,6 +210,7 @@ const CommentSection = ({postId}) => {
                             <Comment
                                 key={comment.id}
                                 comment={comment}
+                                onLike={handleLike}
                             />
                         ))
                     }
