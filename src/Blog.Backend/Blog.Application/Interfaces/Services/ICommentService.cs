@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Blog.Application.Common;
+﻿using Blog.Application.Common;
 using Blog.Application.Models.Request;
 using Blog.Application.Models.Response;
 
@@ -12,4 +11,6 @@ public interface ICommentService
 
     Task<Result<PagedList<CommentModel>>> GetAsync(int postId, GetCommentsOfPostRequestModel request,
         CancellationToken cancellationToken = default);
+    
+    Task<Result<CommentModel>> LikeAsync(int userId, int commentId, CancellationToken cancellationToken = default);
 }

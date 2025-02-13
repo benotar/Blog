@@ -9,6 +9,7 @@ public enum ErrorCode
     InvalidRefreshToken,
     InvalidCredentials,
     UserAlreadyExists,
+    CommentNotFound,
     InvalidModel,
     ThereIsNothingToDelete,
     NothingToUpdate,

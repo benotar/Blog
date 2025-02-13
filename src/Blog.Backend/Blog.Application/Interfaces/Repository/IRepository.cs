@@ -17,6 +17,7 @@ public interface IRepository<T> where T : class
         CancellationToken cancellationToken = default);
 
     IQueryable<T> AsNoTracking();
+    IQueryable<T> AsQueryable();
 
     bool IsModified(T entity);
 }

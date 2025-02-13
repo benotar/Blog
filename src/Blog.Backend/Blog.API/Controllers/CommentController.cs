@@ -33,4 +33,11 @@ public class CommentController : BaseController
     {
         return await _commentService.GetAsync(postId, request, cancellationToken);
     }
+
+    [HttpPut("like-comment/{commentId:int}")]
+    public async Task<Result<CommentModel>> LikeComment([FromRoute] int commentId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _commentService.LikeAsync(UserId, commentId, cancellationToken);
+    }
 }

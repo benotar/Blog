@@ -4,7 +4,6 @@ namespace Blog.Application.Models.Response;
 
 public class LikeModel
 {
-    public int CommentId { get; init; }
     public int UserId { get; init; }
 }
 
@@ -14,7 +13,6 @@ public static class LikeModelExtensions
     {
         return new LikeModel
         {
-            CommentId = like.CommentId,
             UserId = like.UserId
         };
     }

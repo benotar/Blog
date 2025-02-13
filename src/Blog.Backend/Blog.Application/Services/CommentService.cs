@@ -9,6 +9,7 @@ using Blog.Application.Models.Response;
 using Blog.Application.Models.Response.User;
 using Blog.Domain.Entities;
 using Blog.Domain.Enums;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Application.Services;
 
@@ -91,7 +92,6 @@ public class CommentService : ICommentService
                 Likes = comment.Likes
                     .Select(like => new LikeModel
                     {
-                        CommentId = like.CommentId,
                         UserId = like.UserId
                     }),
                 CountOfLikes = comment.CountOfLikes,
@@ -105,5 +105,43 @@ public class CommentService : ICommentService
                 request.Page,
                 request.PageSize,
                 cancellationToken);
+    }
+
+    public async Task<Result<CommentModel>> LikeAsync(int userId, int commentId,
+        CancellationToken cancellationToken = default)
+    {
+        var existingComment = await _commentRepository
+            .AsQueryable()
+            .Include(comment => comment.Likes)
+            .FirstOrDefaultAsync(comment => comment.Id == commentId, cancellationToken);
+
+        if (existingComment is null)
+        {
+            return ErrorCode.CommentNotFound;
+        }
+
+        var existingLike =
+            existingComment.Likes.FirstOrDefault(like => like.CommentId == commentId && like.UserId == userId);
+
+        if (existingLike is not null)
+        {
+            existingComment.Likes.Remove(existingLike);
+        }
+        else
+        {
+            var newLike = new Like
+            {
+                CommentId = commentId,
+                UserId = userId
+            };
+
+            existingComment.Likes.Add(newLike);
+        }
+
+        existingComment.UpdatedAt = _momentProvider.DateTimeOffsetUtcNow;
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return existingComment.ToModel();
     }
 }

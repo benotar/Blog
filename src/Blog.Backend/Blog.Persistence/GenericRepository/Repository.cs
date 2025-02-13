@@ -64,6 +64,11 @@ public class Repository<T> : IRepository<T> where T : class
         return _dbSet.AsNoTracking();
     }
 
+    public IQueryable<T> AsQueryable()
+    {
+        return _dbSet.AsQueryable();
+    }
+
     public bool IsModified(T entity)
     {
         var entry = _dbSet.Entry(entity);
