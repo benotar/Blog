@@ -146,4 +146,33 @@ public class CommentService : ICommentService
 
         return existingComment.ToModel();
     }
+
+    public async Task<Result<CommentModel>> UpdateAsync(int userId, int commentId, UpdateCommentRequestModel request,
+        CancellationToken cancellationToken = default)
+    {
+        var existingComment = await _commentRepository
+            .AsQueryable()
+            .Include(comment => comment.Author)
+            .Include(comment => comment.Likes)
+            .FirstOrDefaultAsync(comment => comment.Id == commentId && comment.AuthorId == userId, cancellationToken);
+
+        if (existingComment is null)
+        {
+            return ErrorCode.CommentNotFound;
+        }
+
+        if (string.IsNullOrEmpty(request.Content) || request.Content == existingComment.Content)
+        {
+            return ErrorCode.NothingToUpdate;
+        }
+
+        existingComment.Content = request.Content;
+        existingComment.UpdatedAt = _momentProvider.DateTimeOffsetUtcNow;
+
+        _commentRepository.Update(existingComment);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        return existingComment.ToModel();
+    }
 }

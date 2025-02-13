@@ -29,7 +29,7 @@ public class CommentController : BaseController
     [AllowAnonymous]
     [HttpGet("get-comments/{postId:int}")]
     public async Task<Result<PagedList<CommentModel>>> Get([FromRoute] int postId,
-        [FromQuery]GetCommentsOfPostRequestModel request, CancellationToken cancellationToken = default)
+        [FromQuery] GetCommentsOfPostRequestModel request, CancellationToken cancellationToken = default)
     {
         return await _commentService.GetAsync(postId, request, cancellationToken);
     }
@@ -39,5 +39,13 @@ public class CommentController : BaseController
         CancellationToken cancellationToken = default)
     {
         return await _commentService.LikeAsync(UserId, commentId, cancellationToken);
+    }
+
+    [ValidateUserId]
+    [HttpPut("update-comment/{commentId:int}/{userId:int}")]
+    public async Task<Result<CommentModel>> UpdateComment([FromRoute] int commentId,[FromRoute] int userId,
+        [FromBody] UpdateCommentRequestModel request, CancellationToken cancellationToken = default)
+    {
+        return await _commentService.UpdateAsync(userId, commentId, request, cancellationToken);
     }
 }
