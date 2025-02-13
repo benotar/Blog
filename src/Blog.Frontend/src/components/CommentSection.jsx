@@ -14,6 +14,11 @@ const CommentSection = ({postId}) => {
     const [commentError, setCommentError] = useState(null);
     const [comments, setComments] = useState([]);
 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [commentsPerPage] = useState(6);
+    const [hasNextPage, setHasNextPage] = useState(false);
+    const [hasPreviousPage, setHasPreviousPage] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (comment.length > 200) {
@@ -42,7 +47,7 @@ const CommentSection = ({postId}) => {
     useEffect(() => {
         const fetchComments = async () => {
             try {
-                const {data} = await $axios.get(`comment/get-comments/${postId}`);
+                const {data} = await $axios.get(`comment/get-comments/${postId}?page=${currentPage}&pageSize=${commentsPerPage}`);
 
                 if (!data.isSucceed) {
                     setCommentError(data.errorCode);
@@ -50,15 +55,21 @@ const CommentSection = ({postId}) => {
                 }
 
                 setCommentError(null);
-                setComments(data.payload);
+                setComments(data.payload.items);
+                setHasNextPage(data.payload.hasNextPage);
+                setHasPreviousPage(data.payload.hasPreviousPage);
             } catch (error) {
                 console.log(error.message);
             }
         }
 
         fetchComments();
-    }, [postId]);
+    }, [postId, currentPage]);
 
+
+    console.log(currentPage);
+    console.log(hasNextPage);
+    console.log(hasPreviousPage);
 
     return (
         <div className="max-w-2xl mx-auto w-full p-3">
@@ -126,6 +137,39 @@ const CommentSection = ({postId}) => {
                     </form>
                 )
             }
+            <div className="flex mt-5 gap-x-5 items-center">
+                <Button
+                    size="xs"
+                    outline
+                    gradientDuoTone="greenToBlue"
+                    disabled={!hasPreviousPage}
+                    onClick={() => {
+                        if(hasPreviousPage) {
+                            setCurrentPage(prev => prev - 1);
+                        }
+                    }}
+                >
+                    Prev
+                </Button>
+                <span
+                    className="font-bold mr-1 text-xl truncate"
+                >{currentPage}
+                </span>
+
+                <Button
+                    size="xs"
+                    outline
+                    gradientDuoTone="greenToBlue"
+                    disabled={!hasNextPage}
+                    onClick={() => {
+                        if(hasNextPage) {
+                            setCurrentPage(prev => prev + 1);
+                        }
+                    }}
+                >
+                    Next
+                </Button>
+            </div>
             {comments.length === 0 ? (
                 <p className="text-sm my-5">No comments yet!</p>
             ) : (

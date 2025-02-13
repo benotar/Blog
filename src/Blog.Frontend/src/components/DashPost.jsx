@@ -1,18 +1,14 @@
 import {useEffect, useState} from "react";
 import $axios from "../axios/axios.js";
 import {useAppStore} from "../zustand/useAppStore.js";
-import {useShallow} from "zustand/react/shallow";
 import {Button, Modal, Table} from "flowbite-react";
 import {Link} from "react-router-dom";
 import {HiOutlineExclamationCircle} from "react-icons/hi";
 
-const ITEMS_PER_PAGE = 9;
 
 const DashPost = () => {
 
-    const {currentUser} = useAppStore(useShallow((state) => ({
-        currentUser: state.currentUser
-    })));
+    const currentUser = useAppStore((state) => state.currentUser);
     const [items, setItems] = useState([]);
     const [showMore, setShowMore] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -24,7 +20,7 @@ const DashPost = () => {
                 const {data} = await $axios.get(`post/get-posts?userId=${currentUser.id}`);
                 if (data.isSucceed) {
                     setItems(data.payload.data.items);
-                    if(data.payload.data.items.length <= ITEMS_PER_PAGE) {
+                    if(!data.payload.data.hasNextPage) {
                         setShowMore(false);
                     }
                 }
@@ -44,8 +40,8 @@ const DashPost = () => {
             const {data} = await $axios.get(`post/get-posts?userId=${currentUser.id}&startIndex=${startIndex}`);
             if (data.isSucceed) {
                 setItems((prev) => [...prev, ...data.payload.data.items]);
-                if(data.payload.data.items.length <= ITEMS_PER_PAGE) {
-                    setShowMore(false)
+                if(!data.payload.data.hasNextPage) {
+                    setShowMore(false);
                 }
             }
         } catch (error) {
