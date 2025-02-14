@@ -9,7 +9,8 @@ import $axios from "../axios/axios.js";
 const Comment = ({
                      comment,
                      onLike,
-                     onEdit
+                     onEdit,
+                     onDelete
                  }) => {
 
     const commentAuthor = comment.author;
@@ -24,7 +25,7 @@ const Comment = ({
 
     const handleSave = async () => {
         try {
-            const {data} = await $axios.put(`comment/update-comment/${comment.id}/${currentUser.id}`, {
+            const {data} = await $axios.put(`comment/update-comment/${comment.id}`, {
                 content: editedContent
             });
 
@@ -109,13 +110,22 @@ const Comment = ({
                                 </p>
                                 {
                                     currentUser && (currentUser.id === commentAuthor.id || currentUser.role === ADMIN) && (
-                                        <button
-                                            type="button"
-                                            className="text-gray-400 hover:text-blue-500"
-                                            onClick={handleEdit}
-                                        >
-                                            Edit
-                                        </button>
+                                        <>
+                                            <button
+                                                type="button"
+                                                className="text-gray-400 hover:text-blue-500"
+                                                onClick={handleEdit}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className="text-gray-400 hover:text-red-500"
+                                                onClick={() => onDelete(comment.id)}
+                                            >
+                                                Delete
+                                            </button>
+                                        </>
                                     )
                                 }
                             </div>

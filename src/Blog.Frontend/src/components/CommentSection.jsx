@@ -1,10 +1,11 @@
 import {useAppStore} from "../zustand/useAppStore.js";
 import {Link} from "react-router-dom";
-import {Alert, Button, Textarea} from "flowbite-react";
+import {Alert, Button, Modal, Textarea} from "flowbite-react";
 import {useEffect, useState} from "react";
 import $axios from "../axios/axios.js";
 import Comment from "./Comment.jsx";
 import {useNavigate} from "react-router-dom";
+import {HiOutlineExclamationCircle} from "react-icons/hi";
 
 const COMMENT_MAX_LENGTH = 200;
 
@@ -18,6 +19,9 @@ const CommentSection = ({postId}) => {
     const [commentsPerPage] = useState(6);
     const [hasNextPage, setHasNextPage] = useState(false);
     const [hasPreviousPage, setHasPreviousPage] = useState(false);
+    const [showModal, setShowModal] = useState(false);
+    const [commentToDelete, setCommentToDelete] = useState(null);
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -102,6 +106,27 @@ const CommentSection = ({postId}) => {
             )
         );
     };
+
+    const handleDelete = async (commentId) => {
+        setShowModal(false);
+
+        try {
+            if (!currentUser) {
+                navigate("sign-in");
+                return;
+            }
+
+            const {data} = await $axios.delete(`comment/delete-comment/${commentId}`);
+
+            if (data.isSucceed) {
+                setComments(
+                    comments.filter((c) => c.id !== commentId)
+                );
+            }
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
 
     return (
         <div className="max-w-2xl mx-auto w-full p-3">
@@ -219,12 +244,51 @@ const CommentSection = ({postId}) => {
                                 comment={comment}
                                 onLike={handleLike}
                                 onEdit={handleEdit}
+                                onDelete={(commentId) => {
+                                    setShowModal(true)
+                                    setCommentToDelete(commentId)
+                                }}
                             />
                         ))
                     }
                 </>
 
             )}
+            <Modal
+                show={showModal}
+                onClose={() => setShowModal(false)}
+                popup
+                size="md"
+            >
+                <Modal.Header/>
+                <Modal.Body>
+                    <div className="text-center">
+                        <HiOutlineExclamationCircle
+                            className="h-14 w-14 text-gray-400 dark:text-gray-200
+                            mb-4 mx-auto"
+                        />
+                        <h3
+                            className="mb-5 text-lg text-gray-500 dark:text-gray-400"
+                        >
+                            Are you sure you want to delete this record?
+                        </h3>
+                        <div className="flex justify-center gap-4">
+                            <Button
+                                color="failure"
+                                onClick={() => handleDelete(commentToDelete)}
+                            >
+                                Yes, I&apos;m sure
+                            </Button>
+                            <Button
+                                color="gray"
+                                onClick={() => setShowModal(false)}
+                            >
+                                No, cancel
+                            </Button>
+                        </div>
+                    </div>
+                </Modal.Body>
+            </Modal>
         </div>
     );
 }

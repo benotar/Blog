@@ -41,14 +41,14 @@ public class CommentController : BaseController
         return await _commentService.LikeAsync(UserId, commentId, cancellationToken);
     }
 
-    [HttpPut("update-comment/{commentId:int}/{userId:int}")]
-    public async Task<Result<CommentModel>> UpdateComment([FromRoute] int commentId, [FromRoute] int userId,
+    [HttpPut("update-comment/{commentId:int}")]
+    public async Task<Result<CommentModel>> UpdateComment([FromRoute] int commentId,
         [FromBody] UpdateCommentRequestModel request, CancellationToken cancellationToken = default)
     {
         return await _commentService.UpdateAsync(commentId, (UserId, UserRole), request, cancellationToken);
     }
 
-    [HttpDelete("delete-comment/{commentId:int}/{userId:int}")]
+    [HttpDelete("delete-comment/{commentId:int}")]
     public async Task<Result<None>> DeleteComment([FromRoute] int commentId,
         CancellationToken cancellationToken = default)
     {
