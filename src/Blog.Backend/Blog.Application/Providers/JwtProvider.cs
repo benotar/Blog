@@ -145,7 +145,7 @@ public class JwtProvider : IJwtProvider
         var rowsAffected =
             await _refreshTokenRepository.RemoveAsync(refresh => refresh.UserId == userId, cancellationToken);
 
-        return rowsAffected == 0 ? ErrorCode.ThereIsNothingToDelete : new None();
+        return rowsAffected == 0 ? ErrorCode.NothingToDelete : new None();
     }
 
     public async Task<Result<int>> GetUserIdByRefreshTokenAsync(string refreshToken,

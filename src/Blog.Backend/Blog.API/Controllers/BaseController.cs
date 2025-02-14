@@ -9,4 +9,7 @@ public class BaseController : ControllerBase
 {
     internal int UserId => int.Parse(User.Claims
         .First(claim => claim.Type == ClaimTypes.Name)?.Value);
+
+    internal string UserRole => User.Claims
+        .First(claim => claim.Type == ClaimTypes.Role)?.Value;
 }

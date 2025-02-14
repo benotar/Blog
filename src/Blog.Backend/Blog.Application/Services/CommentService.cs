@@ -1,4 +1,5 @@
-﻿using Blog.Application.Common;
+﻿using System.Linq.Expressions;
+using Blog.Application.Common;
 using Blog.Application.Interfaces.FactoryMethod;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Interfaces.Repository;
@@ -147,14 +148,20 @@ public class CommentService : ICommentService
         return existingComment.ToModel();
     }
 
-    public async Task<Result<CommentModel>> UpdateAsync(int userId, int commentId, UpdateCommentRequestModel request,
+    public async Task<Result<CommentModel>> UpdateAsync(int commentId, (int userId, string userRole) userData,
+        UpdateCommentRequestModel request,
         CancellationToken cancellationToken = default)
     {
+        Expression<Func<Comment, bool>> predicate =
+            comment => comment.Id == commentId &&
+                       (comment.AuthorId == userData.userId || userData.userRole == "Admin");
+
         var existingComment = await _commentRepository
             .AsQueryable()
             .Include(comment => comment.Author)
             .Include(comment => comment.Likes)
-            .FirstOrDefaultAsync(comment => comment.Id == commentId && comment.AuthorId == userId, cancellationToken);
+            .FirstOrDefaultAsync(predicate,
+                cancellationToken);
 
         if (existingComment is null)
         {

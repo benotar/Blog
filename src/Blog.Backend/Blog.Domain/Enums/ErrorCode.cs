@@ -2,23 +2,37 @@
 
 public enum ErrorCode
 {
+    // Auth
     UserNotFound,
+    UserAlreadyExists,
+    InvalidCredentials,
+    UserUnauthenticated,
+    AccessDenied,
+
+    // Validation
+    InvalidRequest,
+    InvalidModel,
+    QueryUserIdMissing,
+
+    // Tokens
+    InvalidRefreshToken,
+    RefreshTokenHasExpired,
+
+    // Comments
+    CommentNotFound,
+    NothingToDelete,
+    NothingToUpdate,
+
+    // Posts
     PostNotFound,
     PostTitleAlreadyExists,
-    RefreshTokenHasExpired,
-    InvalidRefreshToken,
-    InvalidCredentials,
-    UserAlreadyExists,
-    CommentNotFound,
-    InvalidModel,
-    ThereIsNothingToDelete,
-    NothingToUpdate,
-    NothingToDelete,
-    UserIdMissing,
-    InvalidUserId,
+
+    // User Validation
     UsernameAlreadyExists,
     EmailAlreadyExists,
     EnterYourCurrentAndNewPassword,
     PasswordDontMatch,
+
+    // Unexpected Error
     UnexpectedError
 }

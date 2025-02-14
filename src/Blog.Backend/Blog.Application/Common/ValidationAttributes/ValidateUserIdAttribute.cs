@@ -12,7 +12,7 @@ public class ValidateUserIdAttribute : Attribute, IAuthorizationFilter
     {
         if (!context.RouteData.Values.TryGetValue("userId", out var userIdFromRoute))
         {
-            context.Result = new BadRequestObjectResult(Result<None>.Error(ErrorCode.UserIdMissing));
+            context.Result = new BadRequestObjectResult(Result<None>.Error(ErrorCode.QueryUserIdMissing));
             return;
         }
 
@@ -21,13 +21,13 @@ public class ValidateUserIdAttribute : Attribute, IAuthorizationFilter
 
         if (userIdFromClaim == null)
         {
-            context.Result = new UnauthorizedObjectResult(Result<None>.Error(ErrorCode.UserIdMissing));
+            context.Result = new UnauthorizedObjectResult(Result<None>.Error(ErrorCode.UserUnauthenticated));
             return;
         }
 
         if (userIdFromClaim != userIdFromRoute.ToString())
         {
-            context.Result = new ObjectResult(Result<None>.Error(ErrorCode.InvalidUserId))
+            context.Result = new ObjectResult(Result<None>.Error(ErrorCode.AccessDenied))
             {
                 StatusCode = StatusCodes.Status403Forbidden
             };
