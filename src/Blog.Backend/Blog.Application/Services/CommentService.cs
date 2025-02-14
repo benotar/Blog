@@ -182,4 +182,16 @@ public class CommentService : ICommentService
 
         return existingComment.ToModel();
     }
+
+    public async Task<Result<None>> DeleteAsync(int commentId, (int userId, string userRole) userData, CancellationToken cancellationToken = default)
+    {
+        Expression<Func<Comment, bool>> predicate =
+            comment => comment.Id == commentId &&
+                       (comment.AuthorId == userData.userId || userData.userRole == "Admin");
+
+        var rowsAffected = await _commentRepository
+            .RemoveAsync(predicate, cancellationToken);
+
+        return rowsAffected == 0 ? ErrorCode.NothingToDelete : new None();
+    }
 }

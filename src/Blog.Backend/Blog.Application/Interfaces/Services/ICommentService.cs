@@ -15,4 +15,5 @@ public interface ICommentService
     Task<Result<CommentModel>> LikeAsync(int userId, int commentId, CancellationToken cancellationToken = default);
     Task<Result<CommentModel>> UpdateAsync(int commentId, (int userId, string userRole) userData, UpdateCommentRequestModel request, 
         CancellationToken cancellationToken = default);
+    Task<Result<None>> DeleteAsync(int commentId, (int userId, string userRole) userData, CancellationToken cancellationToken = default);
 }

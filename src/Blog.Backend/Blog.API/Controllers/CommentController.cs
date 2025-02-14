@@ -47,4 +47,11 @@ public class CommentController : BaseController
     {
         return await _commentService.UpdateAsync(commentId, (UserId, UserRole), request, cancellationToken);
     }
+
+    [HttpDelete("delete-comment/{commentId:int}/{userId:int}")]
+    public async Task<Result<None>> DeleteComment([FromRoute] int commentId,
+        CancellationToken cancellationToken = default)
+    {
+        return await _commentService.DeleteAsync(commentId, (UserId, UserRole), cancellationToken);
+    }
 }
