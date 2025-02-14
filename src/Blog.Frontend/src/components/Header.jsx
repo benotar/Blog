@@ -1,6 +1,5 @@
-import {Avatar, Button, Dropdown, Navbar, TextInput} from "flowbite-react";
+import {Avatar, Button, Dropdown, Navbar} from "flowbite-react";
 import {Link, useLocation} from "react-router-dom";
-import {AiOutlineSearch} from "react-icons/ai"
 import {FaMoon, FaSun} from "react-icons/fa";
 import {useAppStore} from "../zustand/useAppStore.js";
 import $axios from "../axios/axios.js";
@@ -46,17 +45,6 @@ export default function Header() {
                 </span>
                 Blog
             </Link>
-            <form>
-                <TextInput
-                    type="text"
-                    placeholder="Search..."
-                    rightIcon={AiOutlineSearch}
-                    className="hidden lg:inline"
-                />
-            </form>
-            <Button className="w-12 h-10 lg:hidden" color="gray" pill>
-                <AiOutlineSearch/>
-            </Button>
             <div className="flex gap-2 md:order-2">
                 <Button className="w-12 h-10 hidden sm:inline" color="gray" pill
                         onClick={() => toggleTheme()}
