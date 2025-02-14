@@ -11,6 +11,8 @@ public interface ICommentService
 
     Task<Result<PagedList<CommentModel>>> GetAsync(int postId, GetCommentsOfPostRequestModel request,
         CancellationToken cancellationToken = default);
+    Task<Result<PagedList<CommentModel>>> GetAsync(GetCommentsRequestModel request,
+        CancellationToken cancellationToken = default);
 
     Task<Result<CommentModel>> LikeAsync(int userId, int commentId, CancellationToken cancellationToken = default);
     Task<Result<CommentModel>> UpdateAsync(int commentId, (int userId, string userRole) userData, UpdateCommentRequestModel request, 

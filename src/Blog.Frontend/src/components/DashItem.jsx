@@ -16,6 +16,7 @@ const DashItem = ({
                       itemIdToDelete,
                       showModal,
                       showMore,
+                      isComments = false,
                       children
                   }) => {
 
@@ -27,8 +28,10 @@ const DashItem = ({
             try {
                 const {data} = await $axios.get(fetchUrl);
                 if (data.isSucceed) {
-                    setItems(data.payload.data.items);
-                    if (!data.payload.data.hasNextPage) {
+                    setItems(isComments ? data.payload.items : data.payload.data.items);
+                    if (isComments
+                        ? (!data.payload.hasNextPage)
+                        : (!data.payload.data.hasNextPage)) {
                         setShowMore(false);
                     }
                 }
@@ -46,8 +49,10 @@ const DashItem = ({
         try {
             const {data} = await $axios.get(showMoreUrl);
             if (data.isSucceed) {
-                setItems((prev) => [...prev, ...data.payload.data.items]);
-                if (!data.payload.data.hasNextPage) {
+                setItems((prev) => isComments ? [...prev, ...data.payload.items] : [...prev, ...data.payload.data.items]);
+                if (isComments
+                    ? (!data.payload.hasNextPage)
+                    : (!data.payload.data.hasNextPage)) {
                     setShowMore(false);
                 }
             }

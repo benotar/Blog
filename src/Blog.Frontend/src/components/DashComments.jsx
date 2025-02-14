@@ -12,19 +12,20 @@ const DashComments = () => {
 
     return (
         <DashItem
-            fetchUrl={`comment/get-comments`}
+            fetchUrl={`comment/get-comments?limit=${itemsPerPage}`}
             setItems={setItems}
             setShowMore={setShowMore}
             itemsLength={items.length}
-            showMoreUrl={`post/get-posts?startIndex=${items.length}/limit=${itemsPerPage}`}
+            showMoreUrl={`comment/get-comments?startIndex=${items.length}&limit=${itemsPerPage}`}
             setShowModal={setShowModal}
-            urlToDelete={`post/delete-post/${commentIdToDelete}`}
+            urlToDelete={`comment/delete-comment/${commentIdToDelete}`}
             itemIdToDelete={commentIdToDelete}
             showModal={showModal}
             showMore={showMore}
+            isComments={true}
         >
             <Table.Head>
-                <Table.HeadCell>Date updated</Table.HeadCell>
+                <Table.HeadCell>Date created</Table.HeadCell>
                 <Table.HeadCell>Comment content</Table.HeadCell>
                 <Table.HeadCell>Count of likes</Table.HeadCell>
                 <Table.HeadCell>Post id</Table.HeadCell>
@@ -41,7 +42,7 @@ const DashComments = () => {
                             className="bg-white dark:border-gray-700 dark:bg-gray-800"
                         >
                             <Table.Cell>
-                                {new Date(item.updatedAt).toLocaleDateString()}
+                                {new Date(item.createdAt).toLocaleDateString()}
                             </Table.Cell>
                             <Table.Cell>
                                 {item.content}

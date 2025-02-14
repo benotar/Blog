@@ -54,4 +54,12 @@ public class CommentController : BaseController
     {
         return await _commentService.DeleteAsync(commentId, (UserId, UserRole), cancellationToken);
     }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet("get-comments")]
+    public async Task<Result<PagedList<CommentModel>>> GetAll([FromQuery] GetCommentsRequestModel request,
+        CancellationToken cancellationToken = default)
+    {
+        return await _commentService.GetAsync(request, cancellationToken);
+    }
 }

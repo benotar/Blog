@@ -109,6 +109,53 @@ public class CommentService : ICommentService
                 cancellationToken);
     }
 
+    public async Task<Result<PagedList<CommentModel>>> GetAsync(GetCommentsRequestModel request,
+        CancellationToken cancellationToken = default)
+    {
+        var commentsQuery = _commentRepository
+            .AsNoTracking();
+
+        Expression<Func<Comment, object>> sortProperty = comment => comment.CreatedAt;
+
+        commentsQuery = request.OrderBy?.ToLower() == "desc"
+            ? commentsQuery.OrderByDescending(sortProperty)
+            : commentsQuery.OrderBy(sortProperty);
+
+        commentsQuery = commentsQuery.Include(comment => comment.Likes);
+
+        var commentsModels = commentsQuery
+            .Select(comment => new CommentModel
+            {
+                Id = comment.Id,
+                Content = comment.Content,
+                PostId = comment.PostId,
+                Author = new UserModel
+                {
+                    Id = comment.Author.Id,
+                    Username = comment.Author.Username,
+                    Email = comment.Author.Email,
+                    ProfilePictureUrl = comment.Author.ProfilePictureUrl,
+                    Role = comment.Author.Role,
+                    CreatedAt = comment.Author.CreatedAt
+                },
+                Likes = comment.Likes
+                    .Select(like => new LikeModel
+                    {
+                        UserId = like.UserId
+                    }),
+                CountOfLikes = comment.CountOfLikes,
+                CreatedAt = comment.CreatedAt
+            });
+
+        return await _commentPaginationFactory
+            .CreatePaginationFactory(PaginationType.Offset)
+            .CreatePagedListAsync(
+                commentsModels,
+                request.StartIndex,
+                request.Limit,
+                cancellationToken);
+    }
+
     public async Task<Result<CommentModel>> LikeAsync(int userId, int commentId,
         CancellationToken cancellationToken = default)
     {
@@ -183,7 +230,8 @@ public class CommentService : ICommentService
         return existingComment.ToModel();
     }
 
-    public async Task<Result<None>> DeleteAsync(int commentId, (int userId, string userRole) userData, CancellationToken cancellationToken = default)
+    public async Task<Result<None>> DeleteAsync(int commentId, (int userId, string userRole) userData,
+        CancellationToken cancellationToken = default)
     {
         Expression<Func<Comment, bool>> predicate =
             comment => comment.Id == commentId &&
