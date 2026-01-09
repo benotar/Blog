@@ -1,7 +1,7 @@
 services:
   
   postgres_blog:
-    image: postgres:latest
+    image: postgres:16
     container_name: postgres_blog
     ports:
       - '5432:5432'
