@@ -2,6 +2,7 @@ import {Footer} from "flowbite-react";
 import {Link} from "react-router-dom";
 
 export default function MyFooter() {
+    const telegramMessage = encodeURIComponent("Hello! How are you?")
     return (
         <Footer container className="border border-t-8 border-teal-500">
             <div className="w-full max-w-7xl mx-auto">
@@ -50,14 +51,14 @@ export default function MyFooter() {
                                     LinkedIn
                                 </Footer.Link>
                                 <Footer.Link
-                                    href="https://t.me/benotaar"
+                                    href={`https://t.me/benotaar?text=${telegramMessage}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
                                     Telegram
                                 </Footer.Link>
                                 <Footer.Link
-                                    href="https://www.instagram.com/benotar_?igsh=eWphdHZncXZ5ZThk&utm_source=qr"
+                                    href="https://www.instagram.com/benotaar?igsh=eWphdHZncXZ5ZThk&utm_source=qr"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >

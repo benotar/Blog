@@ -511,3 +511,12 @@ dist-ssr
 .env
 .env.*
 
+# Obsidian notes
+.obsidian/
+
+# Local planning/notes files
+MIDDLE_GROWTH_PLAN.md
+
+# Claude Code project settings
+.claude/
+
