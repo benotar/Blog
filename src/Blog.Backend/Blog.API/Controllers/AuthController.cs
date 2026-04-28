@@ -21,14 +21,16 @@ public class AuthController : BaseController
     }
 
     [HttpPost("sign-up")]
-    public async Task<Result<None>> SignUp([FromBody] SignUpRequestModel model, CancellationToken cancellationToken)
+    public async Task<IActionResult> SignUp([FromBody] SignUpRequestModel model, CancellationToken cancellationToken)
     {
-        return await _userService
+        var result = await _userService
             .CreateAsync(model.Username, model.Email, model.Password, cancellationToken);
+
+        return ToActionResult(result);
     }
 
     [HttpPost("sign-in")]
-    public async Task<Result<SignInResponseModel>> Login([FromBody] SignInRequestModel model,
+    public async Task<IActionResult> Login([FromBody] SignInRequestModel model,
         CancellationToken cancellationToken)
     {
         var validUserResult = await _userService
@@ -36,55 +38,53 @@ public class AuthController : BaseController
 
         if (!validUserResult.IsSucceed)
         {
-            return validUserResult.ErrorCode;
+            return ToActionResult(validUserResult);
         }
 
         var validUser = validUserResult.Payload;
-
         var accessToken = _jwtProvider.GenerateToken(validUser);
         var refreshToken = await _jwtProvider.CreateRefreshTokenAsync(validUser, cancellationToken);
 
-        return new SignInResponseModel
+        return ToActionResult(Result<SignInResponseModel>.Success(new SignInResponseModel
         {
-            CurrentUser = validUser,
-            Tokens = new TokensResponseModel(accessToken, refreshToken)
-        };
+            CurrentUser = validUser, Tokens = new TokensResponseModel(accessToken, refreshToken)
+        }));
     }
 
     [HttpPost("google")]
-    public async Task<Result<SignInResponseModel>> GoogleSignIn([FromBody] GoogleSignInRequestModel request,
+    public async Task<IActionResult> GoogleSignIn([FromBody] GoogleSignInRequestModel request,
         CancellationToken cancellationToken)
     {
         var validUserResult = await _googleService.FindOrCreateGoogleUserAsync(request.Email,
             request.Name, request.ProfilePictureUrl, cancellationToken);
 
         var validUser = validUserResult.Payload;
-
         var accessToken = _jwtProvider.GenerateToken(validUser);
-
         var refreshToken = await _jwtProvider.CreateRefreshTokenAsync(validUser, cancellationToken);
 
-        return new SignInResponseModel
+        return ToActionResult(Result<SignInResponseModel>.Success(new SignInResponseModel
         {
-            CurrentUser = validUser,
-            Tokens = new TokensResponseModel(accessToken, refreshToken)
-        };
+            CurrentUser = validUser, Tokens = new TokensResponseModel(accessToken, refreshToken)
+        }));
     }
 
     [HttpPost("sign-out")]
-    public async Task<Result<None>> Logout([FromBody] LogoutRequestModel request,
+    public async Task<IActionResult> Logout([FromBody] LogoutRequestModel request,
         CancellationToken cancellationToken)
     {
         var getUserIdResult = await _jwtProvider.GetUserIdByRefreshTokenAsync(request.RefreshToken, cancellationToken);
 
         if (!getUserIdResult.IsSucceed)
         {
-            return getUserIdResult.ErrorCode;
+            return ToActionResult(getUserIdResult);
         }
 
         var deleteRefreshTokensResult = await _jwtProvider
             .DeleteRefreshTokensResultAsync(getUserIdResult.Payload, cancellationToken);
 
-        return deleteRefreshTokensResult.IsSucceed ? Result<None>.Success() : deleteRefreshTokensResult.ErrorCode;
+        return deleteRefreshTokensResult.IsSucceed
+            ? ToActionResult(Result<None>.Success())
+            : ToActionResult(deleteRefreshTokensResult);
+
     }
 }

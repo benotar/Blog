@@ -1,14 +1,10 @@
-﻿using System.Text.Json.Serialization;
-using Azure.Identity;
-using Blog.API.Extensions;
+﻿using Blog.API.Extensions;
 using Blog.API.Infrastructure;
 using Blog.Application.Common;
 using Blog.Application.Common.Converters;
 using Blog.Application.Configurations;
 using Blog.Domain.Enums;
-using Blog.Persistence;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace Blog.API;
 
@@ -23,9 +19,6 @@ public static class DependencyInjection
 
         services.Configure<JwtConfiguration>(
             configuration.GetSection(JwtConfiguration.ConfigurationKey));
-
-        services.Configure<AzureKeyVault>(
-            configuration.GetSection(AzureKeyVault.ConfigurationKey));
 
         services.Configure<TranslatorConfiguration>(
             configuration.GetSection(TranslatorConfiguration.ConfigurationKey));
@@ -59,11 +52,7 @@ public static class DependencyInjection
                     };
 
                     var result = new UnprocessableEntityObjectResult(
-                        new Result<CustomValidationProblemDetails>
-                        {
-                            ErrorCode = ErrorCode.InvalidModel,
-                            Payload = details
-                        });
+                        new Result<CustomValidationProblemDetails> { ErrorCode = ErrorCode.InvalidModel, Payload = details });
 
                     result.ContentTypes.Add("application/json");
 
@@ -82,22 +71,5 @@ public static class DependencyInjection
         services.AddProblemDetails();
 
         return services;
-    }
-
-    public static void AddConfiguredAzureKeyVault(this WebApplicationBuilder builder)
-    {
-        var azureServicesConfig = new AzureKeyVault();
-        builder.Configuration.Bind(AzureKeyVault.ConfigurationKey, azureServicesConfig);
-
-        var keyVaultUrl = new Uri(azureServicesConfig.KeyVaultUrl);
-        var clientId = azureServicesConfig.ClientId;
-        var clientSecret = azureServicesConfig.ClientSecret;
-        var tenantId = azureServicesConfig.DirectoryId;
-
-        //var azureCredential = new DefaultAzureCredential();
-
-        var azureCredential = new ClientSecretCredential(tenantId, clientId, clientSecret);
-
-        builder.Configuration.AddAzureKeyVault(keyVaultUrl, azureCredential);
     }
 }

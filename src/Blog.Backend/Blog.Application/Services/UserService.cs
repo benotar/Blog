@@ -40,13 +40,13 @@ public class UserService : IUserService
         if (await _userRepository.AnyAsync(user => user.Username == username,
                 cancellationToken))
         {
-            return ErrorCode.UsernameAlreadyExists;
+            return ErrorCode.UsernameAlreadyExist;
         }
 
         if (await _userRepository.AnyAsync(user => user.Email == email,
                 cancellationToken))
         {
-            return ErrorCode.EmailAlreadyExists;
+            return ErrorCode.EmailAlreadyExist;
         }
 
         var hashedPassword = _encryptionProvider.HashPassword(password);
@@ -141,7 +141,7 @@ public class UserService : IUserService
         {
             if (await _userRepository.AnyAsync(user => user.Username == request.Username, cancellationToken))
             {
-                return ErrorCode.UsernameAlreadyExists;
+                return ErrorCode.UsernameAlreadyExist;
             }
 
             existingUser.Username = request.Username;
@@ -151,7 +151,7 @@ public class UserService : IUserService
         {
             if (await _userRepository.AnyAsync(user => user.Email == request.Email, cancellationToken))
             {
-                return ErrorCode.EmailAlreadyExists;
+                return ErrorCode.EmailAlreadyExist;
             }
 
             existingUser.Email = request.Email;

@@ -6,7 +6,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Custom configurations
 builder.Services.AddCustomConfigurations(builder.Configuration);
-builder.AddConfiguredAzureKeyVault();
 builder.Services.AddTextTranslator(builder.Configuration);
 
 builder.Services.AddAuth(builder.Configuration);
@@ -15,7 +14,6 @@ builder.Services.AddAuth(builder.Configuration);
 builder.Services
     .AddApplication()
     .AddPersistence(builder.Configuration);
-
 
 // Configured controllers
 builder.Services.AddControllersWithConfiguredApiBehavior(builder.Configuration);
