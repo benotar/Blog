@@ -1,1 +1,1 @@
-dotnet ef migrations add "name" --startup-project .\Blog.API\Blog.API.csproj --project .\Blog.Persistence\Blog.Persistence.csproj
+dotnet ef migrations add name -s .\Blog.API\Blog.API.csproj -p .\Blog.Persistence\Blog.Persistence.csproj

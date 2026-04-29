@@ -15,7 +15,6 @@ builder.Services.AddOpenApi(options =>
 
 // Custom configurations
 builder.Services.AddCustomConfigurations(builder.Configuration);
-builder.Services.AddTextTranslator(builder.Configuration);
 
 builder.Services.AddAuth(builder.Configuration);
 

@@ -1,8 +1,6 @@
 ﻿using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using Azure;
-using Azure.AI.Translation.Text;
 using Blog.Application.Common.Converters;
 using Blog.Application.Configurations;
 using Blog.Application.FactoryMethod;
@@ -19,7 +17,7 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace Blog.Application;
 
-public static class ServiceCollectionExtensions
+public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
@@ -29,7 +27,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IJwtProvider, JwtProvider>();
         services.AddScoped<IGoogleService, GoogleService>();
         services.AddScoped<IUserService, UserService>();
-        services.AddScoped<IAzureTranslatorService, AzureTranslatorService>();
         services.AddScoped<IPostService, PostService>();
         services.AddScoped<ICommentService, CommentService>();
 
@@ -38,10 +35,7 @@ public static class ServiceCollectionExtensions
         // Add JsonSerializerOptions 
         var jsonOptions = new JsonSerializerOptions
         {
-            Converters =
-            {
-                new ServerResponseStringEnumConverter<ErrorCode>()
-            },
+            Converters = { new ServerResponseStringEnumConverter<ErrorCode>() },
             WriteIndented = true,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DictionaryKeyPolicy = JsonNamingPolicy.CamelCase
@@ -80,24 +74,6 @@ public static class ServiceCollectionExtensions
         services.AddAuthorizationBuilder()
             .AddPolicy("admin", policy => policy.RequireRole("Admin"))
             .AddPolicy("user", policy => policy.RequireRole("User"));
-
-        return services;
-    }
-
-    public static IServiceCollection AddTextTranslator(this IServiceCollection services, IConfiguration configuration)
-    {
-        var translatorConfig = new TranslatorConfiguration();
-        configuration.Bind(TranslatorConfiguration.ConfigurationKey, translatorConfig);
-
-        var key = configuration.GetSection(translatorConfig.KeySectionName).Value;
-        var endpoint = configuration.GetSection(translatorConfig.EndpointSectionName).Value;
-        var region = configuration.GetSection(translatorConfig.RegionSectionName).Value;
-        var credential = new AzureKeyCredential(key);
-        var endpointUrl = new Uri(endpoint);
-
-        var client = new TextTranslationClient(credential, endpointUrl, region);
-
-        services.AddSingleton(client);
 
         return services;
     }

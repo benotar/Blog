@@ -12,7 +12,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(user => user.Username)
             .IsRequired();
-        
+
         builder.Property(user => user.Email)
             .IsRequired();
 
@@ -23,8 +23,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.Role)
             .IsRequired()
             .HasDefaultValue("User");
-        
-        builder.HasIndex(user => new { user.Username, user.Email })
+
+        builder.HasIndex(user => new { user.Username })
             .IsUnique();
     }
 }
