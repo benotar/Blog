@@ -516,6 +516,7 @@ dist-ssr
 
 # Local planning/notes files
 MIDDLE_GROWTH_PLAN.md
+BACKEND_REFACTORING_PLAN.md
 
 # Claude Code project settings
 .claude/
