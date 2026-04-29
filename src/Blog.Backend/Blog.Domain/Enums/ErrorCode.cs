@@ -4,7 +4,7 @@ public enum ErrorCode
 {
     // Auth
     UserNotFound,
-    UserAlreadyExists,
+    UserAlreadyExist,
     InvalidCredentials,
     UserUnauthenticated,
     AccessDenied,
@@ -25,11 +25,11 @@ public enum ErrorCode
 
     // Posts
     PostNotFound,
-    PostTitleAlreadyExists,
+    PostTitleAlreadyExist,
 
     // User Validation
-    UsernameAlreadyExists,
-    EmailAlreadyExists,
+    UsernameAlreadyExist,
+    EmailAlreadyExist,
     EnterYourCurrentAndNewPassword,
     PasswordDontMatch,
 

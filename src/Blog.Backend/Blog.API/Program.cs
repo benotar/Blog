@@ -1,13 +1,20 @@
 using Blog.API;
+using Blog.API.Infrastructure;
 using Blog.Application;
 using Blog.Persistence;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Scalar
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+    options.AddOperationTransformer<AuthorizeOperationTransformer>();
+});
+
 // Custom configurations
 builder.Services.AddCustomConfigurations(builder.Configuration);
-builder.AddConfiguredAzureKeyVault();
-builder.Services.AddTextTranslator(builder.Configuration);
 
 builder.Services.AddAuth(builder.Configuration);
 
@@ -16,7 +23,6 @@ builder.Services
     .AddApplication()
     .AddPersistence(builder.Configuration);
 
-
 // Configured controllers
 builder.Services.AddControllersWithConfiguredApiBehavior(builder.Configuration);
 
@@ -24,6 +30,9 @@ builder.Services.AddControllersWithConfiguredApiBehavior(builder.Configuration);
 builder.Services.AddExceptionHandlerWithProblemDetails();
 
 var app = builder.Build();
+
+app.MapOpenApi();
+app.MapScalarApiReference("/");
 
 app.UseAuthentication();
 app.UseAuthorization();
@@ -35,8 +44,5 @@ app.MapControllers();
 
 // Apply migrations
 await app.ApplyMigrationsAsync();
-
-// Standard route for the home page
-app.MapGet("/", () => $"Welcome to the Home Page Blog API!\nUTC Time: {DateTime.UtcNow}");
 
 app.Run();

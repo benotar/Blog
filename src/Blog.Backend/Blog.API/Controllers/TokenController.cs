@@ -1,4 +1,4 @@
-﻿using Blog.Application.Common;
+using Blog.Application.Common;
 using Blog.Application.Interfaces.Providers;
 using Blog.Application.Models.Request.Auth;
 using Blog.Application.Models.Response.Auth;
@@ -16,28 +16,25 @@ public class TokenController : BaseController
     }
 
     [HttpPost("refresh")]
-    public async Task<Result<TokensResponseModel>> Refresh([FromBody] RefreshTokenRequestModel request,
+    public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequestModel request,
         CancellationToken cancellationToken = default)
     {
-        var verifyAndGetTokenResult = await _jwtProvider
+        var verifyResult = await _jwtProvider
             .VerifyAndGetRefreshTokenAsync(request.RefreshToken, request.UserId, cancellationToken);
 
-        if (!verifyAndGetTokenResult.IsSucceed)
-        {
-            return verifyAndGetTokenResult.ErrorCode;
-        }
+        if (!verifyResult.IsSucceed)
+            return ToActionResult(verifyResult);
 
-        var targetRefreshToken = verifyAndGetTokenResult.Payload;
+        var targetRefreshToken = verifyResult.Payload;
         var accessToken = _jwtProvider.GenerateToken(targetRefreshToken.User);
-        
-        var updateTargetRefreshTokenResult = await _jwtProvider.UpdateRefreshTokenAsync(targetRefreshToken.Id, targetRefreshToken.Token,
-            targetRefreshToken.User, cancellationToken);
 
-        if (!updateTargetRefreshTokenResult.IsSucceed)
-        {
-            return updateTargetRefreshTokenResult.ErrorCode;
-        }
+        var updateResult = await _jwtProvider.UpdateRefreshTokenAsync(targetRefreshToken.Id,
+            targetRefreshToken.Token, targetRefreshToken.User, cancellationToken);
 
-        return new TokensResponseModel(accessToken, updateTargetRefreshTokenResult.Payload);
+        if (!updateResult.IsSucceed)
+            return ToActionResult(updateResult);
+
+        return ToActionResult(Result<TokensResponseModel>.Success(
+            new TokensResponseModel(accessToken, updateResult.Payload)));
     }
 }

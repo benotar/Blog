@@ -35,7 +35,7 @@ public partial class PostService : IPostService
     {
         if (await _postRepository.AnyAsync(post => post.Title == request.Title, cancellationToken))
         {
-            return ErrorCode.PostTitleAlreadyExists;
+            return ErrorCode.PostTitleAlreadyExist;
         }
 
         var userRepo = _unitOfWork.GetRepository<User>();

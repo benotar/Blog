@@ -1,9 +1,9 @@
-﻿using Blog.Application.Common;
+﻿using System.Security.Cryptography;
+using Blog.Application.Common;
 using Blog.Application.Extensions;
 using Blog.Application.Interfaces.Repository;
 using Blog.Application.Interfaces.Services;
 using Blog.Application.Interfaces.UnitOfWork;
-using Blog.Application.Models;
 using Blog.Application.Models.Request.Auth;
 using Blog.Application.Models.Response.User;
 using Blog.Domain.Entities;
@@ -12,17 +12,15 @@ namespace Blog.Application.Services;
 
 public class GoogleService : IGoogleService
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private const int MaxUsernameRetries = 5;
+
     private readonly IRepository<User> _userRepository;
-    private readonly IAzureTranslatorService _translatorService;
     private readonly IUserService _userService;
 
-    public GoogleService(IAzureTranslatorService translatorService, IUserService userService, IUnitOfWork unitOfWork)
+    public GoogleService(IUserService userService, IUnitOfWork unitOfWork)
     {
-        _translatorService = translatorService;
         _userService = userService;
-        _unitOfWork = unitOfWork;
-        _userRepository = _unitOfWork.GetRepository<User>();
+        _userRepository = unitOfWork.GetRepository<User>();
     }
 
     public async Task<Result<UserModel>> FindOrCreateGoogleUserAsync(string email, string name, string pictureUrl,
@@ -35,16 +33,36 @@ public class GoogleService : IGoogleService
             return validUser.ToModel();
         }
 
-        var translatedName = await _translatorService.TranslateAsync(name);
-        var username = translatedName.ToUsername();
-
+        var username = await GenerateUniqueUsernameAsync(email, cancellationToken);
 
         return await _userService.CreateGoogleAsync(new CreateGoogleRequestModel
         {
-            Username = username,
-            Email = email,
-            PictureUrl = pictureUrl,
-            Password = username,
+            Username = username, Email = email, PictureUrl = pictureUrl, Password = username, // TODO: refactor to OAuth password
         }, cancellationToken);
+    }
+
+    private async Task<string> GenerateUniqueUsernameAsync(string email, CancellationToken ct)
+    {
+        var basePart = email.ToUsernameBaseFromEmail();
+
+        if (!await _userRepository.AnyAsync(u => u.Username == basePart, ct))
+        {
+            return basePart;
+        }
+        
+        for (var i = 0; i < MaxUsernameRetries; i++)
+        {
+            var suffix = Random.Shared.Next(1000, 9999);
+            var candidate = $"{basePart}_{suffix}";
+
+            if (!await _userRepository.AnyAsync(u => u.Username == candidate, ct))
+            {
+                return candidate;
+            }
+        }
+
+        var hexSuffix = Convert.ToHexString(
+            RandomNumberGenerator.GetBytes(4)).ToLowerInvariant();
+        return $"{basePart}_{hexSuffix}";
     }
 }
