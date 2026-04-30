@@ -19,16 +19,16 @@ namespace Blog.Application.Services;
 public class UserService : IUserService
 {
     private readonly IMomentProvider _momentProvider;
-    private readonly IEncryptionProvider _encryptionProvider;
+    private readonly IPasswordHasher _passwordHasher;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IRepository<User> _userRepository;
     private readonly IPaginationFactory<UserModel> _userPaginationFactory;
 
-    public UserService(IMomentProvider momentProvider, IEncryptionProvider encryptionProvider, IUnitOfWork unitOfWork,
+    public UserService(IMomentProvider momentProvider, IPasswordHasher passwordHasher, IUnitOfWork unitOfWork,
         IPaginationFactory<UserModel> userPaginationFactory)
     {
         _momentProvider = momentProvider;
-        _encryptionProvider = encryptionProvider;
+        _passwordHasher = passwordHasher;
         _unitOfWork = unitOfWork;
         _userPaginationFactory = userPaginationFactory;
         _userRepository = unitOfWork.GetRepository<User>();
@@ -49,14 +49,13 @@ public class UserService : IUserService
             return ErrorCode.EmailAlreadyExist;
         }
 
-        var hashedPassword = _encryptionProvider.HashPassword(password);
+        var hashedPassword = _passwordHasher.HashPassword(password);
 
         var newUser = new User
         {
             Username = username,
             Email = email,
-            PasswordHash = hashedPassword.Hash,
-            PasswordSalt = hashedPassword.Salt,
+            PasswordHash = hashedPassword,
             CreatedAt = _momentProvider.DateTimeOffsetUtcNow
         };
 
@@ -69,14 +68,13 @@ public class UserService : IUserService
     public async Task<Result<UserModel>> CreateGoogleAsync(CreateGoogleRequestModel createGoogleRequestModel,
         CancellationToken cancellationToken = default)
     {
-        var hashedPassword = _encryptionProvider.HashPassword(createGoogleRequestModel.Password);
+        var hashedPassword = _passwordHasher.HashPassword(createGoogleRequestModel.Password);
 
         var newUser = new User
         {
             Email = createGoogleRequestModel.Email,
             Username = createGoogleRequestModel.Username,
-            PasswordSalt = hashedPassword.Salt,
-            PasswordHash = hashedPassword.Hash,
+            PasswordHash = hashedPassword,
             ProfilePictureUrl = createGoogleRequestModel.PictureUrl,
             CreatedAt = _momentProvider.DateTimeOffsetUtcNow
         };
@@ -92,14 +90,7 @@ public class UserService : IUserService
     {
         var validUser = await _userRepository.FirstOrDefaultAsync(user => user.Email == email, cancellationToken);
 
-        if (validUser is null)
-        {
-            return ErrorCode.InvalidCredentials;
-        }
-
-        var validUserPasswordSaltAndHash = new SaltAndHash(validUser.PasswordSalt, validUser.PasswordHash);
-
-        if (!_encryptionProvider.VerifyPasswordHash(password, validUserPasswordSaltAndHash))
+        if (validUser is null || !_passwordHasher.VerifyPasswordHash(password, validUser.PasswordHash))
         {
             return ErrorCode.InvalidCredentials;
         }
@@ -119,22 +110,19 @@ public class UserService : IUserService
 
         if (!string.IsNullOrEmpty(request.CurrentPassword) && !string.IsNullOrEmpty(request.NewPassword))
         {
-            var currentUserPassword = new SaltAndHash(existingUser.PasswordSalt, existingUser.PasswordHash);
-
-            if (!_encryptionProvider.VerifyPasswordHash(request.CurrentPassword, currentUserPassword))
+            if (!_passwordHasher.VerifyPasswordHash(request.CurrentPassword, existingUser.PasswordHash))
             {
                 return ErrorCode.PasswordDontMatch;
             }
 
-            if (_encryptionProvider.VerifyPasswordHash(request.NewPassword!, currentUserPassword))
+            if (_passwordHasher.VerifyPasswordHash(request.NewPassword!, existingUser.PasswordHash))
             {
                 return ErrorCode.InvalidCredentials;
             }
 
-            var newUserPassword = _encryptionProvider.HashPassword(request.NewPassword!);
+            var newUserPasswordHash = _passwordHasher.HashPassword(request.NewPassword!);
 
-            existingUser.PasswordSalt = newUserPassword.Salt;
-            existingUser.PasswordHash = newUserPassword.Hash;
+            existingUser.PasswordHash = newUserPasswordHash;
         }
 
         if (request.Username != existingUser.Username && !string.IsNullOrEmpty(request.Username))
@@ -157,8 +145,7 @@ public class UserService : IUserService
             existingUser.Email = request.Email;
         }
 
-        if (request.ProfilePictureUrl != existingUser.ProfilePictureUrl &&
-            !string.IsNullOrEmpty(request.ProfilePictureUrl))
+        if (request.ProfilePictureUrl != existingUser.ProfilePictureUrl && !string.IsNullOrEmpty(request.ProfilePictureUrl))
         {
             existingUser.ProfilePictureUrl = request.ProfilePictureUrl;
         }
@@ -207,7 +194,7 @@ public class UserService : IUserService
             Role = user.Role,
             CreatedAt = user.CreatedAt
         });
-        
+
         var responseItems = await _userPaginationFactory
             .CreatePaginationFactory(PaginationType.Offset)
             .CreatePagedListAsync(
@@ -216,10 +203,6 @@ public class UserService : IUserService
                 request.Limit,
                 cancellationToken);
 
-        return new GetUsersResponseModel
-        {
-            Data = responseItems,
-            LastMonthUsersCount = lastMonthUsersCount
-        };
+        return new GetUsersResponseModel { Data = responseItems, LastMonthUsersCount = lastMonthUsersCount };
     }
 }

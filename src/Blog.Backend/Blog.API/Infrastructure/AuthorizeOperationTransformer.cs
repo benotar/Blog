@@ -17,14 +17,16 @@ internal sealed class AuthorizeOperationTransformer : IOpenApiOperationTransform
         var hasAllowAnonymous = metadata.OfType<IAllowAnonymous>().Any();
         var hasAuthorize = metadata.OfType<IAuthorizeData>().Any();
 
-
-        if (!hasAllowAnonymous && hasAuthorize)
+        if (hasAllowAnonymous || !hasAuthorize)
         {
-            operation.Security.Add(new OpenApiSecurityRequirement
-            {
-                [new OpenApiSecuritySchemeReference(BearerAuthenticationScheme)] = []
-            });
+            return Task.CompletedTask;
         }
+
+        operation.Security ??= [];
+        operation.Security.Add(new OpenApiSecurityRequirement
+        {
+            [new OpenApiSecuritySchemeReference(BearerAuthenticationScheme)] = []
+        });
 
         return Task.CompletedTask;
     }
