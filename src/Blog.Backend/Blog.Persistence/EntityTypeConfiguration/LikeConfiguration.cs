@@ -16,5 +16,10 @@ public class LikeConfiguration : IEntityTypeConfiguration<Like>
             .WithMany(comment => comment.Likes)
             .HasForeignKey(like => like.CommentId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(like => like.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

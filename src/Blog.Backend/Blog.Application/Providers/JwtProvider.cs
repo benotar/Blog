@@ -43,15 +43,14 @@ public class JwtProvider : IJwtProvider
     {
         var secretKey = _configuration.GetSection(_jwtConfig.KeySectionName).Value;
         var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey));
-
         var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
         var claims = new List<Claim>
         {
-            new(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
-            new(ClaimTypes.Name, user.Id.ToString()),
-            new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Role, user.Role)
+            new Claim(ClaimTypes.NameIdentifier, Guid.NewGuid().ToString()),
+            new Claim(ClaimTypes.Name, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role)
         };
 
         var expires = _momentProvider.DateTimeUtcNow.AddMinutes(_jwtConfig.AccessExpirationMinutes);
