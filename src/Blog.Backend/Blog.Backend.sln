@@ -23,6 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution-Items", "Solution-
 		..\..\.github\workflows\docker-build-push.yml = ..\..\.github\workflows\docker-build-push.yml
 		..\..\migrations add.txt = ..\..\migrations add.txt
 		Dockerfile = Dockerfile
+		..\..\.github\workflows\backend-ci.yml = ..\..\.github\workflows\backend-ci.yml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{8362C7A8-58EF-4103-B9B5-83B72B551ED9}"
