@@ -4,6 +4,7 @@ using Blog.Domain.Enums;
 using Blog.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Blog.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260430125036_MigratePasswordHashToBCrypt")]
+    partial class MigratePasswordHashToBCrypt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,8 +69,6 @@ namespace Blog.Persistence.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("CommentId", "UserId");
-
-                    b.HasIndex("UserId");
 
                     b.ToTable("Likes", (string)null);
                 });
@@ -223,12 +224,6 @@ namespace Blog.Persistence.Migrations
                     b.HasOne("Blog.Domain.Entities.Comment", "Comment")
                         .WithMany("Likes")
                         .HasForeignKey("CommentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Blog.Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

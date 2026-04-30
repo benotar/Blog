@@ -21,7 +21,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddSingleton<IEncryptionProvider, HmacSha256Provider>();
+        services.AddSingleton<IPasswordHasher, BCryptPasswordHasher>();
         services.AddSingleton<IMomentProvider, MomentProvider>();
 
         services.AddScoped<IJwtProvider, JwtProvider>();
