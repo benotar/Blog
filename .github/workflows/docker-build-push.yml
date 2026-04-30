@@ -10,15 +10,12 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: docker-build-${{github.ref}}
+  group: docker-build-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
   contents: read
 
-env:
-  COMPOSE_FILE: docker-compose.yml
-  
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -35,24 +32,28 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Build images
-        env:
-          DB_HOST: ${{ secrets.DB_HOST }}
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
-          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-        run: docker compose -f ${{ env.COMPOSE_FILE }} build --progress=plain
+      - name: Build and push backend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./src/Blog.Backend
+          push: true
+          tags: |
+            benotar/backend_blog:latest
+            benotar/backend_blog:${{ github.sha }}
+          build-args: DB_HOST=${{ secrets.DB_HOST }}
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,scope=backend,mode=max
 
-      - name: Tag images with commit SHA
-        run: |
-          docker tag benotar/backend_blog:latest benotar/backend_blog:${{github.sha}}
-          docker tag benotar/frontend_blog:latest benotar/frontend_blog:${{ github.sha }}
-
-      - name: Push backend
-        run: |
-          docker push benotar/backend_blog:latest
-          docker push benotar/backend_blog:${{github.sha}}
-
-      - name: Push frontend
-        run: |
-          docker push benotar/frontend_blog:latest
-          docker push benotar/frontend_blog:${{github.sha}}
+      - name: Build and push frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./src/Blog.Frontend
+          push: true
+          tags: |
+            benotar/frontend_blog:latest
+            benotar/frontend_blog:${{ github.sha }}
+          build-args: |
+            VITE_API_URL_ARG=${{ secrets.VITE_API_URL }}
+            VITE_FIREBASE_API_KEY_ARG=${{ secrets.VITE_FIREBASE_API_KEY }}
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,scope=frontend,mode=max
