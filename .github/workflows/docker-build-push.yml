@@ -1,17 +1,24 @@
-name: Build and push backend and frontend containers
+name: Build and push containers
 
-on: 
+on:
   push:
-    branches:
-    - main
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'docker-compose.yml'
+      - '.github/workflows/docker-build-push.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: docker-build-${{github.ref}}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 env:
   COMPOSE_FILE: docker-compose.yml
-  DOCKER_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-  DOCKER_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
-  DB_HOST: ${{ secrets.DB_HOST }}
-  VITE_API_URL: ${{ secrets.VITE_API_URL }}
-  VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-
+  
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
@@ -19,28 +26,33 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ env.DOCKER_USERNAME }}
-          password: ${{ env.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
-      - name: Build the Docker image
-        run: |
-          docker compose -f ${{ env.COMPOSE_FILE }} build --progress=plain \
-          --build-arg DB_HOST=${{ env.DB_HOST }} \
-          --build-arg VITE_API_URL_ARG=${{ env.VITE_API_URL }} \
-          --build-arg VITE_FIREBASE_API_KEY_ARG=${{ env.VITE_FIREBASE_API_KEY }}
+      - name: Build images
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
+        run: docker compose -f ${{ env.COMPOSE_FILE }} build --progress=plain
 
-      - name: Push backend container
+      - name: Tag images with commit SHA
         run: |
-          docker compose -f ${{ env.COMPOSE_FILE }} push backend_blog
+          docker tag benotar/backend_blog:latest benotar/backend_blog:${{github.sha}}
+          docker tag benotar/frontend_blog:latest benotar/frontend_blog:${{ github.sha }}
 
-      - name: Push frontend container
+      - name: Push backend
         run: |
-          docker compose -f ${{ env.COMPOSE_FILE }} push frontend_blog
+          docker push benotar/backend_blog:latest
+          docker push benotar/backend_blog:${{github.sha}}
 
-      - name: Clean up
+      - name: Push frontend
         run: |
-          docker compose -f ${{ env.COMPOSE_FILE }} down
-          docker image prune -af
+          docker push benotar/frontend_blog:latest
+          docker push benotar/frontend_blog:${{github.sha}}
