@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Blog.API.Infrastructure;
 
@@ -25,7 +25,7 @@ internal sealed class BearerSecuritySchemeTransformer : IOpenApiDocumentTransfor
         }
 
         document.Components ??= new OpenApiComponents();
-        document.Components.SecuritySchemes = new Dictionary<string, OpenApiSecurityScheme>
+        document.Components.SecuritySchemes = new Dictionary<string, IOpenApiSecurityScheme>
         {
             [BearerAuthenticationScheme] = new OpenApiSecurityScheme
             {

@@ -1,19 +1,11 @@
-﻿using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.OpenApi;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace Blog.API.Infrastructure;
 
 internal sealed class AuthorizeOperationTransformer : IOpenApiOperationTransformer
 {
-    private readonly IAuthenticationSchemeProvider _authenticationSchemeProvider;
-
-    public AuthorizeOperationTransformer(IAuthenticationSchemeProvider authenticationSchemeProvider)
-    {
-        _authenticationSchemeProvider = authenticationSchemeProvider;
-    }
-
     private const string BearerAuthenticationScheme = "Bearer";
 
 
@@ -30,8 +22,7 @@ internal sealed class AuthorizeOperationTransformer : IOpenApiOperationTransform
         {
             operation.Security.Add(new OpenApiSecurityRequirement
             {
-                [new OpenApiSecurityScheme { Reference = new OpenApiReference { Id = BearerAuthenticationScheme, Type = ReferenceType.SecurityScheme } }] =
-                    []
+                [new OpenApiSecuritySchemeReference(BearerAuthenticationScheme)] = []
             });
         }
 
