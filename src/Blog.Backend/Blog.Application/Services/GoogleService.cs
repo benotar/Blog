@@ -61,8 +61,8 @@ public class GoogleService : IGoogleService
             }
         }
 
-        var hexSuffix = Convert.ToHexString(
-            RandomNumberGenerator.GetBytes(4)).ToLowerInvariant();
+        var hexSuffix = Convert.ToHexString(RandomNumberGenerator.GetBytes(4)).ToLowerInvariant();
+        
         return $"{basePart}_{hexSuffix}";
     }
 }
