@@ -14,6 +14,8 @@
       <Project Path="Blog.Tests.Integration\Blog.Tests.Integration.csproj" />
     </Folder>
     <Folder Name="/Solution-Items/">
+        <File Path="../../.github/workflows/backend-ci.yml" />
+        <File Path="../../.github/workflows/docker-build-push.yml" />
         <File Path="../../docker-compose.yml" />
       <File Path="Directory.Build.props" />
       <File Path="Directory.Packages.props" />

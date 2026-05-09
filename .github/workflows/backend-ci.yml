@@ -41,7 +41,7 @@ jobs:
           restore-keys: nuget-${{ runner.os }}-
 
       - name: Restore
-        run: dotnet restore Blog.Backend.sln
+        run: dotnet restore Blog.Backend.slnx
 
       - name: Build
-        run: dotnet build Blog.Backend.sln --configuration Release --no-restore
+        run: dotnet build Blog.Backend.slnx --configuration Release --no-restore
