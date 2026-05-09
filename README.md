@@ -1,1 +1,1 @@
-The project is refactoring yet
+The refactoring is still processing
