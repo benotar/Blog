@@ -8,7 +8,7 @@
 // using Microsoft.Extensions.Options;
 // using Moq;
 //
-// namespace Blog.Tests;
+// namespace Blog.Tests.Unit;
 //
 // public class GoogleServiceAuthShould
 // {

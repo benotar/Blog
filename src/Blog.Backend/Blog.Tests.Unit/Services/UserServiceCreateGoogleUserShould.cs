@@ -8,7 +8,7 @@
 // using Moq;
 // using Moq.Language.Flow;
 //
-// namespace Blog.Tests;
+// namespace Blog.Tests.Unit;
 //
 // public class UserServiceCreateGoogleUserShould
 // {

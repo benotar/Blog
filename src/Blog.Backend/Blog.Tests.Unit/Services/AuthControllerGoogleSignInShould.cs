@@ -11,7 +11,7 @@
 // using FluentAssertions;
 // using Moq;
 //
-// namespace Blog.Tests;
+// namespace Blog.Tests.Unit;
 //
 // public class AuthControllerGoogleSignInShould
 // {
@@ -36,7 +36,7 @@
 //         _accessToken = "access_token";
 //         _refreshToken = "refreshToken";
 //         var tokensResponse = new TokensResponseModel(_accessToken, _refreshToken);
-//         
+//
 //         _request = new GoogleSignInRequestModel
 //         {
 //             Email = "email",
@@ -59,7 +59,7 @@
 //             Username = _expectedUserFromGoogleService.Username,
 //             ProfilePictureUrl = _request.ProfilePictureUrl,
 //         };
-//         
+//
 //         _response = new SignInResponseModel
 //         {
 //             CurrentUser = userResponseModel,

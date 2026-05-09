@@ -8,7 +8,7 @@
 // using FluentAssertions;
 // using Moq;
 //
-// namespace Blog.Tests;
+// namespace Blog.Tests.Unit;
 //
 // public class UserServiceGetCheckedUserAsyncShould
 // {
