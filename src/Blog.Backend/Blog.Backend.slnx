@@ -1,0 +1,23 @@
+<Solution>
+    <Folder Name="/Core/">
+      <Project Path="Blog.Domain\Blog.Domain.csproj" />
+      <Project Path="Blog.Application\Blog.Application.csproj" />
+    </Folder>
+    <Folder Name="/Infrastructure/">
+      <Project Path="Blog.Persistence\Blog.Persistence.csproj" />
+    </Folder>
+    <Folder Name="/Presentation/">
+      <Project Path="Blog.API\Blog.API.csproj" />
+    </Folder>
+    <Folder Name="/Tests/">
+      <Project Path="Blog.Tests.Unit\Blog.Tests.Unit.csproj" />
+      <Project Path="Blog.Tests.Integration\Blog.Tests.Integration.csproj" />
+    </Folder>
+    <Folder Name="/Solution-Items/">
+        <File Path="../../docker-compose.yml" />
+      <File Path="Directory.Build.props" />
+      <File Path="Directory.Packages.props" />
+      <File Path="global.json" />
+      <File Path="Dockerfile" />
+    </Folder>
+  </Solution>
